@@ -125,4 +125,45 @@ public class PedidoService {
                 .itens(itensResponse)
                 .build();
     }
+
+    public List<PedidoResponse> listarTodos() {
+        return pedidoRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public PedidoResponse buscarPorId(Integer id) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
+        return mapToResponse(pedido);
+    }
+
+    private PedidoResponse mapToResponse(Pedido pedido) {
+        // Busca os itens do pedido no banco
+        List<ItemPedido> itens = itemPedidoRepository.findByPedido(pedido);
+
+        List<ItemPedidoResponse> itensResponse = itens.stream().map(item ->
+                ItemPedidoResponse.builder()
+                        .id(item.getId())
+                        .produtoId(item.getProduto().getId())
+                        .produtoDescricao(item.getProduto().getDescricao())
+                        .quantidade(item.getQuantidade())
+                        .valorUnitario(item.getValorUnitario())
+                        .valorTotal(item.getValorTotal())
+                        .custoUnitario(item.getCustoUnitario()) // Mostra o custo calculado pelo FIFO!
+                        .build()
+        ).toList();
+
+        return PedidoResponse.builder()
+                .id(pedido.getId())
+                .naturezaOperacao(pedido.getNaturezaOperacao().getDescricao())
+                .clienteNome(pedido.getCliente() != null ? pedido.getCliente().getRazaoSocial() : "Consumidor Final")
+                .formaPagamento(pedido.getFormaPagamento().getDescricao())
+                .documentoReferencia(pedido.getDocumentoReferencia())
+                .valorTotal(pedido.getValorTotal())
+                .statusPagamento(pedido.getStatusPagamento())
+                .dataEmissao(pedido.getDataEmissao())
+                .itens(itensResponse)
+                .build();
+    }
 }

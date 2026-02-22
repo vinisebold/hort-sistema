@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/pedidos")
 @RequiredArgsConstructor
@@ -20,5 +22,15 @@ public class PedidoController {
     public ResponseEntity<PedidoResponse> processarPedido(@Valid @RequestBody PedidoRequest request) {
         PedidoResponse response = pedidoService.processarPedido(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PedidoResponse>> listar() {
+        return ResponseEntity.ok(pedidoService.listarTodos());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PedidoResponse> buscar(@PathVariable Integer id) {
+        return ResponseEntity.ok(pedidoService.buscarPorId(id));
     }
 }
