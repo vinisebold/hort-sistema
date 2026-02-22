@@ -91,8 +91,123 @@ Permitir a criação, edição e visualização de:
 * Database: SQLite(3?), com algumas libs adicionais.
 * Frontend: Tauri (React?)
 
-## 9. Roadmap
+## 9. Database
+```markdown
+Table configuracoes_sistema {
+id integer [primary key]
+senha_master_hash varchar [not null]
+nome_negocio varchar
+}
 
-- [ ] Estrutura de Banco de Dados e Cadastros Base (RF02)
-- [ ] Motor de Vendas/Compras e Lógica de Estoque (RF03 e RF05).
-- [ ] Dashboard Analítico e Interface de Timeline (RF04).
+Table unidades_medida {
+id integer [primary key, increment]
+sigla varchar [unique, not null]
+descricao varchar
+is_active boolean [default: true]
+}
+
+Table clientes {
+id integer [primary key, increment]
+tipo_pessoa varchar [not null]
+documento varchar [unique]
+razao_social varchar [not null]
+nome_fantasia varchar
+endereco varchar
+telefone varchar
+is_active boolean [default: true]
+created_at timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table produtos {
+id integer [primary key, increment]
+codigo varchar [unique, not null]
+descricao varchar [not null, note: 'Ex: Tomate Longa Vida, Batata Lavada']
+unidade_medida_id integer [not null]
+estoque_atual decimal(10,3) [default: 0]
+is_active boolean [default: true]
+created_at timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table naturezas_operacao {
+id integer [primary key]
+descricao varchar [not null, note: 'Ex: 1-Venda, 2-Compra, 3-Descarte/Perda, 4-Ajuste Entrada']
+tipo_movimento varchar [not null, note: 'ENTRADA ou SAIDA']
+gera_financeiro boolean [default: true, note: 'Se false (ex: Descarte), não exige pagamento']
+}
+
+Table formas_pagamento {
+id integer [primary key, increment]
+descricao varchar [not null, note: 'Ex: À Vista, Fiado, PIX']
+exige_cliente boolean [default: false]
+exige_documento_referencia boolean [default: false]
+is_active boolean [default: true]
+}
+
+Table pedidos {
+id integer [primary key, increment]
+natureza_operacao_id integer [not null]
+
+cliente_id integer
+
+forma_pagamento_id integer [not null]
+
+documento_referencia varchar
+
+valor_total decimal(10,2) [not null]
+status_pagamento varchar [not null]
+data_emissao timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table itens_pedido {
+id integer [primary key, increment]
+pedido_id integer [not null]
+produto_id integer [not null]
+quantidade decimal(10,3) [not null]
+valor_unitario decimal(10,2) [not null]
+custo_unitario decimal(10,2) [not null, default: 0, note: 'Calculado via FIFO apenas em Vendas. Sempre 0 em Compras']
+valor_total decimal(10,2) [not null]
+}
+
+Table movimentacoes_estoque {
+id integer [primary key, increment]
+produto_id integer [not null]
+natureza_operacao_id integer [not null]
+pedido_id integer [note: 'Nulo se for apenas um descarte ou ajuste manual']
+quantidade decimal(10,3) [not null]
+estoque_apos_movimentacao decimal(10,3) [not null]
+data_movimentacao timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table lotes_entrada {
+id integer [primary key, increment]
+item_pedido_id integer [not null, note: 'O item de compra que originou este lote']
+produto_id integer [not null]
+quantidade_original decimal(10,3) [not null]
+quantidade_disponivel decimal(10,3) [not null, note: 'Começa igual a quantidade_original, vai a zero conforme vendas consomem']
+custo_unitario decimal(10,2) [not null, note: 'O custo exato desta compra, congelado para sempre']
+data_entrada timestamp [not null, note: 'Ordena o FIFO. Lote mais antigo sai primeiro']
+is_esgotado boolean [default: false, note: 'Flag de conveniência para ignorar lotes zerados nas queries']
+}
+
+Table lotes_saidas {
+id integer [primary key, increment]
+lote_fifo_id integer [not null]
+item_pedido_venda_id integer [not null, note: 'O item de venda que gerou este consumo']
+quantidade_consumida decimal(10,3) [not null]
+custo_unitario decimal(10,2) [not null, note: 'Cópia do custo do lote no momento do consumo']
+}
+
+Ref: lotes_entrada.item_pedido_id > itens_pedido.id
+Ref: lotes_entrada.produto_id > produtos.id
+Ref: lotes_saidas.lote_fifo_id > lotes_entrada.id
+Ref: lotes_saidas.item_pedido_venda_id > itens_pedido.id
+Ref: pedidos.natureza_operacao_id > naturezas_operacao.id
+Ref: pedidos.forma_pagamento_id > formas_pagamento.id
+Ref: produtos.unidade_medida_id > unidades_medida.id
+Ref: pedidos.cliente_id > clientes.id
+Ref: itens_pedido.pedido_id > pedidos.id
+Ref: itens_pedido.produto_id > produtos.id
+Ref: movimentacoes_estoque.produto_id > produtos.id
+Ref: movimentacoes_estoque.natureza_operacao_id > naturezas_operacao.id
+Ref: movimentacoes_estoque.pedido_id > pedidos.id
+
