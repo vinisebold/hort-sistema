@@ -5,9 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class HortSistemaApplication {
-
-    static void main(String[] args) {
-        SpringApplication.run(HortSistemaApplication.class, args);
+    void main() {
+        SpringApplication.run(HortSistemaApplication.class);
     }
-
 }
