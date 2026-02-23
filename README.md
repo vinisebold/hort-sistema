@@ -210,4 +210,3 @@ Ref: itens_pedido.produto_id > produtos.id
 Ref: movimentacoes_estoque.produto_id > produtos.id
 Ref: movimentacoes_estoque.natureza_operacao_id > naturezas_operacao.id
 Ref: movimentacoes_estoque.pedido_id > pedidos.id
-
