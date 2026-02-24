@@ -27,4 +27,14 @@ public class NaturezaOperacaoController {
     public ResponseEntity<List<NaturezaOperacaoResponse>> listar() {
         return ResponseEntity.ok(service.listarTodos());
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<NaturezaOperacaoResponse> buscarPorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<NaturezaOperacaoResponse> atualizar(@PathVariable Integer id, @Valid @RequestBody NaturezaOperacaoRequest request) {
+        return ResponseEntity.ok(service.atualizar(id, request));
+    }
 }

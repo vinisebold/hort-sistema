@@ -226,11 +226,11 @@ Ref: movimentacoes_estoque.pedido_id > pedidos.id
 - [x] Endpoint para configurar senha master no primeiro acesso
 
 #### 1.2 Completar CRUDs
-- [ ] Adicionar PUT em `ProdutoController`
-- [ ] Adicionar PUT em `UnidadeMedidaController`
-- [ ] Adicionar PUT em `FormaPagamentoController`
-- [ ] Adicionar PUT em `NaturezaOperacaoController`
-- [ ] Adicionar GET by ID onde faltar
+- [x] Adicionar PUT em `ProdutoController`
+- [x] Adicionar PUT em `UnidadeMedidaController`
+- [x] Adicionar PUT em `FormaPagamentoController`
+- [x] Adicionar PUT em `NaturezaOperacaoController`
+- [x] Adicionar GET by ID onde faltar
 
 #### 1.3 Dashboard/Resumo (RF05)
 - [ ] Implementar `DashboardService` com queries

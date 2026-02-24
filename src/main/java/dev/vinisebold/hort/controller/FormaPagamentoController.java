@@ -28,6 +28,16 @@ public class FormaPagamentoController {
         return ResponseEntity.ok(service.listarAtivos());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<FormaPagamentoResponse> buscarPorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<FormaPagamentoResponse> atualizar(@PathVariable Integer id, @Valid @RequestBody FormaPagamentoRequest request) {
+        return ResponseEntity.ok(service.atualizar(id, request));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         service.deletar(id);

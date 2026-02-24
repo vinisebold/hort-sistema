@@ -31,6 +31,24 @@ public class NaturezaOperacaoService {
         return repository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
+    public NaturezaOperacaoResponse buscarPorId(Integer id) {
+        NaturezaOperacao no = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Natureza de Operação não encontrada."));
+        return mapToResponse(no);
+    }
+
+    public NaturezaOperacaoResponse atualizar(Integer id, NaturezaOperacaoRequest request) {
+        NaturezaOperacao no = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Natureza de Operação não encontrada."));
+        if (!no.getDescricao().equals(request.getDescricao()) && repository.existsByDescricao(request.getDescricao())) {
+            throw new IllegalArgumentException("Já existe uma Natureza de Operação com esta descrição.");
+        }
+        no.setDescricao(request.getDescricao());
+        no.setTipoMovimento(request.getTipoMovimento());
+        no.setGeraFinanceiro(request.getGeraFinanceiro());
+        return mapToResponse(repository.save(no));
+    }
+
     public NaturezaOperacaoResponse mapToResponse(NaturezaOperacao no) {
         return NaturezaOperacaoResponse.builder()
                 .id(no.getId()).descricao(no.getDescricao())

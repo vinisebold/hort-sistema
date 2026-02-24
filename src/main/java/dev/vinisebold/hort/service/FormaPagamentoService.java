@@ -31,6 +31,22 @@ public class FormaPagamentoService {
         return repository.findAllByIsActiveTrue().stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
+    public FormaPagamentoResponse buscarPorId(Integer id) {
+        FormaPagamento fp = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Não encontrado."));
+        return mapToResponse(fp);
+    }
+
+    public FormaPagamentoResponse atualizar(Integer id, FormaPagamentoRequest request) {
+        FormaPagamento fp = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Não encontrado."));
+        if (!fp.getDescricao().equals(request.getDescricao()) && repository.existsByDescricao(request.getDescricao())) {
+            throw new IllegalArgumentException("Já existe uma Forma de Pagamento com esta descrição.");
+        }
+        fp.setDescricao(request.getDescricao());
+        fp.setExigeCliente(request.getExigeCliente());
+        fp.setExigeDocumentoReferencia(request.getExigeDocumentoReferencia());
+        return mapToResponse(repository.save(fp));
+    }
+
     public void deletar(Integer id) {
         FormaPagamento fp = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Não encontrado."));
         fp.setIsActive(false); // Soft delete

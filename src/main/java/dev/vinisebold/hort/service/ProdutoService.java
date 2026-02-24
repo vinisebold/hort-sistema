@@ -45,6 +45,27 @@ public class ProdutoService {
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
+    public ProdutoResponse buscarPorId(Integer id) {
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
+        return mapToResponse(produto);
+    }
+
+    @Transactional
+    public ProdutoResponse atualizar(Integer id, ProdutoRequest request) {
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
+
+        UnidadeMedida um = unidadeMedidaRepository.findById(request.getUnidadeMedidaId())
+                .orElseThrow(() -> new IllegalArgumentException("Unidade de Medida inválida."));
+
+        produto.setCodigo(request.getCodigo());
+        produto.setDescricao(request.getDescricao());
+        produto.setUnidadeMedida(um);
+
+        return mapToResponse(produtoRepository.save(produto));
+    }
+
     @Transactional
     public void deletar(Integer id) {
         Produto produto = produtoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Não encontrado."));

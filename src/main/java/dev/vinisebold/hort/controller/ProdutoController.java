@@ -28,6 +28,16 @@ public class ProdutoController {
         return ResponseEntity.ok(service.listarAtivos());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProdutoResponse> buscarPorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProdutoResponse> atualizar(@PathVariable Integer id, @Valid @RequestBody ProdutoRequest request) {
+        return ResponseEntity.ok(service.atualizar(id, request));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         service.deletar(id);

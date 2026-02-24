@@ -32,6 +32,22 @@ public class UnidadeMedidaService {
         return repository.findAllByIsActiveTrue().stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
+    public UnidadeMedidaResponse buscarPorId(Integer id) {
+        UnidadeMedida um = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Não encontrado."));
+        return mapToResponse(um);
+    }
+
+    @Transactional
+    public UnidadeMedidaResponse atualizar(Integer id, UnidadeMedidaRequest request) {
+        UnidadeMedida um = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Não encontrado."));
+        if (!um.getSigla().equals(request.getSigla()) && repository.existsBySigla(request.getSigla())) {
+            throw new IllegalArgumentException("Já existe uma Unidade de Medida com esta sigla.");
+        }
+        um.setSigla(request.getSigla());
+        um.setDescricao(request.getDescricao());
+        return mapToResponse(repository.save(um));
+    }
+
     @Transactional
     public void deletar(Integer id) {
         UnidadeMedida um = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Não encontrado."));
