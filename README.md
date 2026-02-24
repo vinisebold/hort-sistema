@@ -218,12 +218,12 @@ Ref: movimentacoes_estoque.pedido_id > pedidos.id
 ### Fase 1 - Backend Core (Prioridade Alta)
 
 #### 1.1 Autenticação (RF01)
-- [ ] Criar `AuthController` e `AuthService`
-- [ ] Implementar hash de senha (BCrypt)
-- [ ] Criar endpoint de login `/api/auth/login`
-- [ ] Implementar proteção de endpoints (Spring Security ou filtro customizado)
-- [ ] Criar tabela `configuracoes_sistema` via migration/seed
-- [ ] Endpoint para configurar senha master no primeiro acesso
+- [x] Criar `AuthController` e `AuthService`
+- [x] Implementar hash de senha (BCrypt)
+- [x] Criar endpoint de login `/api/auth/login`
+- [x] Implementar proteção de endpoints (Spring Security ou filtro customizado)
+- [x] Criar tabela `configuracoes_sistema` via migration/seed
+- [x] Endpoint para configurar senha master no primeiro acesso
 
 #### 1.2 Completar CRUDs
 - [ ] Adicionar PUT em `ProdutoController`
