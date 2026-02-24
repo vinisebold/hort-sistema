@@ -211,3 +211,74 @@ Ref: movimentacoes_estoque.produto_id > produtos.id
 Ref: movimentacoes_estoque.natureza_operacao_id > naturezas_operacao.id
 Ref: movimentacoes_estoque.pedido_id > pedidos.id
 
+---
+
+## 10. Roadmap de Implementação
+
+### Fase 1 - Backend Core (Prioridade Alta)
+
+#### 1.1 Autenticação (RF01)
+- [ ] Criar `AuthController` e `AuthService`
+- [ ] Implementar hash de senha (BCrypt)
+- [ ] Criar endpoint de login `/api/auth/login`
+- [ ] Implementar proteção de endpoints (Spring Security ou filtro customizado)
+- [ ] Criar tabela `configuracoes_sistema` via migration/seed
+- [ ] Endpoint para configurar senha master no primeiro acesso
+
+#### 1.2 Completar CRUDs
+- [ ] Adicionar PUT em `ProdutoController`
+- [ ] Adicionar PUT em `UnidadeMedidaController`
+- [ ] Adicionar PUT em `FormaPagamentoController`
+- [ ] Adicionar PUT em `NaturezaOperacaoController`
+- [ ] Adicionar GET by ID onde faltar
+
+#### 1.3 Dashboard/Resumo (RF05)
+- [ ] Implementar `DashboardService` com queries
+- [ ] Endpoint: Card produto mais vendido + quantidade
+- [ ] Endpoint: Card cliente mais fiel + compras
+- [ ] Endpoint: Card total vendido no período
+- [ ] Endpoint: Vendas por dia/mês (gráfico)
+- [ ] Endpoint: Top 10 produtos mais vendidos
+- [ ] Endpoint: Top 10 produtos mais lucrativos
+- [ ] Endpoint: Top 10 clientes mais fiéis
+- [ ] Endpoint: Top 10 clientes mais lucrativos
+- [ ] Implementar filtro de período (hoje, 7 dias, mês, ano)
+
+### Fase 2 - Módulo de Estoque (RF07)
+
+- [ ] Implementar `EstoqueController`
+- [ ] Endpoint: Listar produtos com estoque atual
+- [ ] Endpoint: Timeline de movimentações por produto
+- [ ] Endpoint: Detalhes da movimentação (link para pedido)
+- [ ] Implementar Rastreabilidade Reversa
+- [ ] Criar lógica de navegação "Voltar" para timeline
+
+### Fase 3 - Integrações e Regras de Negócio
+
+- [ ] Integrar API externa para consulta de CPF/CNPJ (RN02)
+- [ ] Implementar service de consulta de documento
+- [ ] Endpoint: `/api/clientes/consulta-cpf/{cpf}`
+- [ ] Endpoint: `/api/clientes/consulta-cnpj/{cnpj}`
+- [ ] Popular tabelas de domínio (seed data):
+  - [ ] Naturezas de operação padrão
+  - [ ] Formas de pagamento padrão
+  - [ ] Unidades de medida padrão
+
+### Fase 4 - Frontend (Tauri + React)
+
+- [ ] Inicializar projeto Tauri
+- [ ] Configurar React + TypeScript
+- [ ] Criar estrutura de pastas frontend
+- [ ] Tela de Login
+- [ ] Tela de Dashboard com cards e gráficos
+- [ ] Telas de Cadastro (Produtos, Clientes, etc.)
+- [ ] Tela de Pedidos de Venda/Compra
+- [ ] Tela de Estoque com Timeline
+- [ ] Implementar navegação inteligente
+
+### Fase 5 - Testes e Qualidade
+
+- [ ] Testes unitários para Services
+- [ ] Testes de integração para Controllers
+- [ ] Testes do sistema FIFO
+- [ ] Validar performance (< 2s por requisito não funcional)
