@@ -138,7 +138,7 @@ export default function UnidadesMedidaPage() {
         <DialogContent>
           <TextField
             fullWidth
-            variant="standard"
+            
             label="Sigla"
             value={form.sigla}
             onChange={(e) => setForm({ ...form, sigla: e.target.value.toUpperCase() })}
@@ -149,7 +149,7 @@ export default function UnidadesMedidaPage() {
           />
           <TextField
             fullWidth
-            variant="standard"
+            
             label="Descrição"
             value={form.descricao}
             onChange={(e) => setForm({ ...form, descricao: e.target.value })}

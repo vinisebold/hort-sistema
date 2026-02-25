@@ -68,7 +68,7 @@ export default function LoginPage() {
             
                <TextField
                  fullWidth
-                 variant="standard"
+                 
                  type="password"
                  label="Senha"
                  value={senha}

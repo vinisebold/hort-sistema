@@ -135,7 +135,7 @@ export default function NaturezasOperacaoPage() {
         <DialogContent>
           <TextField
             fullWidth
-            variant="standard"
+            
             label="Descrição"
             value={form.descricao}
             onChange={(e) => setForm({ ...form, descricao: e.target.value })}
