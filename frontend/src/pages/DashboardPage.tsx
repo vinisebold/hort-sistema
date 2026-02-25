@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Card, CardContent, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
-import { Grid } from '@mui/material'
+import { Box, Card, CardContent, Typography, FormControl, InputLabel, Select, MenuItem, Grid } from '@mui/material'
 import { dashboardApi } from '../services/api'
 
 export default function DashboardPage() {
@@ -49,7 +48,7 @@ export default function DashboardPage() {
 
       <Grid container spacing={3}>
         {/* Card: Produto Mais Vendido */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
@@ -66,7 +65,7 @@ export default function DashboardPage() {
         </Grid>
 
         {/* Card: Cliente Mais Fiel */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
@@ -83,7 +82,7 @@ export default function DashboardPage() {
         </Grid>
 
         {/* Card: Total Vendido */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>

@@ -5,6 +5,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
   isSetup: boolean
+  nomeNegocio: string
   login: (senha: string) => Promise<void>
   setup: (senha: string, nomeNegocio: string) => Promise<void>
   logout: () => void
@@ -16,6 +17,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSetup, setIsSetup] = useState(false)
+  const [nomeNegocio, setNomeNegocio] = useState('')
 
   useEffect(() => {
     checkAuth()
@@ -24,8 +26,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAuth = async () => {
     try {
       const token = localStorage.getItem('token')
+      const nome = localStorage.getItem('nomeNegocio')
       if (token) {
         setIsAuthenticated(true)
+        if (nome) setNomeNegocio(nome)
       }
       
       // Verificar se precisa de setup
@@ -47,17 +51,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setup = async (senha: string, nomeNegocio: string) => {
     const response = await authApi.setup(senha, nomeNegocio)
     localStorage.setItem('token', response.data.token)
+    localStorage.setItem('nomeNegocio', nomeNegocio)
+    setNomeNegocio(nomeNegocio)
     setIsAuthenticated(true)
     setIsSetup(false)
   }
 
   const logout = () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('nomeNegocio')
+    setNomeNegocio('')
     setIsAuthenticated(false)
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, isSetup, login, setup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, isSetup, nomeNegocio, login, setup, logout }}>
       {children}
     </AuthContext.Provider>
   )

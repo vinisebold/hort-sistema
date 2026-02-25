@@ -1,7 +1,7 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { Box, AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, Collapse, useMediaQuery, useTheme } from '@mui/material'
-import { Home, Dashboard, Inventory, People, ShoppingCart, Warehouse, Logout, Settings, ExpandLess, ExpandMore, Payment, SyncAlt, Scale, Menu, ChevronLeft } from '@mui/icons-material'
+import { Home, Dashboard, Inventory, People, ShoppingCart, Warehouse, Logout, Settings, ExpandLess, ExpandMore, Payment, SyncAlt, Scale, Menu, ChevronLeft, AccountCircle } from '@mui/icons-material'
 import { useAuth } from '../contexts/AuthContext'
 
 const drawerWidth = 240
@@ -25,7 +25,7 @@ const configItems = [
 export default function Layout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { logout } = useAuth()
+  const { logout, nomeNegocio } = useAuth()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   
@@ -80,8 +80,16 @@ export default function Layout() {
             {open ? <ChevronLeft /> : <Menu />}
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            🌱 Hort Sistema
+            Hort Sistema
           </Typography>
+          {nomeNegocio && (
+            <Typography variant="body1" sx={{ mr: 2 }}>
+              {nomeNegocio}
+            </Typography>
+          )}
+          <IconButton color="inherit" onClick={() => navigate('/conta')}>
+            <AccountCircle />
+          </IconButton>
           <IconButton color="inherit" onClick={handleLogout}>
             <Logout />
           </IconButton>

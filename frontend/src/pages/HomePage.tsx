@@ -1,30 +1,29 @@
 import { useNavigate } from 'react-router-dom'
 import { Box, Card, CardContent, Typography, Grid, Link, Divider } from '@mui/material'
 import {
-  ShoppingCart, Inventory, People, TrendingUp, Warehouse,
-  Add, Payment
+  Add, Payment, Inventory, PersonAdd, ShoppingCart
 } from '@mui/icons-material'
 
 export default function HomePage() {
   const navigate = useNavigate()
 
   const acessoRapidoItems = [
-    { label: 'Pedidos de Venda', icon: <ShoppingCart fontSize="small" />, path: '/pedidos' },
-    { label: 'Produtos', icon: <Inventory fontSize="small" />, path: '/produtos' },
-    { label: 'Clientes', icon: <People fontSize="small" />, path: '/clientes' },
-    { label: 'Resumo Financeiro', icon: <TrendingUp fontSize="small" />, path: '/dashboard' },
-    { label: 'Estoque', icon: <Warehouse fontSize="small" />, path: '/estoque' },
+    { label: 'Pedidos de Venda', icon: '➔', path: '/pedidos' },
+    { label: 'Produtos', icon: '➔', path: '/produtos' },
+    { label: 'Clientes', icon: '➔', path: '/clientes' },
+    { label: 'Resumo Financeiro', icon: '➔', path: '/dashboard' },
+    { label: 'Estoque', icon: '➔', path: '/estoque' },
   ]
 
   return (
     <Box>
       <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
-        Bem-vindo ao Hort Sistema 🌱
+        Bem-vindo ao Hort Sistema
       </Typography>
 
       <Grid container spacing={3}>
         {/* Card: Acesso Rápido */}
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
               <Typography variant="subtitle1" gutterBottom fontWeight="medium">
@@ -32,30 +31,30 @@ export default function HomePage() {
               </Typography>
               <Divider sx={{ mb: 2 }} />
               
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                 {acessoRapidoItems.map((item) => (
                   <Link
                     key={item.label}
                     component="button"
                     onClick={() => navigate(item.path)}
+                    underline="none"
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 1.5,
-                      color: 'text.primary',
-                      textDecoration: 'none',
-                      py: 1,
+                      gap: 1,
+                      color: 'text.secondary',
+                      py: 0.75,
                       px: 1,
                       borderRadius: 1,
-                      transition: 'all 0.15s',
+                      cursor: 'pointer',
                       '&:hover': {
-                        bgcolor: 'action.hover',
                         color: 'primary.main',
+                        bgcolor: 'action.hover',
                       }
                     }}
                   >
                     {item.icon}
-                    <Typography>{item.label}</Typography>
+                    <Typography variant="body2">{item.label}</Typography>
                   </Link>
                 ))}
               </Box>
@@ -64,7 +63,7 @@ export default function HomePage() {
         </Grid>
 
         {/* Card: Cadastro Rápido */}
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
               <Typography variant="subtitle1" gutterBottom fontWeight="medium">
@@ -72,97 +71,109 @@ export default function HomePage() {
               </Typography>
               <Divider sx={{ mb: 2 }} />
               
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Link
                   component="button"
                   onClick={() => navigate('/produtos?new=true')}
+                  underline="none"
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1.5,
                     color: 'text.primary',
-                    textDecoration: 'none',
-                    py: 1,
-                    px: 1,
-                    borderRadius: 1,
-                    transition: 'all 0.15s',
+                    bgcolor: 'grey.100',
+                    py: 2,
+                    px: 2,
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
                     '&:hover': {
-                      bgcolor: 'action.hover',
-                      color: 'primary.main',
+                      bgcolor: 'primary.main',
+                      color: 'white',
                     }
                   }}
                 >
-                  <Add fontSize="small" />
-                  <Typography>Adicionar Produto</Typography>
+                  <Inventory fontSize="small" />
+                  <Typography variant="body2">Adicionar Produto</Typography>
+                  <Typography variant="body2" sx={{ ml: 'auto' }}>›</Typography>
                 </Link>
                 
                 <Link
                   component="button"
                   onClick={() => navigate('/clientes?new=true')}
+                  underline="none"
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1.5,
                     color: 'text.primary',
-                    textDecoration: 'none',
-                    py: 1,
-                    px: 1,
-                    borderRadius: 1,
-                    transition: 'all 0.15s',
+                    bgcolor: 'grey.100',
+                    py: 2,
+                    px: 2,
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
                     '&:hover': {
-                      bgcolor: 'action.hover',
-                      color: 'primary.main',
+                      bgcolor: 'primary.main',
+                      color: 'white',
                     }
                   }}
                 >
-                  <Add fontSize="small" />
-                  <Typography>Adicionar Cliente</Typography>
+                  <PersonAdd fontSize="small" />
+                  <Typography variant="body2">Adicionar Cliente</Typography>
+                  <Typography variant="body2" sx={{ ml: 'auto' }}>›</Typography>
                 </Link>
                 
                 <Link
                   component="button"
                   onClick={() => navigate('/configuracoes/formas-pagamento?new=true')}
+                  underline="none"
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1.5,
                     color: 'text.primary',
-                    textDecoration: 'none',
-                    py: 1,
-                    px: 1,
-                    borderRadius: 1,
-                    transition: 'all 0.15s',
+                    bgcolor: 'grey.100',
+                    py: 2,
+                    px: 2,
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
                     '&:hover': {
-                      bgcolor: 'action.hover',
-                      color: 'primary.main',
+                      bgcolor: 'primary.main',
+                      color: 'white',
                     }
                   }}
                 >
                   <Payment fontSize="small" />
-                  <Typography>Adicionar Forma de Pagamento</Typography>
+                  <Typography variant="body2">Adicionar Forma de Pagamento</Typography>
+                  <Typography variant="body2" sx={{ ml: 'auto' }}>›</Typography>
                 </Link>
                 
                 <Link
                   component="button"
                   onClick={() => navigate('/pedidos?new=true')}
+                  underline="none"
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1.5,
                     color: 'text.primary',
-                    textDecoration: 'none',
-                    py: 1,
-                    px: 1,
-                    borderRadius: 1,
-                    transition: 'all 0.15s',
+                    bgcolor: 'grey.100',
+                    py: 2,
+                    px: 2,
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
                     '&:hover': {
-                      bgcolor: 'action.hover',
-                      color: 'primary.main',
+                      bgcolor: 'primary.main',
+                      color: 'white',
                     }
                   }}
                 >
                   <ShoppingCart fontSize="small" />
-                  <Typography>Novo Pedido</Typography>
+                  <Typography variant="body2">Novo Pedido</Typography>
+                  <Typography variant="body2" sx={{ ml: 'auto' }}>›</Typography>
                 </Link>
               </Box>
             </CardContent>
@@ -170,17 +181,16 @@ export default function HomePage() {
         </Grid>
 
         {/* Card: Dicas */}
-        <Grid size={{ xs: 12 }}>
+        <Grid item xs={12}>
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="subtitle1" gutterBottom fontWeight="medium">
+              <Typography variant="subtitle2" gutterBottom fontWeight="medium">
                 💡 Dicas do Sistema
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                • Use o menu lateral para navegar entre as funcionalidades do sistema.<br/>
-                • O sistema utiliza FIFO (Primeiro a Entrar, Primeiro a Sair) para cálculo de custo dos produtos.<br/>
-                • Configure as naturezas de operação antes de criar pedidos.<br/>
-                • O estoque é atualizado automaticamente ao criar pedidos de compra ou venda.
+                • Use o menu lateral para navegar entre as funcionalidades.<br/>
+                • O sistema utiliza FIFO para cálculo de custo dos produtos.<br/>
+                • Configure as naturezas de operação antes de criar pedidos.
               </Typography>
             </CardContent>
           </Card>
