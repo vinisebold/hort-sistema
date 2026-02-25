@@ -13,6 +13,8 @@ public interface ItemPedidoRepository extends JpaRepository<ItemPedido, Integer>
 
     List<ItemPedido> findByPedido(Pedido pedido);
 
+    List<ItemPedido> findByPedidoId(Integer pedidoId);
+
     List<ItemPedido> findByPedidoNaturezaOperacaoTipoMovimentoAndPedidoDataEmissaoBetween(
             String tipoMovimento, LocalDateTime inicio, LocalDateTime fim);
 }

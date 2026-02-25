@@ -246,12 +246,12 @@ Ref: movimentacoes_estoque.pedido_id > pedidos.id
 
 ### Fase 2 - Módulo de Estoque (RF07)
 
-- [ ] Implementar `EstoqueController`
-- [ ] Endpoint: Listar produtos com estoque atual
-- [ ] Endpoint: Timeline de movimentações por produto
-- [ ] Endpoint: Detalhes da movimentação (link para pedido)
-- [ ] Implementar Rastreabilidade Reversa
-- [ ] Criar lógica de navegação "Voltar" para timeline
+- [x] Implementar `EstoqueController`
+- [x] Endpoint: Listar produtos com estoque atual
+- [x] Endpoint: Timeline de movimentações por produto
+- [x] Endpoint: Detalhes da movimentação (link para pedido)
+- [x] Implementar Rastreabilidade Reversa
+- [x] Criar lógica de navegação "Voltar" para timeline
 
 ### Fase 3 - Integrações e Regras de Negócio
 

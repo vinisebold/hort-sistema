@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface MovimentacaoEstoqueRepository extends JpaRepository<MovimentacaoEstoque, Integer> {
 
-    // Este método vai ser essencial para o Frontend montar a "Timeline do Produto" (RF07)
-    // Trazendo todo o histórico do mais recente para o mais antigo
     List<MovimentacaoEstoque> findByProdutoOrderByDataMovimentacaoDesc(Produto produto);
+
+    List<MovimentacaoEstoque> findByProdutoIdOrderByDataMovimentacaoDesc(Integer produtoId);
 }
