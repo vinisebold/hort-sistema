@@ -4,7 +4,14 @@ import dev.vinisebold.hort.model.Pedido;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
-    // Por enquanto, os métodos padrão do JpaRepository (save, findById) já resolvem o nosso problema.
+
+    List<Pedido> findByNaturezaOperacaoTipoMovimentoAndDataEmissaoBetween(
+            String tipoMovimento, LocalDateTime inicio, LocalDateTime fim);
+
+    List<Pedido> findByNaturezaOperacaoTipoMovimento(String tipoMovimento);
 }

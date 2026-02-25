@@ -233,16 +233,16 @@ Ref: movimentacoes_estoque.pedido_id > pedidos.id
 - [x] Adicionar GET by ID onde faltar
 
 #### 1.3 Dashboard/Resumo (RF05)
-- [ ] Implementar `DashboardService` com queries
-- [ ] Endpoint: Card produto mais vendido + quantidade
-- [ ] Endpoint: Card cliente mais fiel + compras
-- [ ] Endpoint: Card total vendido no período
-- [ ] Endpoint: Vendas por dia/mês (gráfico)
-- [ ] Endpoint: Top 10 produtos mais vendidos
-- [ ] Endpoint: Top 10 produtos mais lucrativos
-- [ ] Endpoint: Top 10 clientes mais fiéis
-- [ ] Endpoint: Top 10 clientes mais lucrativos
-- [ ] Implementar filtro de período (hoje, 7 dias, mês, ano)
+- [x] Implementar `DashboardService` com queries
+- [x] Endpoint: Card produto mais vendido + quantidade
+- [x] Endpoint: Card cliente mais fiel + compras
+- [x] Endpoint: Card total vendido no período
+- [x] Endpoint: Vendas por dia/mês (gráfico)
+- [x] Endpoint: Top 10 produtos mais vendidos
+- [x] Endpoint: Top 10 produtos mais lucrativos
+- [x] Endpoint: Top 10 clientes mais fiéis
+- [x] Endpoint: Top 10 clientes mais lucrativos
+- [x] Implementar filtro de período (hoje, 7 dias, mês, ano)
 
 ### Fase 2 - Módulo de Estoque (RF07)
 
