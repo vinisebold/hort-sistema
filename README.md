@@ -272,7 +272,7 @@ Ref: movimentacoes_estoque.pedido_id > pedidos.id
 - [x] Tela de Login (com setup inicial)
 - [x] Tela de Dashboard com cards
 - [x] Telas de Cadastro (Produtos, Clientes)
-- [ ] Tela de Pedidos de Venda/Compra (em desenvolvimento)
+- [x] Tela de Pedidos de Venda/Compra
 - [x] Tela de Estoque com Timeline
 - [x] Implementar navegação inteligente
 
