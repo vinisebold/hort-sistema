@@ -272,7 +272,7 @@ export default function NovoPedidoPage() {
                   value={clientes.find(c => c.id === form.clienteId) || null}
                   onChange={(_, value) => setForm({ ...form, clienteId: value?.id || null })}
                   renderInput={(params) => (
-                    <TextField {...params} label="Cliente" fullWidth />
+                    <TextField {...params} variant="standard" label="Cliente" fullWidth />
                   )}
                   renderOption={(props, option) => (
                     <li {...props} key={option.id}>
@@ -328,6 +328,7 @@ export default function NovoPedidoPage() {
               </Grid>
               <Grid item xs={12} md={4}>
                 <TextField
+                  variant="standard"
                   label="Documento Referência"
                   value={form.documentoReferencia}
                   onChange={(e) => setForm({ ...form, documentoReferencia: e.target.value })}
@@ -336,6 +337,7 @@ export default function NovoPedidoPage() {
               </Grid>
               <Grid item xs={12} md={4}>
                 <TextField
+                  variant="standard"
                   label="Data de Emissão"
                   value={new Date().toLocaleDateString('pt-BR')}
                   fullWidth
@@ -374,23 +376,25 @@ export default function NovoPedidoPage() {
                 </Select>
               </FormControl>
 
-              <TextField
-                label="Quantidade"
-                type="number"
-                value={itemForm.quantidade}
-                onChange={(e) => setItemForm({ ...itemForm, quantidade: e.target.value })}
-                sx={{ width: 140 }}
-                inputProps={{ min: 0, step: 0.001 }}
-              />
+               <TextField
+                 variant="standard"
+                 label="Quantidade"
+                 type="number"
+                 value={itemForm.quantidade}
+                 onChange={(e) => setItemForm({ ...itemForm, quantidade: e.target.value })}
+                 sx={{ width: 140 }}
+                 inputProps={{ min: 0, step: 0.001 }}
+               />
 
-              <TextField
-                label="Valor Unit."
-                type="number"
-                value={itemForm.valorUnitario}
-                onChange={(e) => setItemForm({ ...itemForm, valorUnitario: e.target.value })}
-                sx={{ width: 140 }}
-                inputProps={{ min: 0, step: 0.01 }}
-              />
+               <TextField
+                 variant="standard"
+                 label="Valor Unit."
+                 type="number"
+                 value={itemForm.valorUnitario}
+                 onChange={(e) => setItemForm({ ...itemForm, valorUnitario: e.target.value })}
+                 sx={{ width: 140 }}
+                 inputProps={{ min: 0, step: 0.01 }}
+               />
 
               <Button 
                 variant="contained" 

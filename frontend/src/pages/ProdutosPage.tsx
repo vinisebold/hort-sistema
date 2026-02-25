@@ -140,6 +140,7 @@ export default function ProdutosPage() {
         <DialogContent>
           <TextField
             fullWidth
+            variant="standard"
             label="Código"
             value={form.codigo}
             onChange={(e) => setForm({ ...form, codigo: e.target.value })}
@@ -147,6 +148,7 @@ export default function ProdutosPage() {
           />
           <TextField
             fullWidth
+            variant="standard"
             label="Descrição"
             value={form.descricao}
             onChange={(e) => setForm({ ...form, descricao: e.target.value })}

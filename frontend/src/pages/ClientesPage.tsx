@@ -194,6 +194,7 @@ export default function ClientesPage() {
           </FormControl>
           <TextField
             fullWidth
+            variant="standard"
             label={form.tipoPessoa === 'JURIDICA' ? 'CNPJ' : 'CPF'}
             value={form.documento}
             onChange={(e) => setForm({ ...form, documento: e.target.value })}
@@ -210,6 +211,7 @@ export default function ClientesPage() {
           />
           <TextField
             fullWidth
+            variant="standard"
             label={form.tipoPessoa === 'JURIDICA' ? 'Razão Social' : 'Nome'}
             value={form.razaoSocial}
             onChange={(e) => setForm({ ...form, razaoSocial: e.target.value })}
@@ -217,6 +219,7 @@ export default function ClientesPage() {
           />
           <TextField
             fullWidth
+            variant="standard"
             label="Nome Fantasia"
             value={form.nomeFantasia}
             onChange={(e) => setForm({ ...form, nomeFantasia: e.target.value })}
@@ -224,6 +227,7 @@ export default function ClientesPage() {
           />
           <TextField
             fullWidth
+            variant="standard"
             label="Endereço"
             value={form.endereco}
             onChange={(e) => setForm({ ...form, endereco: e.target.value })}
@@ -231,6 +235,7 @@ export default function ClientesPage() {
           />
           <TextField
             fullWidth
+            variant="standard"
             label="Telefone"
             value={form.telefone}
             onChange={(e) => setForm({ ...form, telefone: e.target.value })}

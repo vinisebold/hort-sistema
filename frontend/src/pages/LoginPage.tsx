@@ -66,15 +66,16 @@ export default function LoginPage() {
               />
             )}
             
-            <TextField
-              fullWidth
-              type="password"
-              label="Senha"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              margin="normal"
-              required
-            />
+               <TextField
+                 fullWidth
+                 variant="standard"
+                 type="password"
+                 label="Senha"
+                 value={senha}
+                 onChange={(e) => setSenha(e.target.value)}
+                 margin="normal"
+                 required
+               />
             
             <Button
               type="submit"
