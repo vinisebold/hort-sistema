@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Chip, Snackbar, Alert
+  Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Chip, Snackbar, Alert, Fab
 } from '@mui/material'
 import { Add, Edit, TrendingUp, TrendingDown } from '@mui/icons-material'
 import { naturezasApi } from '../services/api'
@@ -93,12 +93,6 @@ export default function NaturezasOperacaoPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
-        <Button variant="contained" startIcon={<Add />} onClick={() => handleOpen()}>
-          Nova Natureza
-        </Button>
-      </Box>
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -131,6 +125,10 @@ export default function NaturezasOperacaoPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Fab color="primary" aria-label="add" onClick={() => handleOpen()} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
+        <Add />
+      </Fab>
 
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>{editingId ? 'Editar Natureza de Operação' : 'Nova Natureza de Operação'}</DialogTitle>

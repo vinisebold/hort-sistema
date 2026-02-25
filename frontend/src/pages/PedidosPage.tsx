@@ -3,7 +3,7 @@ import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
   Select, MenuItem, FormControl, InputLabel, Chip, Divider, Card, CardContent,
-  Autocomplete, Alert, Snackbar
+  Autocomplete, Alert, Snackbar, Fab
 } from '@mui/material'
 import { Add, Delete, Visibility, ShoppingCart, TrendingUp, TrendingDown } from '@mui/icons-material'
 import { pedidosApi, produtosApi, clientesApi, naturezasApi, formasPagamentoApi } from '../services/api'
@@ -243,12 +243,6 @@ export default function PedidosPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
-        <Button variant="contained" startIcon={<Add />} onClick={handleOpen}>
-          Novo Pedido
-        </Button>
-      </Box>
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -289,6 +283,10 @@ export default function PedidosPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Fab color="primary" aria-label="add" onClick={handleOpen} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
+        <Add />
+      </Fab>
 
       {/* Dialog Novo Pedido */}
       <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>

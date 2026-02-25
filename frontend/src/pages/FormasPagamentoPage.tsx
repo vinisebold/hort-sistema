@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  FormControlLabel, Checkbox, Chip, Snackbar, Alert
+  FormControlLabel, Checkbox, Chip, Snackbar, Alert, Fab
 } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import { formasPagamentoApi } from '../services/api'
@@ -99,12 +99,6 @@ export default function FormasPagamentoPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
-        <Button variant="contained" startIcon={<Add />} onClick={() => handleOpen()}>
-          Nova Forma de Pagamento
-        </Button>
-      </Box>
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -150,6 +144,10 @@ export default function FormasPagamentoPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Fab color="primary" aria-label="add" onClick={() => handleOpen()} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
+        <Add />
+      </Fab>
 
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>{editingId ? 'Editar Forma de Pagamento' : 'Nova Forma de Pagamento'}</DialogTitle>

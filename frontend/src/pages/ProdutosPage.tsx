@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material'
+import { Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel, Fab } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import { produtosApi, unidadesMedidaApi } from '../services/api'
 
@@ -103,12 +103,6 @@ export default function ProdutosPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
-        <Button variant="contained" startIcon={<Add />} onClick={() => handleOpen()}>
-          Novo Produto
-        </Button>
-      </Box>
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -136,6 +130,10 @@ export default function ProdutosPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Fab color="primary" aria-label="add" onClick={() => handleOpen()} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
+        <Add />
+      </Fab>
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{editingId ? 'Editar Produto' : 'Novo Produto'}</DialogTitle>
