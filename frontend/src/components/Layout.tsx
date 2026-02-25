@@ -124,7 +124,7 @@ export default function Layout() {
                     left: 0,
                     right: 0,
                     height: 64,
-                    bgcolor: '#2e7d32',
+                    bgcolor: (theme) => theme.palette.primary.main,
                     // when a page provides a full-width header (ex: /pedidos/novo),
                     // remove AppBar shadow so the page header can take it and visually extend
                     boxShadow: isExtendedHeaderRoute ? 'none' : 2,
