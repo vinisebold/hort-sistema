@@ -124,36 +124,36 @@ export default function Layout() {
                     boxShadow: 2
                 }}
             >
-                <Toolbar sx={{ justifyContent: 'space-between' }}>
+                <Toolbar sx={{ justifyContent: 'space-between', p: 0, minHeight: '64px !important' }}>
                     {/* Lado Esquerdo: Menu Hamburguer e Logo */}
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', height: 64, m: 0 }}>
                         <IconButton
                             color="inherit"
                             aria-label="open drawer"
                             onClick={toggleDrawer(true)}
                             edge="start"
-                            sx={{ mr: 2 }}
+                            sx={{ height: '100%', borderRadius: 0, px: 2, m: 0 }}
                         >
                             <Menu />
                         </IconButton>
 
-                        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 500 }}>
+                        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 500, ml: 1 }}>
                             {pageTitle}
                         </Typography>
                     </Box>
 
                     {/* Lado Direito: Ações e Conta */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', height: 64, m: 0 }}>
                         {nomeNegocio && (
-                            <Typography variant="body2" sx={{ mr: 2, display: { xs: 'none', sm: 'block' } }}>
+                            <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, mx: 1 }}>
                                 {nomeNegocio}
                             </Typography>
                         )}
-                        <IconButton color="inherit" size="small"><Apps /></IconButton>
-                        <IconButton color="inherit" size="small"><HelpOutline /></IconButton>
+                        <IconButton color="inherit" size="small" sx={{ height: '100%', borderRadius: 0, px: 2, m: 0 }}><Apps /></IconButton>
+                        <IconButton color="inherit" size="small" sx={{ height: '100%', borderRadius: 0, px: 2, m: 0 }}><HelpOutline /></IconButton>
 
                         {/* Ícone de Conta */}
-                        <IconButton color="inherit" onClick={toggleAccountDrawer(true)}>
+                        <IconButton color="inherit" onClick={toggleAccountDrawer(true)} sx={{ height: '100%', borderRadius: 0, px: 2, m: 0 }}>
                             <AccountCircle />
                         </IconButton>
                     </Box>

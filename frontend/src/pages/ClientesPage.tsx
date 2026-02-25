@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel, Fab } from '@mui/material'
+import { Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel, Fab, InputAdornment, CircularProgress } from '@mui/material'
 import { Add, Edit, Delete, Search } from '@mui/icons-material'
 import { clientesApi } from '../services/api'
 
@@ -20,6 +20,7 @@ export default function ClientesPage() {
   const [openCnpj, setOpenCnpj] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [cnpjBusca, setCnpjBusca] = useState('')
+  const [loadingCnpj, setLoadingCnpj] = useState(false)
   const [form, setForm] = useState({
     tipoPessoa: 'JURIDICA',
     documento: '',
@@ -100,6 +101,7 @@ export default function ClientesPage() {
 
   const handleBuscarCnpj = async () => {
     try {
+      setLoadingCnpj(true)
       const response = await clientesApi.consultarCnpj(cnpjBusca)
       setForm({
         ...form,
@@ -113,6 +115,31 @@ export default function ClientesPage() {
       setOpenCnpj(false)
     } catch (error: any) {
       alert(error.response?.data?.message || 'Erro ao consultar CNPJ')
+    } finally {
+      setLoadingCnpj(false)
+    }
+  }
+
+  const handleBuscarCnpjInput = async (documento: string) => {
+    const cnpjOnly = documento.replace(/\D/g, '')
+    if (cnpjOnly.length === 14) {
+      try {
+        setLoadingCnpj(true)
+        const response = await clientesApi.consultarCnpj(cnpjOnly)
+        setForm({
+          ...form,
+          tipoPessoa: 'JURIDICA',
+          documento: response.data.cnpj,
+          razaoSocial: response.data.razaoSocial || '',
+          nomeFantasia: response.data.nomeFantasia || '',
+          endereco: response.data.endereco || '',
+          telefone: response.data.telefone || '',
+        })
+      } catch (error: any) {
+        console.log('CNPJ não encontrado ou erro na consulta')
+      } finally {
+        setLoadingCnpj(false)
+      }
     }
   }
 
@@ -170,7 +197,16 @@ export default function ClientesPage() {
             label={form.tipoPessoa === 'JURIDICA' ? 'CNPJ' : 'CPF'}
             value={form.documento}
             onChange={(e) => setForm({ ...form, documento: e.target.value })}
+            onBlur={(e) => form.tipoPessoa === 'JURIDICA' && handleBuscarCnpjInput(e.target.value)}
             margin="normal"
+            disabled={loadingCnpj}
+            InputProps={{
+              endAdornment: form.tipoPessoa === 'JURIDICA' && (
+                <InputAdornment position="end">
+                  {loadingCnpj ? <CircularProgress size={24} /> : <IconButton onClick={() => handleBuscarCnpjInput(form.documento)}><Search /></IconButton>}
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             fullWidth
