@@ -259,22 +259,22 @@ Ref: movimentacoes_estoque.pedido_id > pedidos.id
 - [x] Implementar service de consulta de documento (BrasilApiService)
 
 - [x] Endpoint: `/api/clientes/consulta-cnpj/{cnpj}`
-- [ ] Popular tabelas de domínio (seed data):
-  - [ ] Naturezas de operação padrão
-  - [ ] Formas de pagamento padrão
-  - [ ] Unidades de medida padrão
+- [x] Popular tabelas de domínio (seed data):
+  - [x] Naturezas de operação padrão
+  - [x] Formas de pagamento padrão
+  - [x] Unidades de medida padrão
 
 ### Fase 4 - Frontend (Tauri + React)
 
-- [ ] Inicializar projeto Tauri
-- [ ] Configurar React + TypeScript
-- [ ] Criar estrutura de pastas frontend
-- [ ] Tela de Login
-- [ ] Tela de Dashboard com cards e gráficos
-- [ ] Telas de Cadastro (Produtos, Clientes, etc.)
-- [ ] Tela de Pedidos de Venda/Compra
-- [ ] Tela de Estoque com Timeline
-- [ ] Implementar navegação inteligente
+- [x] Inicializar projeto Electron + React
+- [x] Configurar React + TypeScript + Vite
+- [x] Criar estrutura de pastas frontend
+- [x] Tela de Login (com setup inicial)
+- [x] Tela de Dashboard com cards
+- [x] Telas de Cadastro (Produtos, Clientes)
+- [ ] Tela de Pedidos de Venda/Compra (em desenvolvimento)
+- [x] Tela de Estoque com Timeline
+- [x] Implementar navegação inteligente
 
 ### Fase 5 - Testes e Qualidade
 

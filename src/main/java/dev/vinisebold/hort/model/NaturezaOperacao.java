@@ -11,7 +11,6 @@ import lombok.*;
 public class NaturezaOperacao {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(nullable = false)
