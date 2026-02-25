@@ -2,6 +2,8 @@ package dev.vinisebold.hort.controller;
 
 import dev.vinisebold.hort.dto.request.ClienteRequest;
 import dev.vinisebold.hort.dto.response.ClienteResponse;
+import dev.vinisebold.hort.dto.response.ConsultaCnpjResponse;
+import dev.vinisebold.hort.service.BrasilApiService;
 import dev.vinisebold.hort.service.ClienteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import java.util.List;
 public class ClienteController {
 
     private final ClienteService clienteService;
+    private final BrasilApiService brasilApiService;
 
     @PostMapping
     public ResponseEntity<ClienteResponse> criar(@Valid @RequestBody ClienteRequest request) {
@@ -42,5 +45,10 @@ public class ClienteController {
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         clienteService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/consulta-cnpj/{cnpj}")
+    public ResponseEntity<ConsultaCnpjResponse> consultarCnpj(@PathVariable String cnpj) {
+        return ResponseEntity.ok(brasilApiService.consultarCnpj(cnpj));
     }
 }

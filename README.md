@@ -255,10 +255,10 @@ Ref: movimentacoes_estoque.pedido_id > pedidos.id
 
 ### Fase 3 - Integrações e Regras de Negócio
 
-- [ ] Integrar API externa para consulta de CPF/CNPJ (RN02)
-- [ ] Implementar service de consulta de documento
-- [ ] Endpoint: `/api/clientes/consulta-cpf/{cpf}`
-- [ ] Endpoint: `/api/clientes/consulta-cnpj/{cnpj}`
+- [x] Integrar API externa para consulta de CNPJ (RN02)
+- [x] Implementar service de consulta de documento (BrasilApiService)
+
+- [x] Endpoint: `/api/clientes/consulta-cnpj/{cnpj}`
 - [ ] Popular tabelas de domínio (seed data):
   - [ ] Naturezas de operação padrão
   - [ ] Formas de pagamento padrão
