@@ -83,11 +83,11 @@ export default function PedidosPage() {
   })
 
   useEffect(() => {
-    loadPedidos()
-    loadProdutos()
-    loadClientes()
-    loadNaturezas()
-    loadFormasPagamento()
+    loadPedidos().catch(console.error)
+    loadProdutos().catch(console.error)
+    loadClientes().catch(console.error)
+    loadNaturezas().catch(console.error)
+    loadFormasPagamento().catch(console.error)
   }, [])
 
   const loadPedidos = async () => {
@@ -215,7 +215,7 @@ export default function PedidosPage() {
       
       setSnackbar({ open: true, message: 'Pedido criado com sucesso!', severity: 'success' })
       handleClose()
-      loadPedidos()
+      await loadPedidos()
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao criar pedido', severity: 'error' })
     }

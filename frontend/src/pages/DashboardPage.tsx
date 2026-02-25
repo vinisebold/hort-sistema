@@ -7,7 +7,7 @@ export default function DashboardPage() {
   const [resumo, setResumo] = useState<any>(null)
 
   useEffect(() => {
-    loadDashboard()
+    loadDashboard().catch(console.error)
   }, [periodo])
 
   const loadDashboard = async () => {

@@ -26,8 +26,8 @@ export default function ProdutosPage() {
   const [form, setForm] = useState({ codigo: '', descricao: '', unidadeMedidaId: '' })
 
   useEffect(() => {
-    loadProdutos()
-    loadUnidades()
+    loadProdutos().catch(console.error)
+    loadUnidades().catch(console.error)
   }, [])
 
   const loadProdutos = async () => {
@@ -84,7 +84,7 @@ export default function ProdutosPage() {
       }
       
       handleClose()
-      loadProdutos()
+      await loadProdutos()
     } catch (error: any) {
       alert(error.response?.data?.message || 'Erro ao salvar produto')
     }
@@ -94,7 +94,7 @@ export default function ProdutosPage() {
     if (confirm('Tem certeza que deseja excluir este produto?')) {
       try {
         await produtosApi.deletar(id)
-        loadProdutos()
+        await loadProdutos()
       } catch (error: any) {
         alert(error.response?.data?.message || 'Erro ao excluir produto')
       }

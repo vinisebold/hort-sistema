@@ -27,7 +27,7 @@ export default function NaturezasOperacaoPage() {
   })
 
   useEffect(() => {
-    loadNaturezas()
+    loadNaturezas().catch(console.error)
   }, [])
 
   const loadNaturezas = async () => {
@@ -78,7 +78,7 @@ export default function NaturezasOperacaoPage() {
         setSnackbar({ open: true, message: 'Natureza de operação criada!', severity: 'success' })
       }
       handleClose()
-      loadNaturezas()
+      await loadNaturezas()
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar', severity: 'error' })
     }

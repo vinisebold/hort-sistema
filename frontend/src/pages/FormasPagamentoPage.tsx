@@ -79,7 +79,7 @@ export default function FormasPagamentoPage() {
         setSnackbar({ open: true, message: 'Forma de pagamento criada!', severity: 'success' })
       }
       handleClose()
-      loadFormas()
+      await loadFormas()
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar', severity: 'error' })
     }
@@ -90,7 +90,7 @@ export default function FormasPagamentoPage() {
       try {
         await formasPagamentoApi.deletar(id)
         setSnackbar({ open: true, message: 'Forma de pagamento excluída!', severity: 'success' })
-        loadFormas()
+        await loadFormas()
       } catch (error: any) {
         setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao excluir', severity: 'error' })
       }

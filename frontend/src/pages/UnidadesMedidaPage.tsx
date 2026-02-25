@@ -26,7 +26,7 @@ export default function UnidadesMedidaPage() {
   })
 
   useEffect(() => {
-    loadUnidades()
+    loadUnidades().catch(console.error)
   }, [])
 
   const loadUnidades = async () => {
@@ -75,7 +75,7 @@ export default function UnidadesMedidaPage() {
         setSnackbar({ open: true, message: 'Unidade de medida criada!', severity: 'success' })
       }
       handleClose()
-      loadUnidades()
+      await loadUnidades()
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar', severity: 'error' })
     }
@@ -86,7 +86,7 @@ export default function UnidadesMedidaPage() {
       try {
         await unidadesMedidaApi.deletar(id)
         setSnackbar({ open: true, message: 'Unidade de medida excluída!', severity: 'success' })
-        loadUnidades()
+        await loadUnidades()
       } catch (error: any) {
         setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao excluir', severity: 'error' })
       }

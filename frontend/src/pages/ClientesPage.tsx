@@ -31,7 +31,7 @@ export default function ClientesPage() {
   })
 
   useEffect(() => {
-    loadClientes()
+    loadClientes().catch(console.error)
   }, [])
 
   const loadClientes = async () => {
@@ -82,7 +82,7 @@ export default function ClientesPage() {
         await clientesApi.criar(data)
       }
       handleClose()
-      loadClientes()
+      await loadClientes()
     } catch (error: any) {
       alert(error.response?.data?.message || 'Erro ao salvar cliente')
     }
@@ -92,7 +92,7 @@ export default function ClientesPage() {
     if (confirm('Tem certeza que deseja excluir este cliente?')) {
       try {
         await clientesApi.deletar(id)
-        loadClientes()
+        await loadClientes()
       } catch (error: any) {
         alert(error.response?.data?.message || 'Erro ao excluir cliente')
       }

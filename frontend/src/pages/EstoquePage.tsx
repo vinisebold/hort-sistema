@@ -99,7 +99,7 @@ export default function EstoquePage() {
   const [expandedId, setExpandedId] = useState<number | null>(null)
 
   useEffect(() => {
-    loadProdutos()
+    loadProdutos().catch(console.error)
   }, [])
 
   const loadProdutos = async () => {
