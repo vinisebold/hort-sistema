@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { Box } from '@mui/material'
+import { Box, ThemeProvider, createTheme } from '@mui/material'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import DashboardPage from './pages/DashboardPage'
@@ -14,11 +14,24 @@ import UnidadesMedidaPage from './pages/UnidadesMedidaPage'
 import ContaPage from './pages/ContaPage'
 import { AuthProvider } from './contexts/AuthContext'
 
+const theme = createTheme({
+  components: {
+    MuiTableCell: {
+      styleOverrides: {
+        head: {
+          fontWeight: 700,
+        },
+      },
+    },
+  },
+})
+
 function App() {
   return (
     <AuthProvider>
-      <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
-        <Routes>
+      <ThemeProvider theme={theme}>
+        <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+          <Routes>
           {/* Rota pública */}
           <Route path="/login" element={<LoginPage />} />
           
@@ -42,7 +55,8 @@ function App() {
           {/* Rota fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </Box>
+        </Box>
+      </ThemeProvider>
     </AuthProvider>
   )
 }
