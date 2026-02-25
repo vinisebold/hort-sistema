@@ -99,8 +99,7 @@ export default function FormasPagamentoPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Formas de Pagamento</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
         <Button variant="contained" startIcon={<Add />} onClick={() => handleOpen()}>
           Nova Forma de Pagamento
         </Button>

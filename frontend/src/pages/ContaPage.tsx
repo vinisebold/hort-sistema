@@ -14,10 +14,6 @@ export default function ContaPage() {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Minha Conta
-      </Typography>
-
       <Card sx={{ maxWidth: 500, mt: 3 }}>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>

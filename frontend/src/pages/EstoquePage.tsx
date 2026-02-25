@@ -131,8 +131,6 @@ export default function EstoquePage() {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>Estoque</Typography>
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>

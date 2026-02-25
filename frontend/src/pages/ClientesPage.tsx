@@ -118,16 +118,13 @@ export default function ClientesPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Clientes</Typography>
-        <Box>
-          <Button variant="outlined" startIcon={<Search />} onClick={() => setOpenCnpj(true)} sx={{ mr: 1 }}>
-            Consultar CNPJ
-          </Button>
-          <Button variant="contained" startIcon={<Add />} onClick={() => handleOpen()}>
-            Novo Cliente
-          </Button>
-        </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3, gap: 1 }}>
+        <Button variant="outlined" startIcon={<Search />} onClick={() => setOpenCnpj(true)}>
+          Consultar CNPJ
+        </Button>
+        <Button variant="contained" startIcon={<Add />} onClick={() => handleOpen()}>
+          Novo Cliente
+        </Button>
       </Box>
 
       <TableContainer component={Paper}>

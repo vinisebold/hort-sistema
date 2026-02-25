@@ -93,8 +93,7 @@ export default function NaturezasOperacaoPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Naturezas de Operação</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
         <Button variant="contained" startIcon={<Add />} onClick={() => handleOpen()}>
           Nova Natureza
         </Button>

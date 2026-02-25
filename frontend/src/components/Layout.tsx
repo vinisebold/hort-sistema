@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
     Box,
     AppBar,
@@ -41,18 +41,18 @@ import { useAuth } from '../contexts/AuthContext'
 const drawerWidth = 280
 
 const menuItems = [
-    { text: 'Início', icon: <Dashboard />, path: '/inicio' },
-    { text: 'Resumo Financeiro', icon: <AttachMoney />, path: '/dashboard' },
-    { text: 'Produtos', icon: <Inventory />, path: '/produtos' },
-    { text: 'Clientes', icon: <People />, path: '/clientes' },
-    { text: 'Pedidos', icon: <ShoppingCart />, path: '/pedidos' },
-    { text: 'Estoque', icon: <Widgets />, path: '/estoque' },
+    { text: 'Início', icon: <Dashboard />, path: '/inicio', title: 'Início' },
+    { text: 'Resumo Financeiro', icon: <AttachMoney />, path: '/dashboard', title: 'Resumo Financeiro' },
+    { text: 'Produtos', icon: <Inventory />, path: '/produtos', title: 'Produtos' },
+    { text: 'Clientes', icon: <People />, path: '/clientes', title: 'Clientes' },
+    { text: 'Pedidos', icon: <ShoppingCart />, path: '/pedidos', title: 'Pedidos' },
+    { text: 'Estoque', icon: <Widgets />, path: '/estoque', title: 'Estoque' },
 ]
 
 const configItems = [
-    { text: 'Formas de Pagamento', icon: <Payment />, path: '/configuracoes/formas-pagamento' },
-    { text: 'Naturezas de Operação', icon: <SyncAlt />, path: '/configuracoes/naturezas-operacao' },
-    { text: 'Unidades de Medida', icon: <Scale />, path: '/configuracoes/unidades-medida' },
+    { text: 'Formas de Pagamento', icon: <Payment />, path: '/configuracoes/formas-pagamento', title: 'Formas de Pagamento' },
+    { text: 'Naturezas de Operação', icon: <SyncAlt />, path: '/configuracoes/naturezas-operacao', title: 'Naturezas de Operação' },
+    { text: 'Unidades de Medida', icon: <Scale />, path: '/configuracoes/unidades-medida', title: 'Unidades de Medida' },
 ]
 
 export default function Layout() {
@@ -63,6 +63,26 @@ export default function Layout() {
     const [open, setOpen] = useState(false)
     const [accountOpen, setAccountOpen] = useState(false)
     const [configOpen, setConfigOpen] = useState(false)
+    const [pageTitle, setPageTitle] = useState('Hort Sistema')
+
+    useEffect(() => {
+        const allItems = [...menuItems, ...configItems, { text: 'Conta', path: '/conta', title: 'Minha Conta' }]
+        
+        const found = allItems.find(item => {
+            if (item.path === '/inicio') {
+                return location.pathname === '/' || location.pathname === '/inicio'
+            }
+            return location.pathname === item.path || location.pathname.startsWith(item.path + '/')
+        })
+
+        if (found) {
+            setPageTitle(found.title)
+        } else if (location.pathname.startsWith('/configuracoes')) {
+            setPageTitle('Configurações')
+        } else {
+            setPageTitle('Hort Sistema')
+        }
+    }, [location.pathname])
 
     const handleLogout = () => {
         logout()
@@ -117,8 +137,8 @@ export default function Layout() {
                             <Menu />
                         </IconButton>
 
-                        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
-                            Hort Sistema
+                        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 500 }}>
+                            {pageTitle}
                         </Typography>
                     </Box>
 
