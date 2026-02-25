@@ -87,6 +87,7 @@ export const pedidosApi = {
   listar: () => api.get('/pedidos'),
   buscar: (id: number) => api.get(`/pedidos/${id}`),
   criar: (data: any) => api.post('/pedidos', data),
+  atualizar: (id: number, data: any) => api.put(`/pedidos/${id}`, data),
 }
 
 // ========== DASHBOARD ==========

@@ -102,6 +102,8 @@ export default function Layout() {
     }
 
     const isConfigActive = location.pathname.startsWith('/configuracoes')
+    // Routes that should show the page-level header acting as an extension of the AppBar
+    const isExtendedHeaderRoute = location.pathname === '/pedidos/novo' || /^\/pedidos\/\d+/.test(location.pathname)
 
     const isSelected = (path: string) => {
         if (path === '/inicio') {
@@ -123,7 +125,9 @@ export default function Layout() {
                     right: 0,
                     height: 64,
                     bgcolor: '#2e7d32',
-                    boxShadow: 2,
+                    // when a page provides a full-width header (ex: /pedidos/novo),
+                    // remove AppBar shadow so the page header can take it and visually extend
+                    boxShadow: isExtendedHeaderRoute ? 'none' : 2,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',

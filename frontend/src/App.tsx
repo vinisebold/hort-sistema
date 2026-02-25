@@ -7,6 +7,7 @@ import Layout from './components/Layout'
 import ProdutosPage from './pages/ProdutosPage'
 import ClientesPage from './pages/ClientesPage'
 import PedidosPage from './pages/PedidosPage'
+import NovoPedidoPage from './pages/NovoPedidoPage'
 import EstoquePage from './pages/EstoquePage'
 import FormasPagamentoPage from './pages/FormasPagamentoPage'
 import NaturezasOperacaoPage from './pages/NaturezasOperacaoPage'
@@ -43,6 +44,8 @@ function App() {
             <Route path="produtos" element={<ProdutosPage />} />
             <Route path="clientes" element={<ClientesPage />} />
             <Route path="pedidos" element={<PedidosPage />} />
+            <Route path="pedidos/novo" element={<NovoPedidoPage />} />
+            <Route path="pedidos/:id" element={<NovoPedidoPage />} />
             <Route path="estoque" element={<EstoquePage />} />
             <Route path="configuracoes">
               <Route path="formas-pagamento" element={<FormasPagamentoPage />} />
