@@ -2,8 +2,6 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import {
     Box,
-    AppBar,
-    Toolbar,
     Typography,
     Drawer,
     List,
@@ -117,48 +115,63 @@ export default function Layout() {
             <CssBaseline />
 
             {/* APP BAR (Cabeçalho) */}
-            <AppBar
-                position="fixed"
+            <Box
                 sx={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 64,
                     bgcolor: '#2e7d32',
-                    boxShadow: 2
+                    boxShadow: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    zIndex: (theme) => theme.zIndex.appBar,
+                    '& .MuiIconButton-root': { color: 'white' },
+                    '& .MuiTypography-root': { color: 'white' }
                 }}
             >
-                <Toolbar sx={{ justifyContent: 'space-between', p: 0, minHeight: '64px !important' }}>
-                    {/* Lado Esquerdo: Menu Hamburguer e Logo */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', height: 64, m: 0 }}>
-                        <IconButton
-                            color="inherit"
-                            aria-label="open drawer"
-                            onClick={toggleDrawer(true)}
-                            edge="start"
-                            sx={{ height: '100%', borderRadius: 0, px: 2, m: 0 }}
-                        >
-                            <Menu />
-                        </IconButton>
+                <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        onClick={toggleDrawer(true)}
+                        sx={{ height: '100%', borderRadius: 0, px: 2 }}
+                    >
+                        <Menu />
+                    </IconButton>
 
-                        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 500, ml: 1 }}>
+                    <Box
+                        onClick={() => navigate('/inicio')}
+                        sx={{
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            px: 2,
+                            cursor: 'pointer',
+                            '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+                        }}
+                    >
+                        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 500 }}>
                             {pageTitle}
                         </Typography>
                     </Box>
+                </Box>
 
-                    {/* Lado Direito: Ações e Conta */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', height: 64, m: 0 }}>
-                        {nomeNegocio && (
-                            <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, mx: 1 }}>
-                                {nomeNegocio}
-                            </Typography>
-                        )}
-                        <IconButton color="inherit" size="small" sx={{ height: '100%', borderRadius: 0, px: 2, m: 0 }}><Apps /></IconButton>
-                        <IconButton color="inherit" size="small" sx={{ height: '100%', borderRadius: 0, px: 2, m: 0 }}><HelpOutline /></IconButton>
-
-                        {/* Ícone de Conta */}
-                        <IconButton color="inherit" onClick={toggleAccountDrawer(true)} sx={{ height: '100%', borderRadius: 0, px: 2, m: 0 }}>
-                            <AccountCircle />
-                        </IconButton>
-                    </Box>
-                </Toolbar>
-            </AppBar>
+                <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                    {nomeNegocio && (
+                        <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, mr: 1 }}>
+                            {nomeNegocio}
+                        </Typography>
+                    )}
+                    <IconButton color="inherit" sx={{ height: '100%', borderRadius: 0, px: 1.5 }}><Apps /></IconButton>
+                    <IconButton color="inherit" sx={{ height: '100%', borderRadius: 0, px: 1.5 }}><HelpOutline /></IconButton>
+                    <IconButton color="inherit" onClick={toggleAccountDrawer(true)} sx={{ height: '100%', borderRadius: 0, px: 1.5 }}>
+                        <AccountCircle />
+                    </IconButton>
+                </Box>
+            </Box>
 
             {/* DRAWER ESQUERDO (Navegação Principal) */}
             <Drawer
@@ -336,7 +349,7 @@ export default function Layout() {
                     minHeight: '100vh'
                 }}
             >
-                <Toolbar />
+                <Box sx={{ height: 64 }} />
                 <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
                     <Outlet />
                 </Box>

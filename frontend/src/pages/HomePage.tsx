@@ -3,7 +3,7 @@ import {
     Box,
     Card,
     Typography,
-    Grid,
+    Grid2 as Grid,
     Link,
     Paper,
     Button
