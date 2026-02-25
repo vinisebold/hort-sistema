@@ -116,7 +116,7 @@ export default function ProdutosPage() {
             <TableRow>
               <TableCell>Código</TableCell>
               <TableCell>Descrição</TableCell>
-              <TableCell>Unidade</TableCell>
+              <TableCell>Un. de estoque</TableCell>
               <TableCell align="right">Estoque</TableCell>
               <TableCell align="center">Ações</TableCell>
             </TableRow>

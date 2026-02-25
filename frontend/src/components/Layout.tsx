@@ -310,13 +310,16 @@ export default function Layout() {
                 sx={{
                     flexGrow: 1,
                     p: 3,
+                    px: { xs: 2, sm: 4, md: 6 },
                     width: '100%',
                     bgcolor: '#f5f5f5',
                     minHeight: '100vh'
                 }}
             >
                 <Toolbar />
-                <Outlet />
+                <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+                    <Outlet />
+                </Box>
             </Box>
         </Box>
     )
