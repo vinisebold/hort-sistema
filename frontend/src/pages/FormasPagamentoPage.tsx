@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
   FormControlLabel, Checkbox, Chip, Snackbar, Alert, Fab
 } from '@mui/material'
@@ -28,7 +28,7 @@ export default function FormasPagamentoPage() {
   })
 
   useEffect(() => {
-    loadFormas()
+    loadFormas().catch(console.error)
   }, [])
 
   const loadFormas = async () => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel, Fab } from '@mui/material'
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel, Fab } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import { produtosApi, unidadesMedidaApi } from '../services/api'
 
