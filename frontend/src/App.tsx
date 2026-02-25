@@ -1,12 +1,16 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import LoginPage from './pages/LoginPage'
+import HomePage from './pages/HomePage'
 import DashboardPage from './pages/DashboardPage'
 import Layout from './components/Layout'
 import ProdutosPage from './pages/ProdutosPage'
 import ClientesPage from './pages/ClientesPage'
 import PedidosPage from './pages/PedidosPage'
 import EstoquePage from './pages/EstoquePage'
+import FormasPagamentoPage from './pages/FormasPagamentoPage'
+import NaturezasOperacaoPage from './pages/NaturezasOperacaoPage'
+import UnidadesMedidaPage from './pages/UnidadesMedidaPage'
 import { AuthProvider } from './contexts/AuthContext'
 
 function App() {
@@ -19,12 +23,18 @@ function App() {
           
           {/* Rotas protegidas com Layout */}
           <Route path="/" element={<Layout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route index element={<HomePage />} />
+            <Route path="inicio" element={<HomePage />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="produtos" element={<ProdutosPage />} />
             <Route path="clientes" element={<ClientesPage />} />
             <Route path="pedidos" element={<PedidosPage />} />
             <Route path="estoque" element={<EstoquePage />} />
+            <Route path="configuracoes">
+              <Route path="formas-pagamento" element={<FormasPagamentoPage />} />
+              <Route path="naturezas-operacao" element={<NaturezasOperacaoPage />} />
+              <Route path="unidades-medida" element={<UnidadesMedidaPage />} />
+            </Route>
           </Route>
           
           {/* Rota fallback */}
