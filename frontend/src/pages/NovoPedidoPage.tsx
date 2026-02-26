@@ -420,128 +420,85 @@ export default function NovoPedidoPage() {
                         {index + 1}
                       </TableCell>
                       <TableCell>
-                        {item.produtoId === 0 ? (
-                          <Box className="hover-input" sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      transition: 'all 0.2s', 
-      px: 2,
-      py: 1,
-      height: '100%',
-      ml: 0,
-      borderBottom: '2px solid transparent',
-      '&:focus-within': {
-        position: 'absolute',
-        top: 0,
-        bottom: '-1px', // Cover the border
-        left: 0,
-        right: 0,
-        zIndex: 10,
-        bgcolor: '#e8eceb',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-        borderBottom: '2px solid #209b8e',
-        px: 2,
-        display: 'flex',
-        alignItems: 'center',
-        borderRadius: 0,
-        '& .edit-icon': { opacity: '0 !important' },
-      }
-    }}>
-                            <Autocomplete
-                              className="product-autocomplete"
-                              options={produtos}
-                              getOptionLabel={(option) => `${option.codigo} - ${option.descricao}`}
-                              value={null}
-                              onChange={(_, value) => handleUpdateItem(index, 'produtoId', value?.id || 0)}
-                              renderInput={(params) => (
-                                <TextField 
-                                  {...params} 
-                                  placeholder="Pesquise por código ou nome" 
-                                  fullWidth 
-                                  variant="standard"
-                                  InputProps={{ ...params.InputProps, disableUnderline: true }}
-                                  sx={{ '& .MuiInputBase-input::placeholder': { color: '#999', opacity: 1 } }}
-                                />
-                              )}
-                              sx={{ flex: 1, '& .MuiInputBase-root': { padding: 0 } }}
-                            />
-                            <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
-                          </Box>
-                        ) : (
-                          <Box className="hover-input" sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      transition: 'all 0.2s', 
-      px: 2,
-      py: 1,
-      height: '100%',
-      ml: 0,
-      borderBottom: '2px solid transparent',
-      '&:focus-within': {
-        position: 'absolute',
-        top: 0,
-        bottom: '-1px', // Cover the border
-        left: 0,
-        right: 0,
-        zIndex: 10,
-        bgcolor: '#e8eceb',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-        borderBottom: '2px solid #209b8e',
-        px: 2,
-        display: 'flex',
-        alignItems: 'center',
-        borderRadius: 0,
-        '& .edit-icon': { opacity: '0 !important' },
-      }
-    }}>
-                            <Box sx={{ flex: 1 }}>
-                              <Typography variant="body1" sx={{ color: '#333', mb: 0.5 }}>
-                                {produto?.codigo} - {produto?.descricao}
-                              </Typography>
-                            </Box>
-                            <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
-                          </Box>
-                        )}
+                        <Box className="hover-input" sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          transition: 'all 0.2s', 
+                          px: 2,
+                          py: 1,
+                          height: '100%',
+                          ml: 0,
+                          borderBottom: '2px solid transparent',
+                          '&:focus-within': {
+                            position: 'absolute',
+                            top: 0,
+                            bottom: '-1px',
+                            left: 0,
+                            right: 0,
+                            zIndex: 10,
+                            bgcolor: '#fff',
+                            boxShadow: '0 4px 4px rgba(0,0,0,0.25)',
+                            borderBottom: '2px solid #209b8e',
+                            px: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            borderRadius: 0,
+                            '& .edit-icon': { opacity: '0 !important' },
+                          }
+                        }}>
+                          <Autocomplete
+                            className="product-autocomplete"
+                            options={produtos}
+                            getOptionLabel={(option) => `${option.codigo} - ${option.descricao}`}
+                            value={produtos.find(p => p.id === item.produtoId)}
+                            onChange={(_, value) => handleUpdateItem(index, 'produtoId', value?.id || 0)}
+                            disableClearable
+                            forcePopupIcon={false}
+                            renderInput={(params) => (
+                              <TextField 
+                                {...params} 
+                                placeholder="Pesquise por código ou nome" 
+                                fullWidth 
+                                variant="standard"
+                                InputProps={{ ...params.InputProps, disableUnderline: true }}
+                                sx={{ '& .MuiInputBase-input::placeholder': { color: '#999', opacity: 1 } }}
+                              />
+                            )}
+                            sx={{ flex: 1, '& .MuiInputBase-root': { padding: 0 } }}
+                          />
+                          <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
+                        </Box>
                       </TableCell>
                       <TableCell align="right">
-                        {item.produtoId === 0 ? (
-                          <Box className="hover-input" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 2,
-      py: 1,
-      height: '100%',
-      mr: 0, borderBottom: '2px solid transparent' }}>
-    <Typography sx={{ color: '#333' }}>0,00</Typography>
-    <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa' }} />
-  </Box>
-                        ) : (
-                          <Box className="hover-input" sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'flex-end', 
-      transition: 'all 0.2s', 
-      px: 2,
-      py: 1,
-      height: '100%',
-      mr: 0,
-      borderBottom: '2px solid transparent',
-      '&:focus-within': {
-        position: 'absolute',
-        top: 0,
-        bottom: '-1px',
-        left: 0,
-        right: 0,
-        zIndex: 10,
-        bgcolor: '#e8eceb',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-        borderBottom: '2px solid #209b8e',
-        px: 2,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        borderRadius: 0,
-        '& .edit-icon': { opacity: '0 !important' },
-      }
-    }}>
-                            <TextField
+                        <Box className="hover-input" sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'flex-end', 
+                          transition: 'all 0.2s', 
+                          px: 2,
+                          py: 1,
+                          height: '100%',
+                          mr: 0,
+                          borderBottom: '2px solid transparent',
+                          '&:focus-within': {
+                            position: 'absolute',
+                            top: 0,
+                            bottom: '-1px',
+                            left: 0,
+                            right: 0,
+                            zIndex: 10,
+                            bgcolor: '#fff',
+                            boxShadow: '0 4px 4px rgba(0,0,0,0.25)',
+                            borderBottom: '2px solid #209b8e',
+                            px: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            borderRadius: 0,
+                            '& .edit-icon': { opacity: '0 !important' },
+                          }
+                        }}>
+                          <TextField
                             type="number"
                             value={item.quantidade}
                             onChange={(e) => handleUpdateItem(index, 'quantidade', Number(e.target.value))}
@@ -571,47 +528,37 @@ export default function NovoPedidoPage() {
                           />
                           <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
                         </Box>
-                        )}
                       </TableCell>
                       <TableCell align="right">
-                        {item.produtoId === 0 ? (
-                          <Box className="hover-input" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 2,
-      py: 1,
-      height: '100%',
-      mr: 0, borderBottom: '2px solid transparent' }}>
-    <Typography sx={{ color: '#333' }}>0,00</Typography>
-    <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa' }} />
-  </Box>
-                        ) : (
-                          <Box className="hover-input" sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'flex-end', 
-      transition: 'all 0.2s', 
-      px: 2,
-      py: 1,
-      height: '100%',
-      mr: 0,
-      borderBottom: '2px solid transparent',
-      '&:focus-within': {
-        position: 'absolute',
-        top: 0,
-        bottom: '-1px',
-        left: 0,
-        right: 0,
-        zIndex: 10,
-        bgcolor: '#e8eceb',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-        borderBottom: '2px solid #209b8e',
-        px: 2,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        borderRadius: 0,
-        '& .edit-icon': { opacity: '0 !important' },
-      }
-    }}>
-                            <TextField
+                        <Box className="hover-input" sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'flex-end', 
+                          transition: 'all 0.2s', 
+                          px: 2,
+                          py: 1,
+                          height: '100%',
+                          mr: 0,
+                          borderBottom: '2px solid transparent',
+                          '&:focus-within': {
+                            position: 'absolute',
+                            top: 0,
+                            bottom: '-1px',
+                            left: 0,
+                            right: 0,
+                            zIndex: 10,
+                            bgcolor: '#fff',
+                            boxShadow: '0 4px 4px rgba(0,0,0,0.25)',
+                            borderBottom: '2px solid #209b8e',
+                            px: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            borderRadius: 0,
+                            '& .edit-icon': { opacity: '0 !important' },
+                          }
+                        }}>
+                          <TextField
                             type="number"
                             value={item.valorUnitario}
                             onChange={(e) => handleUpdateItem(index, 'valorUnitario', Number(e.target.value))}
@@ -632,7 +579,6 @@ export default function NovoPedidoPage() {
                           />
                           <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
                         </Box>
-                        )}
                       </TableCell>
                       <TableCell align="right" sx={{ px: 2 }}>
                         <Typography sx={{ fontWeight: 500, color: '#333' }}>
