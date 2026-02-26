@@ -5,7 +5,7 @@ import {
   IconButton, TextField, Select, MenuItem, FormControl, InputLabel, Card, CardContent,
   Autocomplete, Alert, Snackbar, Grid
 } from '@mui/material'
-import { ArrowBack, Close, InfoOutlined, EditOutlined } from '@mui/icons-material'
+import { ArrowBack, Close, InfoOutlined, Edit, Search } from '@mui/icons-material'
 import { pedidosApi, produtosApi, clientesApi, naturezasApi, formasPagamentoApi } from '../services/api'
 
 interface ItemPedido {
@@ -54,6 +54,7 @@ export default function NovoPedidoPage() {
   const [formasPagamento, setFormasPagamento] = useState<FormaPagamento[]>([])
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [loading, setLoading] = useState(false)
+  const [activeInput, setActiveInput] = useState<{ index: number, field: string, value: string } | null>(null)
 
   const [form, setForm] = useState({
     naturezaOperacaoId: '',
@@ -396,10 +397,10 @@ export default function NovoPedidoPage() {
               <TableHead>
                 <TableRow sx={{ '& th': { borderBottom: '1px solid #ddd' } }}>
                   <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd' }}></TableCell>
-                  <TableCell width="45%" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd' }}>Produto</TableCell>
-                  <TableCell width="15%" align="right" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd' }}>Quantidade</TableCell>
-                  <TableCell width="15%" align="right" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd' }}>Preço</TableCell>
-                  <TableCell width="15%" align="right" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd' }}>Total</TableCell>
+                  <TableCell width="55%" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd', px: 4 }}>Produto</TableCell>
+                   <TableCell width="10%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', px: 4 }}>Quantidade</TableCell>
+                   <TableCell width="10%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', px: 4 }}>Preço</TableCell>
+                   <TableCell width="15%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', px: 4 }}>Total</TableCell>
                   <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd' }}></TableCell>
                 </TableRow>
               </TableHead>
@@ -419,15 +420,17 @@ export default function NovoPedidoPage() {
                       <TableCell align="center" sx={{ color: '#555', px: 2 }}>
                         {index + 1}
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ position: 'relative' }}>
+                        <Edit className="edit-icon" sx={{ opacity: 0, position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 18, color: '#aaa', transition: 'opacity 0.2s', zIndex: 1, pointerEvents: 'none' }} />
                         <Box className="hover-input" sx={{ 
                           display: 'flex', 
                           alignItems: 'center', 
                           transition: 'all 0.2s', 
-                          px: 2,
-                          py: 1,
+                          px: 4,
+                          py: 0,
                           height: '100%',
                           ml: 0,
+                          position: 'relative',
                           borderBottom: '2px solid transparent',
                           '&:focus-within': {
                             position: 'absolute',
@@ -439,11 +442,13 @@ export default function NovoPedidoPage() {
                             bgcolor: '#fff',
                             boxShadow: '0 4px 4px rgba(0,0,0,0.25)',
                             borderBottom: '2px solid #209b8e',
-                            px: 2,
+                            px: 4,
+                            py: 0,
                             display: 'flex',
                             alignItems: 'center',
                             borderRadius: 0,
                             '& .edit-icon': { opacity: '0 !important' },
+                            '& .search-icon': { display: 'flex !important' },
                           }
                         }}>
                           <Autocomplete
@@ -454,29 +459,39 @@ export default function NovoPedidoPage() {
                             onChange={(_, value) => handleUpdateItem(index, 'produtoId', value?.id || 0)}
                             disableClearable
                             forcePopupIcon={false}
+                            autoHighlight
+                            openOnFocus
                             renderInput={(params) => (
                               <TextField 
                                 {...params} 
                                 placeholder="Pesquise por código ou nome" 
                                 fullWidth 
                                 variant="standard"
-                                InputProps={{ ...params.InputProps, disableUnderline: true }}
+                                InputProps={{ 
+                                  ...params.InputProps, 
+                                  disableUnderline: true,
+                                  startAdornment: (
+                                    <Box className="search-icon" sx={{ color: '#209b8e', mr: 1, display: 'none', alignItems: 'center' }}>
+                                      <Search fontSize="small" />
+                                    </Box>
+                                  )
+                                }}
                                 sx={{ '& .MuiInputBase-input::placeholder': { color: '#999', opacity: 1 } }}
                               />
                             )}
                             sx={{ flex: 1, '& .MuiInputBase-root': { padding: 0 } }}
                           />
-                          <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
                         </Box>
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align="right" sx={{ position: 'relative' }}>
+                        <Edit className="edit-icon" sx={{ opacity: 0, position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#aaa', transition: 'opacity 0.2s', zIndex: 1, pointerEvents: 'none' }} />
                         <Box className="hover-input" sx={{ 
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'flex-end', 
                           transition: 'all 0.2s', 
-                          px: 2,
-                          py: 1,
+                          px: 4,
+                          py: 0,
                           height: '100%',
                           mr: 0,
                           borderBottom: '2px solid transparent',
@@ -490,7 +505,8 @@ export default function NovoPedidoPage() {
                             bgcolor: '#fff',
                             boxShadow: '0 4px 4px rgba(0,0,0,0.25)',
                             borderBottom: '2px solid #209b8e',
-                            px: 2,
+                            px: 4,
+                            py: 0,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'flex-end',
@@ -499,44 +515,54 @@ export default function NovoPedidoPage() {
                           }
                         }}>
                           <TextField
-                            type="number"
-                            value={item.quantidade}
-                            onChange={(e) => handleUpdateItem(index, 'quantidade', Number(e.target.value))}
+                            type="text"
+                            placeholder="0,00"
+                            value={activeInput?.index === index && activeInput?.field === 'quantidade' 
+                              ? activeInput.value 
+                              : (item.quantidade === 0 ? '' : item.quantidade.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}
+                            onFocus={(e) => {
+                              setActiveInput({ 
+                                index, 
+                                field: 'quantidade', 
+                                value: item.quantidade === 0 ? '' : item.quantidade.toString().replace('.', ',') 
+                              })
+                              e.target.select()
+                            }}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/[^0-9,]/g, '')
+                              setActiveInput(prev => prev ? { ...prev, value: val } : null)
+                              const num = Number(val.replace(',', '.'))
+                              if (!isNaN(num)) {
+                                handleUpdateItem(index, 'quantidade', num)
+                              }
+                            }}
+                            onBlur={() => setActiveInput(null)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault()
+                                setActiveInput(null)
                                 handleAddItem()
                               }
                             }}
                             variant="standard"
-                            sx={{
-                              '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': { 
-                                display: 'none', 
-                                WebkitAppearance: 'none', 
-                                margin: 0 
-                              }, 
-                              '& input[type=number]': { 
-                                MozAppearance: 'textfield' 
-                              }
-                            }}
                             InputProps={{ 
                               disableUnderline: true,
                               endAdornment: <Typography sx={{ ml: 0.5, color: '#555' }}>{produto?.unidadeMedida?.sigla || 'Un'}</Typography>
                             }}
-                            inputProps={{ min: 0.001, step: 0.001, style: { textAlign: 'right', color: '#333' } }}
+                            inputProps={{ style: { textAlign: 'right', color: '#333' } }}
                             fullWidth
                           />
-                          <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
                         </Box>
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align="right" sx={{ position: 'relative' }}>
+                        <Edit className="edit-icon" sx={{ opacity: 0, position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#aaa', transition: 'opacity 0.2s', zIndex: 1, pointerEvents: 'none' }} />
                         <Box className="hover-input" sx={{ 
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'flex-end', 
                           transition: 'all 0.2s', 
-                          px: 2,
-                          py: 1,
+                          px: 4,
+                          py: 0,
                           height: '100%',
                           mr: 0,
                           borderBottom: '2px solid transparent',
@@ -550,7 +576,8 @@ export default function NovoPedidoPage() {
                             bgcolor: '#fff',
                             boxShadow: '0 4px 4px rgba(0,0,0,0.25)',
                             borderBottom: '2px solid #209b8e',
-                            px: 2,
+                            px: 4,
+                            py: 0,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'flex-end',
@@ -559,28 +586,42 @@ export default function NovoPedidoPage() {
                           }
                         }}>
                           <TextField
-                            type="number"
-                            value={item.valorUnitario}
-                            onChange={(e) => handleUpdateItem(index, 'valorUnitario', Number(e.target.value))}
-                            variant="standard"
-                            sx={{
-                              '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': { 
-                                display: 'none', 
-                                WebkitAppearance: 'none', 
-                                margin: 0 
-                              }, 
-                              '& input[type=number]': { 
-                                MozAppearance: 'textfield' 
+                            type="text"
+                            placeholder="0,00"
+                            value={activeInput?.index === index && activeInput?.field === 'valorUnitario' 
+                              ? activeInput.value 
+                              : (item.valorUnitario === 0 ? '' : item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}
+                            onFocus={(e) => {
+                              setActiveInput({ 
+                                index, 
+                                field: 'valorUnitario', 
+                                value: item.valorUnitario === 0 ? '' : item.valorUnitario.toString().replace('.', ',') 
+                              })
+                              e.target.select()
+                            }}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/[^0-9,]/g, '')
+                              setActiveInput(prev => prev ? { ...prev, value: val } : null)
+                              const num = Number(val.replace(',', '.'))
+                              if (!isNaN(num)) {
+                                handleUpdateItem(index, 'valorUnitario', num)
                               }
                             }}
+                            onBlur={() => setActiveInput(null)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                setActiveInput(null)
+                              }
+                            }}
+                            variant="standard"
                             InputProps={{ disableUnderline: true }}
-                            inputProps={{ min: 0, step: 0.01, style: { textAlign: 'right', color: '#333' } }}
+                            inputProps={{ style: { textAlign: 'right', color: '#333' } }}
                             fullWidth
                           />
-                          <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
                         </Box>
                       </TableCell>
-                      <TableCell align="right" sx={{ px: 2 }}>
+                      <TableCell align="right" sx={{ px: 4 }}>
                         <Typography sx={{ fontWeight: 500, color: '#333' }}>
                           {item.produtoId === 0 ? '0,00' : item.valorTotal.toFixed(2).replace('.', ',')}
                         </Typography>
@@ -602,7 +643,7 @@ export default function NovoPedidoPage() {
                 {/* Total Row */}
                 <TableRow>
                   <TableCell colSpan={4} sx={{ borderBottom: 'none' }}></TableCell>
-                  <TableCell align="right" sx={{ borderBottom: 'none', pt: 3 }}>
+                  <TableCell align="right" sx={{ borderBottom: 'none', pt: 3, px: 4 }}>
                     <Typography sx={{ fontWeight: 700, color: '#333', fontSize: '1.1rem' }}>
                       {calcularTotal().toFixed(2).replace('.', ',')}
                     </Typography>
