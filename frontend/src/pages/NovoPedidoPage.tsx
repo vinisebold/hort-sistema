@@ -251,7 +251,7 @@ export default function NovoPedidoPage() {
           top: 64,
           left: 0,
           right: 0,
-          height: 56,
+          height: 42,
           bgcolor: (theme as any).palette.primary.main,
           color: 'white',
           display: 'flex',
@@ -262,13 +262,13 @@ export default function NovoPedidoPage() {
           zIndex: (theme as any).zIndex.appBar - 1,
         })}
       >
-        <Typography variant="h6" sx={{ fontWeight: 400, color: 'white' }}>
-          <strong>Venda</strong> no valor de <strong>R$ {calcularTotal().toFixed(2).replace('.', ',')}</strong>
+        <Typography variant="h5" sx={{ fontWeight: 300, color: 'white', fontSize: { xs: '1.2rem', md: '1.4rem' } }}>
+          <Box component="span" sx={{ fontWeight: 600 }}>Venda</Box> no valor de <Box component="span" sx={{ fontWeight: 600 }}>R$ {calcularTotal().toFixed(2).replace('.', ',')}</Box>
         </Typography>
       </Box>
 
       {/* spacer so page content sits below the fixed header */}
-      <Box sx={{ height: 56, mb: 3 }} />
+      <Box sx={{ height: 42, mb: 3 }} />
 
       <Box>
         {/* Botão Voltar */}
@@ -283,7 +283,7 @@ export default function NovoPedidoPage() {
         {/* Seção 1: Dados Fiscais/Cliente */}
         <Card sx={{ mb: 3 }}>
           <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#555', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <Typography variant="h6" gutterBottom sx={{ fontSize: '1.25rem', fontWeight: 300, color: '#333', letterSpacing: 0.2 }}>
               Dados do Pedido
             </Typography>
             <Grid container spacing={2}>
@@ -378,7 +378,7 @@ export default function NovoPedidoPage() {
 
         {/* Seção 2: Itens do Pedido */}
         <Card sx={{ mb: 3 }}><CardContent sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, fontSize: '0.875rem', fontWeight: 600, color: '#555', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          <Typography variant="h6" sx={{ mb: 1, fontSize: '1.25rem', fontWeight: 300, color: '#333', letterSpacing: 0.2 }}>
             Produtos
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, color: '#888' }}>
@@ -393,17 +393,17 @@ export default function NovoPedidoPage() {
               <TableHead>
                 <TableRow sx={{ '& th': { borderBottom: '1px solid #ddd' } }}>
                   <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd', fontSize: '0.875rem' }}></TableCell>
-                  <TableCell width="45%" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd', p: 0 }}>
-                    <Box sx={{ px: 4 }}>Produto</Box>
+                  <TableCell width="45%" sx={{ fontWeight: 700, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                    <Box sx={{ px: 4, pb: 1.5 }}>Produto</Box>
                   </TableCell>
-                   <TableCell width="15%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd', p: 0 }}>
-                    <Box sx={{ px: 4 }}>Quantidade</Box>
+                   <TableCell width="15%" align="right" sx={{ fontWeight: 700, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                    <Box sx={{ px: 4, pb: 1.5 }}>Quantidade</Box>
                    </TableCell>
-                   <TableCell width="15%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd', p: 0 }}>
-                    <Box sx={{ px: 4 }}>Preço</Box>
+                   <TableCell width="15%" align="right" sx={{ fontWeight: 700, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                    <Box sx={{ px: 4, pb: 1.5 }}>Preço</Box>
                    </TableCell>
-                   <TableCell width="15%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd', p: 0 }}>
-                    <Box sx={{ px: 4 }}>Total</Box>
+                   <TableCell width="15%" align="right" sx={{ fontWeight: 700, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                    <Box sx={{ px: 4, pb: 1.5 }}>Total</Box>
                    </TableCell>
                   <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd' }}></TableCell>
                 </TableRow>
@@ -666,13 +666,15 @@ export default function NovoPedidoPage() {
                 
                 {/* Total Row */}
                 <TableRow>
-                  <TableCell colSpan={6} align="right" sx={{ borderBottom: 'none', pt: 2 }}>
+                  <TableCell colSpan={4} sx={{ borderBottom: 'none' }}></TableCell>
+                  <TableCell align="right" sx={{ borderBottom: 'none', pt: 10, p: 0 }}>
                     <Box sx={{ px: 4 }}>
-                      <span style={{ fontWeight: 700, color: '#333', fontSize: '0.875rem' }}>
+                      <span style={{ fontWeight: 600, color: '#333', fontSize: '1rem' }}>
                         {calcularTotal().toFixed(2).replace('.', ',')}
                       </span>
                     </Box>
                   </TableCell>
+                  <TableCell sx={{ borderBottom: 'none' }}></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -687,7 +689,7 @@ export default function NovoPedidoPage() {
                 px: 4, 
                 py: 1.5,
                 borderRadius: 1,
-                fontWeight: 600,
+                fontWeight: 500,
                 boxShadow: 'none',
               }}
             >

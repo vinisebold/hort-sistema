@@ -9,6 +9,13 @@ const theme = createTheme({
       main: '#81c784',
     },
   },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontWeightLight: 300,
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+    fontWeightBold: 600,
+  },
   components: {
     MuiTableCell: {
       styleOverrides: {
