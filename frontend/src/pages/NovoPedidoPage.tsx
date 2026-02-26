@@ -243,7 +243,7 @@ export default function NovoPedidoPage() {
   const selectedFormaPgto = formasPagamento.find(f => f.id === Number(form.formaPagamentoId))
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+    <Box>
       {/* Totalizer Header - full width, flush under AppBar */}
       <Box
         sx={(theme) => ({
@@ -272,9 +272,9 @@ export default function NovoPedidoPage() {
       </Box>
 
       {/* spacer so page content sits below the fixed header */}
-      <Box sx={{ height: 120 }} />
+      <Box sx={{ height: 120, mb: 3 }} />
 
-      <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto' }}>
+      <Box>
         {/* Botão Voltar */}
         <Button 
           startIcon={<ArrowBack />} 
@@ -397,10 +397,18 @@ export default function NovoPedidoPage() {
               <TableHead>
                 <TableRow sx={{ '& th': { borderBottom: '1px solid #ddd' } }}>
                   <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd' }}></TableCell>
-                  <TableCell width="55%" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd', px: 4 }}>Produto</TableCell>
-                   <TableCell width="10%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', px: 4 }}>Quantidade</TableCell>
-                   <TableCell width="10%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', px: 4 }}>Preço</TableCell>
-                   <TableCell width="15%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', px: 4 }}>Total</TableCell>
+                  <TableCell width="55%" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                    <Box sx={{ px: 4 }}>Produto</Box>
+                  </TableCell>
+                   <TableCell width="10%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                    <Box sx={{ px: 4 }}>Quantidade</Box>
+                   </TableCell>
+                   <TableCell width="10%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                    <Box sx={{ px: 4 }}>Preço</Box>
+                   </TableCell>
+                   <TableCell width="15%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                    <Box sx={{ px: 4 }}>Total</Box>
+                   </TableCell>
                   <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd' }}></TableCell>
                 </TableRow>
               </TableHead>
@@ -621,10 +629,12 @@ export default function NovoPedidoPage() {
                           />
                         </Box>
                       </TableCell>
-                      <TableCell align="right" sx={{ px: 4 }}>
-                        <Typography sx={{ fontWeight: 500, color: '#333' }}>
-                          {item.produtoId === 0 ? '0,00' : item.valorTotal.toFixed(2).replace('.', ',')}
-                        </Typography>
+                      <TableCell align="right">
+                        <Box sx={{ px: 4, py: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%' }}>
+                          <Typography sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333' }}>
+                            {item.produtoId === 0 ? '0,00' : item.valorTotal.toFixed(2).replace('.', ',')}
+                          </Typography>
+                        </Box>
                       </TableCell>
                       <TableCell align="center" sx={{ px: 2 }}>
                         <IconButton 
@@ -643,10 +653,12 @@ export default function NovoPedidoPage() {
                 {/* Total Row */}
                 <TableRow>
                   <TableCell colSpan={4} sx={{ borderBottom: 'none' }}></TableCell>
-                  <TableCell align="right" sx={{ borderBottom: 'none', pt: 3, px: 4 }}>
-                    <Typography sx={{ fontWeight: 700, color: '#333', fontSize: '1.1rem' }}>
-                      {calcularTotal().toFixed(2).replace('.', ',')}
-                    </Typography>
+                  <TableCell align="right" sx={{ borderBottom: 'none', pt: 3 }}>
+                    <Box sx={{ px: 4 }}>
+                      <Typography sx={{ fontWeight: 700, color: '#333', fontSize: '1.1rem' }}>
+                        {calcularTotal().toFixed(2).replace('.', ',')}
+                      </Typography>
+                    </Box>
                   </TableCell>
                   <TableCell sx={{ borderBottom: 'none' }}></TableCell>
                 </TableRow>
