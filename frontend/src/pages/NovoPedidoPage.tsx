@@ -5,7 +5,7 @@ import {
   IconButton, TextField, Select, MenuItem, FormControl, InputLabel, Card, CardContent,
   Autocomplete, Alert, Snackbar, Grid
 } from '@mui/material'
-import { Add, Delete, ArrowBack } from '@mui/icons-material'
+import { ArrowBack, Close, InfoOutlined, EditOutlined } from '@mui/icons-material'
 import { pedidosApi, produtosApi, clientesApi, naturezasApi, formasPagamentoApi } from '../services/api'
 
 interface ItemPedido {
@@ -61,13 +61,7 @@ export default function NovoPedidoPage() {
     formaPagamentoId: '',
     documentoReferencia: '',
     statusPagamento: 'PAGO',
-    itens: [] as ItemPedido[]
-  })
-
-  const [itemForm, setItemForm] = useState({
-    produtoId: '',
-    quantidade: '',
-    valorUnitario: ''
+    itens: [{ produtoId: 0, produtoDescricao: '', quantidade: 1, valorUnitario: 0, valorTotal: 0 }] as ItemPedido[]
   })
 
   useEffect(() => {
@@ -128,7 +122,7 @@ export default function NovoPedidoPage() {
         formaPagamentoId: String(pedido.formaPagamentoId || pedido.formaPagamento?.id || ''),
         documentoReferencia: pedido.documentoReferencia || '',
         statusPagamento: pedido.statusPagamento,
-        itens: pedido.itens || []
+        itens: pedido.itens.length > 0 ? pedido.itens : [{ produtoId: 0, produtoDescricao: '', quantidade: 1, valorUnitario: 0, valorTotal: 0 }]
       })
     } catch (error) {
       console.error('Erro ao carregar pedido:', error)
@@ -137,27 +131,50 @@ export default function NovoPedidoPage() {
   }
 
   const handleAddItem = () => {
-    if (!itemForm.produtoId || !itemForm.quantidade || !itemForm.valorUnitario) {
-      setSnackbar({ open: true, message: 'Preencha todos os campos do item', severity: 'error' })
-      return
-    }
-
-    const produto = produtos.find(p => p.id === Number(itemForm.produtoId))
-    const quantidade = Number(itemForm.quantidade)
-    const valorUnitario = Number(itemForm.valorUnitario)
-
     setForm(prev => ({
       ...prev,
       itens: [...prev.itens, {
-        produtoId: Number(itemForm.produtoId),
-        produtoDescricao: produto?.descricao,
-        quantidade,
-        valorUnitario,
-        valorTotal: quantidade * valorUnitario
+        produtoId: 0,
+        produtoDescricao: '',
+        quantidade: 1,
+        valorUnitario: 0,
+        valorTotal: 0
       }]
     }))
+    
+    // Focus the new product field
+    setTimeout(() => {
+      const productInputs = document.querySelectorAll('.product-autocomplete input')
+      const lastInput = productInputs[productInputs.length - 1] as HTMLInputElement
+      if (lastInput) lastInput.focus()
+    }, 50)
+  }
 
-    setItemForm({ produtoId: '', quantidade: '', valorUnitario: '' })
+  const handleUpdateItem = (index: number, field: keyof ItemPedido, value: any) => {
+    const newItens = [...form.itens]
+    const item = { ...newItens[index] }
+
+    if (field === 'produtoId') {
+      const produto = produtos.find(p => p.id === value)
+      item.produtoId = value
+      item.produtoDescricao = produto?.descricao || ''
+      // if (item.valorUnitario === 0) { // Opcional: preencher valor unitário se estiver zerado
+      //   item.valorUnitario = 0 
+      // }
+      
+      // Auto-focus quantity field after product selection
+      setTimeout(() => {
+        const qtyInputs = document.querySelectorAll('input[type="number"]')
+        const targetInput = qtyInputs[index * 2] as HTMLInputElement // index * 2 because we have Qty and Price
+        if (targetInput) targetInput.focus()
+      }, 50)
+    } else {
+      (item as any)[field] = value
+    }
+
+    item.valorTotal = (item.quantidade || 0) * (item.valorUnitario || 0)
+    newItens[index] = item
+    setForm({ ...form, itens: newItens })
   }
 
   const handleRemoveItem = (index: number) => {
@@ -191,11 +208,19 @@ export default function NovoPedidoPage() {
         formaPagamentoId: Number(form.formaPagamentoId),
         documentoReferencia: form.documentoReferencia || null,
         statusPagamento: form.statusPagamento,
-        itens: form.itens.map(item => ({
-          produtoId: item.produtoId,
-          quantidade: item.quantidade,
-          valorUnitario: item.valorUnitario
-        }))
+        itens: form.itens
+          .filter(item => item.produtoId !== 0 && item.quantidade > 0)
+          .map(item => ({
+            produtoId: item.produtoId,
+            quantidade: item.quantidade,
+            valorUnitario: item.valorUnitario
+          }))
+      }
+
+      if (payload.itens.length === 0) {
+        setSnackbar({ open: true, message: 'Adicione pelo menos um produto válido', severity: 'error' })
+        setLoading(false)
+        return
       }
 
       if (isEditing) {
@@ -241,7 +266,7 @@ export default function NovoPedidoPage() {
           Total do Pedido
         </Typography>
         <Typography variant="h3" sx={{ fontWeight: 700, fontSize: { xs: '1.75rem', md: '2.5rem' } }}>
-          R$ {calcularTotal().toFixed(2)}
+          R$ {calcularTotal().toFixed(2).replace('.', ',')}
         </Typography>
       </Box>
 
@@ -354,110 +379,312 @@ export default function NovoPedidoPage() {
           </CardContent>
         </Card>
 
-        {/* Seção 2: Inserção de Itens */}
-        <Card sx={{ mb: 3, bgcolor: '#f9f9f9' }}>
-          <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Adicionar Itens
+        {/* Seção 2: Itens do Pedido */}
+        <Card sx={{ mb: 3 }}><CardContent sx={{ p: 3 }}>
+          <Typography variant="h5" sx={{ mb: 1, color: '#333' }}>
+            Produtos
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, color: '#888' }}>
+            <InfoOutlined fontSize="small" sx={{ mr: 1 }} />
+            <Typography variant="body2">
+              Para a correta leitura do código de barras, certifique-se de que nenhum campo esteja selecionado.
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-              <FormControl sx={{ minWidth: 300, flex: 1 }}>
-                <InputLabel>Produto</InputLabel>
-                <Select
-                  value={itemForm.produtoId}
-                  label="Produto"
-                  onChange={(e) => setItemForm({ ...itemForm, produtoId: e.target.value })}
-                >
-                  {produtos.map((p) => (
-                    <MenuItem key={p.id} value={p.id}>
-                      {p.codigo} - {p.descricao} (Est: {p.estoqueAtual} {p.unidadeMedida?.sigla})
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+          </Box>
 
-               <TextField
-                 
-                 label="Quantidade"
-                 type="number"
-                 value={itemForm.quantidade}
-                 onChange={(e) => setItemForm({ ...itemForm, quantidade: e.target.value })}
-                 sx={{ width: 140 }}
-                 inputProps={{ min: 0, step: 0.001 }}
-               />
-
-               <TextField
-                 
-                 label="Valor Unit."
-                 type="number"
-                 value={itemForm.valorUnitario}
-                 onChange={(e) => setItemForm({ ...itemForm, valorUnitario: e.target.value })}
-                 sx={{ width: 140 }}
-                 inputProps={{ min: 0, step: 0.01 }}
-               />
-
-              <Button 
-                variant="contained" 
-                onClick={handleAddItem} 
-                startIcon={<Add />}
-                sx={{ minWidth: 140 }}
-              >
-                Adicionar
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
-
-        {/* Seção 3: Lista de Itens */}
-        <Card>
-          <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Itens do Pedido
-            </Typography>
-
-            {form.itens.length > 0 ? (
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>#</TableCell>
-                      <TableCell>Produto</TableCell>
-                      <TableCell align="right">Qtd</TableCell>
-                      <TableCell align="right">Vl. Unit</TableCell>
-                      <TableCell align="right">Subtotal</TableCell>
-                      <TableCell align="center">Ações</TableCell>
+          <TableContainer sx={{ bgcolor: 'transparent', boxShadow: 'none' }}>
+            <Table size="medium">
+              <TableHead>
+                <TableRow sx={{ '& th': { borderBottom: '1px solid #ddd' } }}>
+                  <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd' }}></TableCell>
+                  <TableCell width="45%" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd' }}>Produto</TableCell>
+                  <TableCell width="15%" align="right" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd' }}>Quantidade</TableCell>
+                  <TableCell width="15%" align="right" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd' }}>Preço</TableCell>
+                  <TableCell width="15%" align="right" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd' }}>Total</TableCell>
+                  <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd' }}></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {form.itens.map((item, index) => {
+                  const produto = produtos.find(p => p.id === item.produtoId);
+                  return (
+                    <TableRow key={index} sx={{ 
+    transition: 'background-color 0.2s', 
+    position: 'relative',
+    '&:hover': { 
+      bgcolor: '#e8eceb',
+      '& .edit-icon': { opacity: 1 }
+    }, 
+    '& td': { borderBottom: '1px solid #ddd', position: 'relative', p: 0, height: '64px' } 
+  }}>
+                      <TableCell align="center" sx={{ color: '#555', px: 2 }}>
+                        {index + 1}
+                      </TableCell>
+                      <TableCell>
+                        {item.produtoId === 0 ? (
+                          <Box className="hover-input" sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      transition: 'all 0.2s', 
+      px: 2,
+      py: 1,
+      height: '100%',
+      ml: 0,
+      borderBottom: '2px solid transparent',
+      '&:focus-within': {
+        position: 'absolute',
+        top: 0,
+        bottom: '-1px', // Cover the border
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        bgcolor: '#e8eceb',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+        borderBottom: '2px solid #209b8e',
+        px: 2,
+        display: 'flex',
+        alignItems: 'center',
+        borderRadius: 0,
+        '& .edit-icon': { opacity: '0 !important' },
+      }
+    }}>
+                            <Autocomplete
+                              className="product-autocomplete"
+                              options={produtos}
+                              getOptionLabel={(option) => `${option.codigo} - ${option.descricao}`}
+                              value={null}
+                              onChange={(_, value) => handleUpdateItem(index, 'produtoId', value?.id || 0)}
+                              renderInput={(params) => (
+                                <TextField 
+                                  {...params} 
+                                  placeholder="Pesquise por código ou nome" 
+                                  fullWidth 
+                                  variant="standard"
+                                  InputProps={{ ...params.InputProps, disableUnderline: true }}
+                                  sx={{ '& .MuiInputBase-input::placeholder': { color: '#999', opacity: 1 } }}
+                                />
+                              )}
+                              sx={{ flex: 1, '& .MuiInputBase-root': { padding: 0 } }}
+                            />
+                            <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
+                          </Box>
+                        ) : (
+                          <Box className="hover-input" sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      transition: 'all 0.2s', 
+      px: 2,
+      py: 1,
+      height: '100%',
+      ml: 0,
+      borderBottom: '2px solid transparent',
+      '&:focus-within': {
+        position: 'absolute',
+        top: 0,
+        bottom: '-1px', // Cover the border
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        bgcolor: '#e8eceb',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+        borderBottom: '2px solid #209b8e',
+        px: 2,
+        display: 'flex',
+        alignItems: 'center',
+        borderRadius: 0,
+        '& .edit-icon': { opacity: '0 !important' },
+      }
+    }}>
+                            <Box sx={{ flex: 1 }}>
+                              <Typography variant="body1" sx={{ color: '#333', mb: 0.5 }}>
+                                {produto?.codigo} - {produto?.descricao}
+                              </Typography>
+                            </Box>
+                            <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
+                          </Box>
+                        )}
+                      </TableCell>
+                      <TableCell align="right">
+                        {item.produtoId === 0 ? (
+                          <Box className="hover-input" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 2,
+      py: 1,
+      height: '100%',
+      mr: 0, borderBottom: '2px solid transparent' }}>
+    <Typography sx={{ color: '#333' }}>0,00</Typography>
+    <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa' }} />
+  </Box>
+                        ) : (
+                          <Box className="hover-input" sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'flex-end', 
+      transition: 'all 0.2s', 
+      px: 2,
+      py: 1,
+      height: '100%',
+      mr: 0,
+      borderBottom: '2px solid transparent',
+      '&:focus-within': {
+        position: 'absolute',
+        top: 0,
+        bottom: '-1px',
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        bgcolor: '#e8eceb',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+        borderBottom: '2px solid #209b8e',
+        px: 2,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        borderRadius: 0,
+        '& .edit-icon': { opacity: '0 !important' },
+      }
+    }}>
+                            <TextField
+                            type="number"
+                            value={item.quantidade}
+                            onChange={(e) => handleUpdateItem(index, 'quantidade', Number(e.target.value))}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                handleAddItem()
+                              }
+                            }}
+                            variant="standard"
+                            sx={{
+                              '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': { 
+                                display: 'none', 
+                                WebkitAppearance: 'none', 
+                                margin: 0 
+                              }, 
+                              '& input[type=number]': { 
+                                MozAppearance: 'textfield' 
+                              }
+                            }}
+                            InputProps={{ 
+                              disableUnderline: true,
+                              endAdornment: <Typography sx={{ ml: 0.5, color: '#555' }}>{produto?.unidadeMedida?.sigla || 'Un'}</Typography>
+                            }}
+                            inputProps={{ min: 0.001, step: 0.001, style: { textAlign: 'right', color: '#333' } }}
+                            fullWidth
+                          />
+                          <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
+                        </Box>
+                        )}
+                      </TableCell>
+                      <TableCell align="right">
+                        {item.produtoId === 0 ? (
+                          <Box className="hover-input" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', px: 2,
+      py: 1,
+      height: '100%',
+      mr: 0, borderBottom: '2px solid transparent' }}>
+    <Typography sx={{ color: '#333' }}>0,00</Typography>
+    <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa' }} />
+  </Box>
+                        ) : (
+                          <Box className="hover-input" sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'flex-end', 
+      transition: 'all 0.2s', 
+      px: 2,
+      py: 1,
+      height: '100%',
+      mr: 0,
+      borderBottom: '2px solid transparent',
+      '&:focus-within': {
+        position: 'absolute',
+        top: 0,
+        bottom: '-1px',
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        bgcolor: '#e8eceb',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+        borderBottom: '2px solid #209b8e',
+        px: 2,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        borderRadius: 0,
+        '& .edit-icon': { opacity: '0 !important' },
+      }
+    }}>
+                            <TextField
+                            type="number"
+                            value={item.valorUnitario}
+                            onChange={(e) => handleUpdateItem(index, 'valorUnitario', Number(e.target.value))}
+                            variant="standard"
+                            sx={{
+                              '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': { 
+                                display: 'none', 
+                                WebkitAppearance: 'none', 
+                                margin: 0 
+                              }, 
+                              '& input[type=number]': { 
+                                MozAppearance: 'textfield' 
+                              }
+                            }}
+                            InputProps={{ disableUnderline: true }}
+                            inputProps={{ min: 0, step: 0.01, style: { textAlign: 'right', color: '#333' } }}
+                            fullWidth
+                          />
+                          <EditOutlined className="edit-icon" sx={{ opacity: 0, ml: 1, fontSize: 16, color: '#aaa', transition: 'opacity 0.2s' }} />
+                        </Box>
+                        )}
+                      </TableCell>
+                      <TableCell align="right" sx={{ px: 2 }}>
+                        <Typography sx={{ fontWeight: 500, color: '#333' }}>
+                          {item.produtoId === 0 ? '0,00' : item.valorTotal.toFixed(2).replace('.', ',')}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="center" sx={{ px: 2 }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleRemoveItem(index)} 
+                          disabled={form.itens.length === 1 && index === 0}
+                          sx={{ color: '#888', '&:hover': { color: '#333' } }}
+                        >
+                          <Close />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {form.itens.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>{item.produtoDescricao}</TableCell>
-                        <TableCell align="right">{item.quantidade}</TableCell>
-                        <TableCell align="right">R$ {item.valorUnitario.toFixed(2)}</TableCell>
-                        <TableCell align="right">R$ {item.valorTotal.toFixed(2)}</TableCell>
-                        <TableCell align="center">
-                          <IconButton size="small" onClick={() => handleRemoveItem(index)} color="error">
-                            <Delete fontSize="small" />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow>
-                      <TableCell colSpan={4} align="right"><strong>TOTAL:</strong></TableCell>
-                      <TableCell align="right"><strong>R$ {calcularTotal().toFixed(2)}</strong></TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            ) : (
-              <Alert severity="info">
-                Adicione pelo menos um item ao pedido
-              </Alert>
-            )}
-          </CardContent>
-        </Card>
+                  );
+                })}
+                
+                {/* Total Row */}
+                <TableRow>
+                  <TableCell colSpan={4} sx={{ borderBottom: 'none' }}></TableCell>
+                  <TableCell align="right" sx={{ borderBottom: 'none', pt: 3 }}>
+                    <Typography sx={{ fontWeight: 700, color: '#333', fontSize: '1.1rem' }}>
+                      {calcularTotal().toFixed(2).replace('.', ',')}
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ borderBottom: 'none' }}></TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 4 }}>
+            <Button 
+              variant="contained" 
+              color="primary"
+              onClick={handleAddItem}
+              sx={{ 
+                px: 4, 
+                py: 1.5,
+                borderRadius: 1,
+                fontWeight: 600,
+                boxShadow: 'none',
+              }}
+            >
+              ADICIONAR MAIS UM PRODUTO
+            </Button>
+          </Box>
+
+        </CardContent></Card>
 
         {/* Footer: Ações Finais */}
         <Box sx={{ 
