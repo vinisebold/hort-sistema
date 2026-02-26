@@ -347,14 +347,14 @@ export default function Layout() {
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    px: { xs: 2, sm: 4, md: 6 },
+                    px: { xs: 6, sm: 14, md: 24 },
                     width: '100%',
                     bgcolor: '#f5f5f5',
                     minHeight: '100vh'
                 }}
             >
                 <Box sx={{ height: 64 }} />
-                <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+                <Box sx={{ maxWidth: 1800, mx: 'auto' }}>
                     <Outlet />
                 </Box>
             </Box>

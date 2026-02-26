@@ -251,11 +251,10 @@ export default function NovoPedidoPage() {
           top: 64,
           left: 0,
           right: 0,
-          height: 120,
+          height: 56,
           bgcolor: (theme as any).palette.primary.main,
           color: 'white',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           // shadow applied to this header so visual continuity with AppBar when AppBar has no shadow
@@ -263,16 +262,13 @@ export default function NovoPedidoPage() {
           zIndex: (theme as any).zIndex.appBar - 1,
         })}
       >
-        <Typography variant="body1" sx={{ opacity: 0.8, fontSize: '0.875rem' }}>
-          Total do Pedido
-        </Typography>
-        <Typography variant="h3" sx={{ fontWeight: 700, fontSize: { xs: '1.75rem', md: '2.5rem' } }}>
-          R$ {calcularTotal().toFixed(2).replace('.', ',')}
+        <Typography variant="h6" sx={{ fontWeight: 400, color: 'white' }}>
+          <strong>Venda</strong> no valor de <strong>R$ {calcularTotal().toFixed(2).replace('.', ',')}</strong>
         </Typography>
       </Box>
 
       {/* spacer so page content sits below the fixed header */}
-      <Box sx={{ height: 120, mb: 3 }} />
+      <Box sx={{ height: 56, mb: 3 }} />
 
       <Box>
         {/* Botão Voltar */}
@@ -287,7 +283,7 @@ export default function NovoPedidoPage() {
         {/* Seção 1: Dados Fiscais/Cliente */}
         <Card sx={{ mb: 3 }}>
           <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#555', textTransform: 'uppercase', letterSpacing: 0.5 }}>
               Dados do Pedido
             </Typography>
             <Grid container spacing={2}>
@@ -382,12 +378,12 @@ export default function NovoPedidoPage() {
 
         {/* Seção 2: Itens do Pedido */}
         <Card sx={{ mb: 3 }}><CardContent sx={{ p: 3 }}>
-          <Typography variant="h5" sx={{ mb: 1, color: '#333' }}>
+          <Typography variant="h6" sx={{ mb: 1, fontSize: '0.875rem', fontWeight: 600, color: '#555', textTransform: 'uppercase', letterSpacing: 0.5 }}>
             Produtos
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, color: '#888' }}>
-            <InfoOutlined fontSize="small" sx={{ mr: 1 }} />
-            <Typography variant="body2">
+            <InfoOutlined sx={{ mr: 1, fontSize: 16 }} />
+            <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
               Para a correta leitura do código de barras, certifique-se de que nenhum campo esteja selecionado.
             </Typography>
           </Box>
@@ -396,17 +392,17 @@ export default function NovoPedidoPage() {
             <Table size="medium">
               <TableHead>
                 <TableRow sx={{ '& th': { borderBottom: '1px solid #ddd' } }}>
-                  <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd' }}></TableCell>
-                  <TableCell width="55%" sx={{ fontWeight: 600, color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                  <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd', fontSize: '0.875rem' }}></TableCell>
+                  <TableCell width="45%" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd', p: 0 }}>
                     <Box sx={{ px: 4 }}>Produto</Box>
                   </TableCell>
-                   <TableCell width="10%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                   <TableCell width="15%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd', p: 0 }}>
                     <Box sx={{ px: 4 }}>Quantidade</Box>
                    </TableCell>
-                   <TableCell width="10%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                   <TableCell width="15%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd', p: 0 }}>
                     <Box sx={{ px: 4 }}>Preço</Box>
                    </TableCell>
-                   <TableCell width="15%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                   <TableCell width="15%" align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd', p: 0 }}>
                     <Box sx={{ px: 4 }}>Total</Box>
                    </TableCell>
                   <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd' }}></TableCell>
@@ -423,7 +419,7 @@ export default function NovoPedidoPage() {
       bgcolor: '#e8eceb',
       '& .edit-icon': { opacity: 1 }
     }, 
-    '& td': { borderBottom: '1px solid #ddd', position: 'relative', p: 0, height: '64px' } 
+    '& td': { borderBottom: '1px solid #ddd', position: 'relative', p: 0, height: '56px' }
   }}>
                       <TableCell align="center" sx={{ color: '#555', px: 2 }}>
                         {index + 1}
@@ -484,7 +480,10 @@ export default function NovoPedidoPage() {
                                     </Box>
                                   )
                                 }}
-                                sx={{ '& .MuiInputBase-input::placeholder': { color: '#999', opacity: 1 } }}
+                                sx={{ 
+                                  '& .MuiInputBase-input': { fontSize: '0.875rem' },
+                                  '& .MuiInputBase-input::placeholder': { color: '#999', opacity: 1, fontSize: '0.875rem' } 
+                                }}
                               />
                             )}
                             sx={{ flex: 1, '& .MuiInputBase-root': { padding: 0 } }}
@@ -524,7 +523,7 @@ export default function NovoPedidoPage() {
                         }}>
                           <TextField
                             type="text"
-                            placeholder="0,00"
+                            placeholder={activeInput?.index === index && activeInput?.field === 'quantidade' ? (produto?.unidadeMedida?.sigla || 'Un') : '0,00'}
                             value={activeInput?.index === index && activeInput?.field === 'quantidade' 
                               ? activeInput.value 
                               : (item.quantidade === 0 ? '' : item.quantidade.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}
@@ -555,9 +554,16 @@ export default function NovoPedidoPage() {
                             variant="standard"
                             InputProps={{ 
                               disableUnderline: true,
-                              endAdornment: <Typography sx={{ ml: 0.5, color: '#555' }}>{produto?.unidadeMedida?.sigla || 'Un'}</Typography>
                             }}
-                            inputProps={{ style: { textAlign: 'right', color: '#333' } }}
+                            inputProps={{ style: { textAlign: 'right', color: '#333', fontSize: '0.875rem' } }}
+                            sx={{ 
+                              flex: 1,
+                              '& .MuiInputBase-input::placeholder': { 
+                                color: (activeInput?.index === index && activeInput?.field === 'quantidade') ? '#999' : '#333', 
+                                opacity: 1, 
+                                fontSize: '0.875rem' 
+                              } 
+                            }}
                             fullWidth
                           />
                         </Box>
@@ -595,7 +601,7 @@ export default function NovoPedidoPage() {
                         }}>
                           <TextField
                             type="text"
-                            placeholder="0,00"
+                            placeholder={activeInput?.index === index && activeInput?.field === 'valorUnitario' ? 'R$' : '0,00'}
                             value={activeInput?.index === index && activeInput?.field === 'valorUnitario' 
                               ? activeInput.value 
                               : (item.valorUnitario === 0 ? '' : item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}
@@ -624,16 +630,24 @@ export default function NovoPedidoPage() {
                             }}
                             variant="standard"
                             InputProps={{ disableUnderline: true }}
-                            inputProps={{ style: { textAlign: 'right', color: '#333' } }}
+                            inputProps={{ style: { textAlign: 'right', color: '#333', fontSize: '0.875rem' } }}
+                            sx={{ 
+                              flex: 1,
+                              '& .MuiInputBase-input::placeholder': { 
+                                color: (activeInput?.index === index && activeInput?.field === 'valorUnitario') ? '#999' : '#333', 
+                                opacity: 1, 
+                                fontSize: '0.875rem' 
+                              } 
+                            }}
                             fullWidth
                           />
                         </Box>
                       </TableCell>
                       <TableCell align="right">
-                        <Box sx={{ px: 4, py: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%' }}>
-                          <Typography sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333' }}>
+                        <Box sx={{ px: 4, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%' }}>
+                          <span style={{ fontWeight: 500, color: '#333', fontSize: '0.875rem' }}>
                             {item.produtoId === 0 ? '0,00' : item.valorTotal.toFixed(2).replace('.', ',')}
-                          </Typography>
+                          </span>
                         </Box>
                       </TableCell>
                       <TableCell align="center" sx={{ px: 2 }}>
@@ -652,15 +666,13 @@ export default function NovoPedidoPage() {
                 
                 {/* Total Row */}
                 <TableRow>
-                  <TableCell colSpan={4} sx={{ borderBottom: 'none' }}></TableCell>
-                  <TableCell align="right" sx={{ borderBottom: 'none', pt: 3 }}>
+                  <TableCell colSpan={6} align="right" sx={{ borderBottom: 'none', pt: 2 }}>
                     <Box sx={{ px: 4 }}>
-                      <Typography sx={{ fontWeight: 700, color: '#333', fontSize: '1.1rem' }}>
+                      <span style={{ fontWeight: 700, color: '#333', fontSize: '0.875rem' }}>
                         {calcularTotal().toFixed(2).replace('.', ',')}
-                      </Typography>
+                      </span>
                     </Box>
                   </TableCell>
-                  <TableCell sx={{ borderBottom: 'none' }}></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
