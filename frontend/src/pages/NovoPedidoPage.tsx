@@ -3,9 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   IconButton, TextField, Select, MenuItem, FormControl, InputLabel, Card, CardContent,
-  Autocomplete, Alert, Snackbar, Grid
+  Autocomplete, Alert, Snackbar, Grid, Fab
 } from '@mui/material'
-import { ArrowBack, Close, InfoOutlined, Edit, Search } from '@mui/icons-material'
+import { ArrowBack, Close, InfoOutlined, Edit, Search, Check } from '@mui/icons-material'
 import { pedidosApi, produtosApi, clientesApi, naturezasApi, formasPagamentoApi } from '../services/api'
 
 interface ItemPedido {
@@ -271,21 +271,9 @@ export default function NovoPedidoPage() {
       <Box sx={{ height: 42, mb: 3 }} />
 
       <Box>
-        {/* Botão Voltar */}
-        <Button 
-          startIcon={<ArrowBack />} 
-          onClick={() => navigate('/pedidos')}
-          sx={{ mb: 2 }}
-        >
-          Voltar
-        </Button>
-
         {/* Seção 1: Dados Fiscais/Cliente */}
         <Card sx={{ mb: 3 }}>
           <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontSize: '1.25rem', fontWeight: 300, color: '#333', letterSpacing: 0.2 }}>
-              Dados do Pedido
-            </Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <Autocomplete
@@ -378,7 +366,7 @@ export default function NovoPedidoPage() {
 
         {/* Seção 2: Itens do Pedido */}
         <Card sx={{ mb: 3 }}><CardContent sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1, fontSize: '1.25rem', fontWeight: 300, color: '#333', letterSpacing: 0.2 }}>
+          <Typography variant="h6" sx={{ mb: 1, fontSize: '1.5rem', fontWeight: 300, color: '#333', letterSpacing: 0.2 }}>
             Produtos
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, color: '#888' }}>
@@ -426,7 +414,12 @@ export default function NovoPedidoPage() {
                       </TableCell>
                       <TableCell sx={{ position: 'relative' }}>
                         <Edit className="edit-icon" sx={{ opacity: 0, position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 18, color: '#aaa', transition: 'opacity 0.2s', zIndex: 1, pointerEvents: 'none' }} />
-                        <Box className="hover-input" sx={{ 
+                        <Box className="hover-input" 
+                          onClick={(e) => {
+                            const input = e.currentTarget.querySelector('input');
+                            if (input) input.focus();
+                          }}
+                          sx={{ 
                           display: 'flex', 
                           alignItems: 'center', 
                           transition: 'all 0.2s', 
@@ -435,6 +428,7 @@ export default function NovoPedidoPage() {
                           height: '100%',
                           ml: 0,
                           position: 'relative',
+                          cursor: 'pointer',
                           borderBottom: '2px solid transparent',
                           '&:focus-within': {
                             position: 'absolute',
@@ -492,7 +486,12 @@ export default function NovoPedidoPage() {
                       </TableCell>
                       <TableCell align="right" sx={{ position: 'relative' }}>
                         <Edit className="edit-icon" sx={{ opacity: 0, position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#aaa', transition: 'opacity 0.2s', zIndex: 1, pointerEvents: 'none' }} />
-                        <Box className="hover-input" sx={{ 
+                        <Box className="hover-input" 
+                          onClick={(e) => {
+                            const input = e.currentTarget.querySelector('input');
+                            if (input) input.focus();
+                          }}
+                          sx={{ 
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'flex-end', 
@@ -501,6 +500,7 @@ export default function NovoPedidoPage() {
                           py: 0,
                           height: '100%',
                           mr: 0,
+                          cursor: 'pointer',
                           borderBottom: '2px solid transparent',
                           '&:focus-within': {
                             position: 'absolute',
@@ -570,7 +570,12 @@ export default function NovoPedidoPage() {
                       </TableCell>
                       <TableCell align="right" sx={{ position: 'relative' }}>
                         <Edit className="edit-icon" sx={{ opacity: 0, position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#aaa', transition: 'opacity 0.2s', zIndex: 1, pointerEvents: 'none' }} />
-                        <Box className="hover-input" sx={{ 
+                        <Box className="hover-input" 
+                          onClick={(e) => {
+                            const input = e.currentTarget.querySelector('input');
+                            if (input) input.focus();
+                          }}
+                          sx={{ 
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'flex-end', 
@@ -579,6 +584,7 @@ export default function NovoPedidoPage() {
                           py: 0,
                           height: '100%',
                           mr: 0,
+                          cursor: 'pointer',
                           borderBottom: '2px solid transparent',
                           '&:focus-within': {
                             position: 'absolute',
@@ -667,9 +673,9 @@ export default function NovoPedidoPage() {
                 {/* Total Row */}
                 <TableRow>
                   <TableCell colSpan={4} sx={{ borderBottom: 'none' }}></TableCell>
-                  <TableCell align="right" sx={{ borderBottom: 'none', pt: 10, p: 0 }}>
-                    <Box sx={{ px: 4 }}>
-                      <span style={{ fontWeight: 600, color: '#333', fontSize: '1rem' }}>
+                  <TableCell align="right" sx={{ borderBottom: 'none', p: 0 }}>
+                    <Box sx={{ px: 4, mt: 2 }}>
+                      <span style={{ fontWeight: 600, color: '#333', fontSize: '0.875rem' }}>
                         {calcularTotal().toFixed(2).replace('.', ',')}
                       </span>
                     </Box>
@@ -702,7 +708,7 @@ export default function NovoPedidoPage() {
         {/* Footer: Ações Finais */}
         <Box sx={{ 
           display: 'flex', 
-          justifyContent: 'space-between', 
+          justifyContent: 'flex-start', 
           mt: 3, 
           py: 2,
           borderTop: '1px solid #e0e0e0'
@@ -714,16 +720,27 @@ export default function NovoPedidoPage() {
           >
             Voltar
           </Button>
-          <Button 
-            variant="contained" 
-            size="large"
-            onClick={handleSubmit}
-            disabled={loading || form.itens.length === 0}
-          >
-            {loading ? 'Salvando...' : isEditing ? 'Atualizar Pedido' : 'Finalizar Pedido'}
-          </Button>
         </Box>
       </Box>
+
+      <Fab
+        color="primary"
+        onClick={handleSubmit}
+        disabled={loading || form.itens.length === 0}
+        sx={{ 
+          position: 'fixed', 
+          bottom: 32, 
+          right: 32,
+          width: 56,
+          height: 56,
+          boxShadow: 4,
+          '& .MuiSvgIcon-root': {
+            fontSize: 28
+          }
+        }}
+      >
+        <Check />
+      </Fab>
 
       <Snackbar 
         open={snackbar.open} 

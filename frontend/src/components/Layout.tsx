@@ -157,7 +157,7 @@ export default function Layout() {
                             '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
                         }}
                     >
-                        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 400 }}>
+                        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 400, fontSize: '24px' }}>
                             {pageTitle}
                         </Typography>
                     </Box>
