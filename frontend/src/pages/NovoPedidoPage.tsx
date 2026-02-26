@@ -475,7 +475,7 @@ export default function NovoPedidoPage() {
                                   )
                                 }}
                                 sx={{ 
-                                  '& .MuiInputBase-input': { fontSize: '0.875rem' },
+                                  '& .MuiInputBase-input': { fontSize: '0.875rem', cursor: 'pointer' },
                                   '& .MuiInputBase-input::placeholder': { color: '#999', opacity: 1, fontSize: '0.875rem' } 
                                 }}
                               />
@@ -555,7 +555,10 @@ export default function NovoPedidoPage() {
                             InputProps={{ 
                               disableUnderline: true,
                             }}
-                            inputProps={{ style: { textAlign: 'right', color: '#333', fontSize: '0.875rem' } }}
+                            inputProps={{ 
+                              style: { textAlign: 'right', color: '#333', fontSize: '0.875rem', cursor: 'pointer' },
+                              onClick: (e: any) => e.target.select()
+                            }}
                             sx={{ 
                               flex: 1,
                               '& .MuiInputBase-input::placeholder': { 
@@ -636,7 +639,10 @@ export default function NovoPedidoPage() {
                             }}
                             variant="standard"
                             InputProps={{ disableUnderline: true }}
-                            inputProps={{ style: { textAlign: 'right', color: '#333', fontSize: '0.875rem' } }}
+                            inputProps={{ 
+                              style: { textAlign: 'right', color: '#333', fontSize: '0.875rem', cursor: 'pointer' },
+                              onClick: (e: any) => e.target.select()
+                            }}
                             sx={{ 
                               flex: 1,
                               '& .MuiInputBase-input::placeholder': { 
