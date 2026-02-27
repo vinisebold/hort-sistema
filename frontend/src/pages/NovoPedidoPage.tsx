@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   IconButton, TextField, Select, MenuItem, FormControl, InputLabel, Card, CardContent,
@@ -46,6 +46,8 @@ interface FormaPagamento {
 export default function NovoPedidoPage() {
   const navigate = useNavigate()
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const initialNaturezaId = searchParams.get('naturezaId')
   const isEditing = Boolean(id)
 
   const [produtos, setProdutos] = useState<Produto[]>([])
@@ -99,6 +101,10 @@ export default function NovoPedidoPage() {
     try {
       const response = await naturezasApi.listar()
       setNaturezas(response.data)
+      
+      if (!isEditing && initialNaturezaId) {
+        setForm(prev => ({ ...prev, naturezaOperacaoId: initialNaturezaId }))
+      }
     } catch (error) {
       console.error('Erro ao carregar naturezas:', error)
     }
@@ -242,6 +248,8 @@ export default function NovoPedidoPage() {
 
   const selectedFormaPgto = formasPagamento.find(f => f.id === Number(form.formaPagamentoId))
 
+  const selectedNatureza = naturezas.find(n => String(n.id) === form.naturezaOperacaoId)
+
   return (
     <Box>
       {/* Totalizer Header - full width, flush under AppBar */}
@@ -263,7 +271,7 @@ export default function NovoPedidoPage() {
         })}
       >
         <Typography variant="h5" sx={{ fontWeight: 300, color: 'white', fontSize: { xs: '1.2rem', md: '1.4rem' } }}>
-          <Box component="span" sx={{ fontWeight: 400 }}>Venda</Box> no valor de <Box component="span" sx={{ fontWeight: 400 }}>R$ {calcularTotal().toFixed(2).replace('.', ',')}</Box>
+          <Box component="span" sx={{ fontWeight: 400 }}>{selectedNatureza?.descricao || 'Pedido'}</Box> no valor de <Box component="span" sx={{ fontWeight: 400 }}>R$ {calcularTotal().toFixed(2).replace('.', ',')}</Box>
         </Typography>
       </Box>
 
@@ -296,20 +304,12 @@ export default function NovoPedidoPage() {
                 />
               </Grid>
               <Grid item xs={12} md={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Natureza *</InputLabel>
-                  <Select
-                    value={form.naturezaOperacaoId}
-                    label="Natureza *"
-                    onChange={(e) => setForm({ ...form, naturezaOperacaoId: e.target.value })}
-                  >
-                    {naturezas.map((n) => (
-                      <MenuItem key={n.id} value={n.id}>
-                        {n.tipoMovimento === 'ENTRADA' ? '📥' : '📤'} {n.descricao}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <TextField
+                  fullWidth
+                  label="Natureza"
+                  value={selectedNatureza?.descricao || ''}
+                  disabled
+                />
               </Grid>
               <Grid item xs={12} md={3}>
                 <FormControl fullWidth>

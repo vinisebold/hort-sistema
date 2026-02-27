@@ -5,7 +5,13 @@ import {
   Paper, IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions, Button, Alert
 } from '@mui/material'
 import { Add, Visibility } from '@mui/icons-material'
-import { pedidosApi } from '../services/api'
+import { pedidosApi, naturezasApi } from '../services/api'
+import NaturezaOverlay from '../components/NaturezaOverlay'
+
+interface NaturezaOperacao {
+  id: number
+  descricao: string
+}
 
 interface Pedido {
   id: number
@@ -33,9 +39,12 @@ export default function PedidosPage() {
   const [openView, setOpenView] = useState(false)
   const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
+  const [naturezas, setNaturezas] = useState<NaturezaOperacao[]>([])
+  const [showOverlay, setShowOverlay] = useState(false)
 
   useEffect(() => {
     loadPedidos().catch(console.error)
+    loadNaturezas().catch(console.error)
   }, [])
 
   const loadPedidos = async () => {
@@ -45,6 +54,20 @@ export default function PedidosPage() {
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error)
     }
+  }
+
+  const loadNaturezas = async () => {
+    try {
+      const response = await naturezasApi.listar()
+      setNaturezas(response.data)
+    } catch (error) {
+      console.error('Erro ao carregar naturezas:', error)
+    }
+  }
+
+  const handleSelectNatureza = (id: number) => {
+    setShowOverlay(false)
+    navigate(`/pedidos/novo?naturezaId=${id}`)
   }
 
   const handleView = async (id: number) => {
@@ -107,9 +130,27 @@ export default function PedidosPage() {
         </Table>
       </TableContainer>
 
-      <Fab color="primary" aria-label="add" onClick={() => navigate('/pedidos/novo')} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
+      <Fab 
+        color="primary" 
+        aria-label="add" 
+        onClick={() => setShowOverlay(true)} 
+        sx={{ 
+          position: 'fixed', 
+          bottom: 32, 
+          right: 32,
+          transition: 'transform 0.2s',
+          ...(showOverlay && { transform: 'scale(0)' })
+        }}
+      >
         <Add />
       </Fab>
+
+      <NaturezaOverlay 
+        open={showOverlay} 
+        onClose={() => setShowOverlay(false)}
+        naturezas={naturezas}
+        onSelect={handleSelectNatureza}
+      />
 
       {/* Dialog Visualizar Pedido */}
       <Dialog open={openView} onClose={() => setOpenView(false)} maxWidth="md" fullWidth>
