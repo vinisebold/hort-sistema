@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   IconButton, TextField, Select, MenuItem, FormControl, InputLabel, Card, CardContent,
-  Autocomplete, Alert, Snackbar, Grid, Fab
+  Autocomplete, Alert, Snackbar, Grid, Fab, ToggleButton, ToggleButtonGroup
 } from '@mui/material'
 import { ArrowBack, Close, InfoOutlined, Edit, Search, Check } from '@mui/icons-material'
 import { pedidosApi, produtosApi, clientesApi, naturezasApi, formasPagamentoApi } from '../services/api'
@@ -280,10 +280,10 @@ export default function NovoPedidoPage() {
 
       <Box>
         {/* Seção 1: Dados Fiscais/Cliente */}
-        <Card sx={{ mb: 3 }}>
-          <CardContent sx={{ p: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
+        <Card sx={{ mb: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
+          <CardContent sx={{ p: 4 }}>
+            <Grid container spacing={4} alignItems="flex-end">
+              <Grid item xs={12} md={8}>
                 <Autocomplete
                   options={clientes}
                   getOptionLabel={(option) => option.razaoSocial}
@@ -293,38 +293,53 @@ export default function NovoPedidoPage() {
                     <TextField 
                       {...params}  
                       label="Cliente" 
+                      placeholder="Selecione ou busque o cliente"
                       fullWidth 
                     />
                   )}
                   renderOption={(props, option) => (
                     <li {...props} key={option.id}>
-                      {option.razaoSocial} {option.documento && `(${option.documento})`}
+                      <Box>
+                        <Typography variant="body1">{option.razaoSocial}</Typography>
+                        <Typography variant="caption" color="text.secondary">{option.documento}</Typography>
+                      </Box>
                     </li>
                   )}
                 />
               </Grid>
-              <Grid item xs={12} md={3}>
-                <TextField
-                  fullWidth
-                  label="Natureza"
-                  value={selectedNatureza?.descricao || ''}
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={12} md={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Status *</InputLabel>
-                  <Select
-                    value={form.statusPagamento}
-                    label="Status *"
-                    onChange={(e) => setForm({ ...form, statusPagamento: e.target.value })}
-                  >
-                    <MenuItem value="PAGO">Pago</MenuItem>
-                    <MenuItem value="PENDENTE">Pendente</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
               <Grid item xs={12} md={4}>
+                <Box>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, mb: 1, display: 'block', ml: 0.5 }}>
+                    STATUS DO PAGAMENTO
+                  </Typography>
+                  <ToggleButtonGroup
+                    value={form.statusPagamento}
+                    exclusive
+                    onChange={(_, value) => value && setForm({ ...form, statusPagamento: value })}
+                    fullWidth
+                    size="small"
+                    sx={{ 
+                      height: 40,
+                      '& .MuiToggleButton-root': {
+                        border: '1px solid #ddd',
+                        '&.Mui-selected': {
+                          bgcolor: form.statusPagamento === 'PAGO' ? '#e8f5e9' : '#fff3e0',
+                          color: form.statusPagamento === 'PAGO' ? '#2e7d32' : '#ed6c02',
+                          fontWeight: 600,
+                          '&:hover': {
+                            bgcolor: form.statusPagamento === 'PAGO' ? '#c8e6c9' : '#ffe0b2',
+                          }
+                        }
+                      }
+                    }}
+                  >
+                    <ToggleButton value="PAGO">PAGO</ToggleButton>
+                    <ToggleButton value="PENDENTE">PENDENTE</ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+              </Grid>
+              
+              <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
                   <InputLabel>Forma de Pagamento *</InputLabel>
                   <Select
@@ -340,22 +355,12 @@ export default function NovoPedidoPage() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={6}>
                 <TextField
-                  
-                  label="Documento Referência"
+                  label="Documento de Referência (Opcional)"
                   value={form.documentoReferencia}
                   onChange={(e) => setForm({ ...form, documentoReferencia: e.target.value })}
                   fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  
-                  label="Data de Emissão"
-                  value={new Date().toLocaleDateString('pt-BR')}
-                  fullWidth
-                  disabled
                 />
               </Grid>
             </Grid>
@@ -369,7 +374,8 @@ export default function NovoPedidoPage() {
         </Card>
 
         {/* Seção 2: Itens do Pedido */}
-        <Card sx={{ mb: 3 }}><CardContent sx={{ p: 3 }}>
+        <Card sx={{ mb: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
+          <CardContent sx={{ p: 4 }}>
           <Typography variant="h6" sx={{ mb: 1, fontSize: '2rem', fontWeight: 100, color: '#333', letterSpacing: 0.1 }}>
             Produtos
           </Typography>
@@ -720,8 +726,7 @@ export default function NovoPedidoPage() {
           display: 'flex', 
           justifyContent: 'flex-start', 
           mt: 3, 
-          py: 2,
-          borderTop: '1px solid #e0e0e0'
+          py: 2
         }}>
           <Button 
             variant="outlined" 
