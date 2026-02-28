@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   IconButton, TextField, Select, MenuItem, FormControl, InputLabel, Card, CardContent,
-  Autocomplete, Alert, Snackbar, Grid, Fab, ToggleButton, ToggleButtonGroup
+  Autocomplete, Alert, Snackbar, Grid, Fab, ToggleButton, ToggleButtonGroup, InputAdornment
 } from '@mui/material'
 import { ArrowBack, Close, InfoOutlined, Edit, Search, Check } from '@mui/icons-material'
 import { pedidosApi, produtosApi, clientesApi, naturezasApi, formasPagamentoApi } from '../services/api'
@@ -64,7 +64,7 @@ export default function NovoPedidoPage() {
     formaPagamentoId: '',
     documentoReferencia: '',
     statusPagamento: 'PAGO',
-    itens: [{ produtoId: 0, produtoDescricao: '', quantidade: 1, valorUnitario: 0, valorTotal: 0 }] as ItemPedido[]
+    itens: [{ produtoId: 0, produtoDescricao: '', quantidade: 0, valorUnitario: 0, valorTotal: 0 }] as ItemPedido[]
   })
 
   useEffect(() => {
@@ -143,7 +143,7 @@ export default function NovoPedidoPage() {
       itens: [...prev.itens, {
         produtoId: 0,
         produtoDescricao: '',
-        quantidade: 1,
+        quantidade: 0,
         valorUnitario: 0,
         valorTotal: 0
       }]
@@ -459,9 +459,7 @@ export default function NovoPedidoPage() {
                               handleUpdateItem(index, 'produtoId', value?.id || 0);
                             }}
                             onClose={(_, reason) => {
-                              // Trigger focus when the dropdown closes, 
-                              // which happens even if clicking the same item
-                              if (reason === 'selectOption') {
+                              if (reason === 'selectOption' || reason === 'blur') {
                                 setTimeout(() => {
                                   const row = document.querySelectorAll('tbody tr')[index];
                                   const inputs = row?.querySelectorAll('input');
@@ -470,13 +468,32 @@ export default function NovoPedidoPage() {
                                     qtyInput.focus();
                                     qtyInput.select();
                                   }
-                                }, 50);
+                                }, 100);
                               }
                             }}
                             disableClearable
                             forcePopupIcon={false}
                             autoHighlight
                             openOnFocus
+                            renderOption={(props, option) => (
+                              <li {...props} key={option.id} onClick={(e) => {
+                                if (props.onClick) props.onClick(e);
+                                // Explicitly trigger focus if same item is clicked
+                                if (option.id === item.produtoId) {
+                                  setTimeout(() => {
+                                    const row = document.querySelectorAll('tbody tr')[index];
+                                    const inputs = row?.querySelectorAll('input');
+                                    if (inputs && inputs[1]) {
+                                      const qtyInput = inputs[1] as HTMLInputElement;
+                                      qtyInput.focus();
+                                      qtyInput.select();
+                                    }
+                                  }, 100);
+                                }
+                              }}>
+                                {option.codigo} - {option.descricao}
+                              </li>
+                            )}
                             renderInput={(params) => (
                               <TextField 
                                 {...params} 
@@ -574,19 +591,28 @@ export default function NovoPedidoPage() {
                             variant="standard"
                             InputProps={{ 
                               disableUnderline: true,
+                              endAdornment: produto && !(activeInput?.index === index && activeInput?.field === 'quantidade') && (
+                                <InputAdornment position="end">
+                                  <Typography variant="caption" sx={{ color: '#333', mr: 1, fontSize: '0.875rem' }}>
+                                    {produto.unidadeMedida?.sigla}
+                                  </Typography>
+                                </InputAdornment>
+                              )
                             }}
-                            inputProps={{ 
-                              style: { textAlign: 'right', color: '#333', fontSize: '0.875rem', cursor: 'pointer' },
-                              onClick: (e: any) => e.target.select()
-                            }}
-                            sx={{ 
-                              flex: 1,
-                              '& .MuiInputBase-input::placeholder': { 
-                                color: (activeInput?.index === index && activeInput?.field === 'quantidade') ? '#999' : '#333', 
-                                opacity: 1, 
-                                fontSize: '0.875rem' 
-                              } 
-                            }}
+                             inputProps={{ 
+                               style: { textAlign: 'right', color: '#333', fontSize: '0.875rem', cursor: 'pointer' },
+                               onClick: (e: any) => e.target.select()
+                             }}
+                             sx={{ 
+                               flex: 1,
+                               '& .MuiInputBase-input': { fontSize: '0.875rem' }, // Ensure consistent font size
+                               '& .MuiInputBase-input::placeholder': { 
+                                 color: (activeInput?.index === index && activeInput?.field === 'quantidade') ? '#999' : '#333', 
+                                 opacity: 1, 
+                                 fontSize: '0.875rem' 
+                               } 
+                             }}
+
                             fullWidth
                           />
                         </Box>
@@ -660,18 +686,20 @@ export default function NovoPedidoPage() {
                             }}
                             variant="standard"
                             InputProps={{ disableUnderline: true }}
-                            inputProps={{ 
-                              style: { textAlign: 'right', color: '#333', fontSize: '0.875rem', cursor: 'pointer' },
-                              onClick: (e: any) => e.target.select()
-                            }}
-                            sx={{ 
-                              flex: 1,
-                              '& .MuiInputBase-input::placeholder': { 
-                                color: (activeInput?.index === index && activeInput?.field === 'valorUnitario') ? '#999' : '#333', 
-                                opacity: 1, 
-                                fontSize: '0.875rem' 
-                              } 
-                            }}
+                             inputProps={{ 
+                               style: { textAlign: 'right', color: '#333', fontSize: '0.875rem', cursor: 'pointer' },
+                               onClick: (e: any) => e.target.select()
+                             }}
+                             sx={{ 
+                               flex: 1,
+                               '& .MuiInputBase-input': { fontSize: '0.875rem' }, // Ensure consistent font size
+                               '& .MuiInputBase-input::placeholder': { 
+                                 color: (activeInput?.index === index && activeInput?.field === 'valorUnitario') ? '#999' : '#333', 
+                                 opacity: 1, 
+                                 fontSize: '0.875rem' 
+                               } 
+                             }}
+
                             fullWidth
                           />
                         </Box>
