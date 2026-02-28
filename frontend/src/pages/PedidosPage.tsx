@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions, Button, Alert
+  Paper, IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions, Button, Alert, Checkbox
 } from '@mui/material'
 import { Add, Visibility } from '@mui/icons-material'
 import { pedidosApi, naturezasApi } from '../services/api'
@@ -42,10 +42,26 @@ export default function PedidosPage() {
   const [naturezas, setNaturezas] = useState<NaturezaOperacao[]>([])
   const [showOverlay, setShowOverlay] = useState(false)
 
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
+
   useEffect(() => {
     loadPedidos().catch(console.error)
     loadNaturezas().catch(console.error)
   }, [])
+
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      setSelectedIds(pedidos.map(p => p.id))
+    } else {
+      setSelectedIds([])
+    }
+  }
+
+  const handleSelectOne = (id: number) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    )
+  }
 
   const loadPedidos = async () => {
     try {
@@ -93,32 +109,43 @@ export default function PedidosPage() {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  indeterminate={selectedIds.length > 0 && selectedIds.length < pedidos.length}
+                  checked={pedidos.length > 0 && selectedIds.length === pedidos.length}
+                  onChange={handleSelectAll}
+                />
+              </TableCell>
               <TableCell>ID</TableCell>
               <TableCell>Data</TableCell>
-              <TableCell>Natureza</TableCell>
               <TableCell>Cliente</TableCell>
-              <TableCell>Forma Pgto</TableCell>
-              <TableCell align="right">Total</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell align="right" sx={{ pr: 6 }}>Valor (R$)</TableCell>
+              <TableCell sx={{ pl: 6, pr: 1.5 }}>Status</TableCell>
+              <TableCell sx={{ pl: 1.5 }}>Tipo/Origem</TableCell>
               <TableCell align="center">Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {pedidos.map((pedido) => (
-              <TableRow key={pedido.id}>
+              <TableRow key={pedido.id} selected={selectedIds.includes(pedido.id)}>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    checked={selectedIds.includes(pedido.id)}
+                    onChange={() => handleSelectOne(pedido.id)}
+                  />
+                </TableCell>
                 <TableCell>#{pedido.id}</TableCell>
-                <TableCell>{new Date(pedido.dataEmissao).toLocaleString('pt-BR')}</TableCell>
-                <TableCell>{getNaturezaChip(pedido.naturezaOperacao)}</TableCell>
+                <TableCell>{new Date(pedido.dataEmissao).toLocaleDateString('pt-BR')}</TableCell>
                 <TableCell>{pedido.clienteNome}</TableCell>
-                <TableCell>{pedido.formaPagamento}</TableCell>
-                <TableCell align="right">R$ {pedido.valorTotal.toFixed(2)}</TableCell>
-                <TableCell>
+                <TableCell align="right" sx={{ pr: 6 }}>R$ {pedido.valorTotal.toFixed(2)}</TableCell>
+                <TableCell sx={{ pl: 6, pr: 1.5 }}>
                   <Chip 
                     label={pedido.statusPagamento} 
                     color={pedido.statusPagamento === 'PAGO' ? 'success' : 'warning'} 
                     size="small" 
                   />
                 </TableCell>
+                <TableCell sx={{ pl: 1.5 }}>{getNaturezaChip(pedido.naturezaOperacao)}</TableCell>
                 <TableCell align="center">
                   <IconButton onClick={() => handleView(pedido.id)}>
                     <Visibility />
