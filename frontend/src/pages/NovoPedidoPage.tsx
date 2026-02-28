@@ -165,16 +165,6 @@ export default function NovoPedidoPage() {
       const produto = produtos.find(p => p.id === value)
       item.produtoId = value
       item.produtoDescricao = produto?.descricao || ''
-      // if (item.valorUnitario === 0) { // Opcional: preencher valor unitário se estiver zerado
-      //   item.valorUnitario = 0 
-      // }
-      
-      // Auto-focus quantity field after product selection
-      setTimeout(() => {
-        const qtyInputs = document.querySelectorAll('input[type="number"]')
-        const targetInput = qtyInputs[index * 2] as HTMLInputElement // index * 2 because we have Qty and Price
-        if (targetInput) targetInput.focus()
-      }, 50)
     } else {
       (item as any)[field] = value
     }
@@ -295,6 +285,7 @@ export default function NovoPedidoPage() {
                       label="Cliente" 
                       placeholder="Selecione ou busque o cliente"
                       fullWidth 
+                      autoFocus // Automatic focus on mount
                     />
                   )}
                   renderOption={(props, option) => (
@@ -464,7 +455,24 @@ export default function NovoPedidoPage() {
                             options={produtos}
                             getOptionLabel={(option) => `${option.codigo} - ${option.descricao}`}
                             value={produtos.find(p => p.id === item.produtoId)}
-                            onChange={(_, value) => handleUpdateItem(index, 'produtoId', value?.id || 0)}
+                            onChange={(_, value: Produto | null) => {
+                              handleUpdateItem(index, 'produtoId', value?.id || 0);
+                            }}
+                            onClose={(_, reason) => {
+                              // Trigger focus when the dropdown closes, 
+                              // which happens even if clicking the same item
+                              if (reason === 'selectOption') {
+                                setTimeout(() => {
+                                  const row = document.querySelectorAll('tbody tr')[index];
+                                  const inputs = row?.querySelectorAll('input');
+                                  if (inputs && inputs[1]) {
+                                    const qtyInput = inputs[1] as HTMLInputElement;
+                                    qtyInput.focus();
+                                    qtyInput.select();
+                                  }
+                                }, 50);
+                              }
+                            }}
                             disableClearable
                             forcePopupIcon={false}
                             autoHighlight
@@ -557,8 +565,10 @@ export default function NovoPedidoPage() {
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault()
-                                setActiveInput(null)
-                                handleAddItem()
+                                // Move to price field in the same row
+                                const row = document.querySelectorAll('tbody tr')[index];
+                                const inputs = row?.querySelectorAll('input');
+                                if (inputs && inputs[2]) (inputs[2] as HTMLInputElement).focus();
                               }
                             }}
                             variant="standard"
@@ -642,9 +652,10 @@ export default function NovoPedidoPage() {
                             }}
                             onBlur={() => setActiveInput(null)}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
+                              if (e.key === 'Enter' || e.key === 'Tab') {
                                 e.preventDefault()
                                 setActiveInput(null)
+                                handleAddItem()
                               }
                             }}
                             variant="standard"
