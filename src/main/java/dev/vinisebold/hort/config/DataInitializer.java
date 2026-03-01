@@ -9,6 +9,7 @@ import dev.vinisebold.hort.repository.NaturezaOperacaoRepository;
 import dev.vinisebold.hort.repository.UnidadeMedidaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ public class DataInitializer implements CommandLineRunner {
     private final UnidadeMedidaRepository unidadeMedidaRepository;
 
     @Override
-    public void run(String... args) {
+    public void run(String @NonNull ... args) {
         log.info("Verificando dados iniciais...");
         
         inicializarNaturezasOperacao();
@@ -52,8 +53,8 @@ public class DataInitializer implements CommandLineRunner {
         if (formaPagamentoRepository.count() == 0) {
             log.info("Inicializando formas de pagamento...");
             
-            formaPagamentoRepository.save(createFormaPagamento("Dinheiro - À Vista", false, false));
-            formaPagamentoRepository.save(createFormaPagamento("Dinheiro - Fiado", true, false));
+            formaPagamentoRepository.save(createFormaPagamento("Dinheiro - À Vista", false));
+            formaPagamentoRepository.save(createFormaPagamento("Dinheiro - Fiado", true));
             
             log.info("2 formas de pagamento inseridas.");
         }
@@ -80,11 +81,11 @@ public class DataInitializer implements CommandLineRunner {
         return natureza;
     }
 
-    private FormaPagamento createFormaPagamento(String descricao, Boolean exigeCliente, Boolean exigeDocumentoReferencia) {
+    private FormaPagamento createFormaPagamento(String descricao, Boolean exigeCliente) {
         FormaPagamento forma = new FormaPagamento();
         forma.setDescricao(descricao);
         forma.setExigeCliente(exigeCliente);
-        forma.setExigeDocumentoReferencia(exigeDocumentoReferencia);
+        forma.setExigeDocumentoReferencia(false);
         forma.setIsActive(true);
         return forma;
     }

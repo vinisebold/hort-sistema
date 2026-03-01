@@ -54,10 +54,8 @@ public class DashboardService {
             Map.Entry<Integer, BigDecimal> topProduto = produtoQuantidade.entrySet().stream()
                     .max(Comparator.comparing(Map.Entry::getValue))
                     .orElse(null);
-            if (topProduto != null) {
-                produtoMaisVendidoNome = produtoNomes.get(topProduto.getKey());
-                produtoMaisVendidoQtd = topProduto.getValue().intValue();
-            }
+            produtoMaisVendidoNome = produtoNomes.get(topProduto.getKey());
+            produtoMaisVendidoQtd = topProduto.getValue().intValue();
         }
 
         Map<Integer, Integer> clienteCompras = new HashMap<>();

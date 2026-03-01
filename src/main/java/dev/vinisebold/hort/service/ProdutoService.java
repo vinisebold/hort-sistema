@@ -57,7 +57,7 @@ public class ProdutoService {
         List<ProdutoResponse> data = page.getContent()
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
                 
-        Integer nextCursor = data.isEmpty() ? null : data.get(data.size() - 1).getId();
+        Integer nextCursor = data.isEmpty() ? null : data.getLast().getId();
 
         return CursorResponse.<ProdutoResponse>builder()
                 .data(data)
