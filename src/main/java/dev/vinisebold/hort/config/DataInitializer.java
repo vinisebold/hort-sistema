@@ -2,6 +2,7 @@ package dev.vinisebold.hort.config;
 
 import dev.vinisebold.hort.model.FormaPagamento;
 import dev.vinisebold.hort.model.NaturezaOperacao;
+import dev.vinisebold.hort.model.TipoMovimento;
 import dev.vinisebold.hort.model.UnidadeMedida;
 import dev.vinisebold.hort.repository.FormaPagamentoRepository;
 import dev.vinisebold.hort.repository.NaturezaOperacaoRepository;
@@ -38,10 +39,10 @@ public class DataInitializer implements CommandLineRunner {
         if (naturezaOperacaoRepository.count() == 0) {
             log.info("Inicializando naturezas de operação...");
             
-            naturezaOperacaoRepository.save(createNatureza(1, "Venda de Mercadoria", "SAIDA", true));
-            naturezaOperacaoRepository.save(createNatureza(2, "Compra de Mercadoria", "ENTRADA", true));
-            naturezaOperacaoRepository.save(createNatureza(3, "Devolução", "SAIDA", false));
-            naturezaOperacaoRepository.save(createNatureza(4, "Estorno", "ENTRADA", false));
+            naturezaOperacaoRepository.save(createNatureza(1, "Venda de Mercadoria", TipoMovimento.SAIDA, true));
+            naturezaOperacaoRepository.save(createNatureza(2, "Compra de Mercadoria", TipoMovimento.ENTRADA, true));
+            naturezaOperacaoRepository.save(createNatureza(3, "Devolução", TipoMovimento.SAIDA, false));
+            naturezaOperacaoRepository.save(createNatureza(4, "Estorno", TipoMovimento.ENTRADA, false));
             
             log.info("4 naturezas de operação inseridas.");
         }
@@ -70,7 +71,7 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private NaturezaOperacao createNatureza(Integer id, String descricao, String tipoMovimento, Boolean geraFinanceiro) {
+    private NaturezaOperacao createNatureza(Integer id, String descricao, TipoMovimento tipoMovimento, Boolean geraFinanceiro) {
         NaturezaOperacao natureza = new NaturezaOperacao();
         natureza.setId(id);
         natureza.setDescricao(descricao);

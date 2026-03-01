@@ -4,6 +4,7 @@ import dev.vinisebold.hort.dto.response.*;
 import dev.vinisebold.hort.model.ItemPedido;
 import dev.vinisebold.hort.model.MovimentacaoEstoque;
 import dev.vinisebold.hort.model.NaturezaOperacao;
+import dev.vinisebold.hort.model.TipoMovimento;
 import dev.vinisebold.hort.model.Pedido;
 import dev.vinisebold.hort.model.Produto;
 import dev.vinisebold.hort.repository.ItemPedidoRepository;
@@ -32,7 +33,7 @@ public class EstoqueService {
     public void processarMovimentacao(Produto produto, NaturezaOperacao natureza, Pedido pedido, BigDecimal quantidade) {
         BigDecimal novoEstoque;
 
-        if ("ENTRADA".equalsIgnoreCase(natureza.getTipoMovimento())) {
+        if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
             novoEstoque = produto.getEstoqueAtual().add(quantidade);
         } else {
             novoEstoque = produto.getEstoqueAtual().subtract(quantidade);
@@ -49,6 +50,32 @@ public class EstoqueService {
         mov.setNaturezaOperacao(natureza);
         mov.setPedido(pedido);
         mov.setQuantidade(quantidade);
+        mov.setEstoqueAposMovimentacao(novoEstoque);
+
+        movimentacaoRepository.save(mov);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void estornarMovimentacao(Produto produto, NaturezaOperacao natureza, Pedido pedido, BigDecimal quantidade) {
+        BigDecimal novoEstoque;
+
+        if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
+            novoEstoque = produto.getEstoqueAtual().subtract(quantidade);
+            if (novoEstoque.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("Estoque físico insuficiente para estornar a entrada do produto: " + produto.getDescricao());
+            }
+        } else {
+            novoEstoque = produto.getEstoqueAtual().add(quantidade);
+        }
+
+        produto.setEstoqueAtual(novoEstoque);
+        produtoRepository.save(produto);
+
+        MovimentacaoEstoque mov = new MovimentacaoEstoque();
+        mov.setProduto(produto);
+        mov.setNaturezaOperacao(natureza);
+        mov.setPedido(pedido);
+        mov.setQuantidade(quantidade.negate()); // Negativa para representar o estorno na timeline
         mov.setEstoqueAposMovimentacao(novoEstoque);
 
         movimentacaoRepository.save(mov);
@@ -129,7 +156,7 @@ public class EstoqueService {
                 .produtoId(mov.getProduto().getId())
                 .produtoDescricao(mov.getProduto().getDescricao())
                 .naturezaOperacaoDescricao(mov.getNaturezaOperacao().getDescricao())
-                .tipoMovimento(mov.getNaturezaOperacao().getTipoMovimento())
+                .tipoMovimento(mov.getNaturezaOperacao().getTipoMovimento().name())
                 .pedidoId(mov.getPedido() != null ? mov.getPedido().getId() : null)
                 .quantidade(mov.getQuantidade())
                 .estoqueAposMovimentacao(mov.getEstoqueAposMovimentacao())

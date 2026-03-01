@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel, Fab } from '@mui/material'
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel, Fab, CircularProgress } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import { produtosApi, unidadesMedidaApi } from '../services/api'
 
@@ -20,6 +20,9 @@ interface UnidadeMedida {
 
 export default function ProdutosPage() {
   const [produtos, setProdutos] = useState<Produto[]>([])
+  const [nextCursor, setNextCursor] = useState<number | null>(null)
+  const [hasNext, setHasNext] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [unidades, setUnidades] = useState<UnidadeMedida[]>([])
   const [open, setOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
@@ -33,9 +36,35 @@ export default function ProdutosPage() {
   const loadProdutos = async () => {
     try {
       const response = await produtosApi.listar()
-      setProdutos(response.data)
+      const payload = response.data
+      // support legacy array responses and new CursorResponse wrapper
+      const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const nc = Array.isArray(payload) ? null : payload.nextCursor
+      const hn = Array.isArray(payload) ? false : payload.hasNext
+      setProdutos(data)
+      setNextCursor(nc ?? null)
+      setHasNext(hn)
     } catch (error) {
       console.error('Erro ao carregar produtos:', error)
+    }
+  }
+
+  const loadMore = async () => {
+    if (!hasNext || loadingMore || nextCursor == null) return
+    setLoadingMore(true)
+    try {
+      const response = await produtosApi.listar(nextCursor)
+      const payload = response.data
+      const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const nc = Array.isArray(payload) ? null : payload.nextCursor
+      const hn = Array.isArray(payload) ? false : payload.hasNext
+      setProdutos(prev => [...prev, ...data])
+      setNextCursor(nc ?? null)
+      setHasNext(hn)
+    } catch (error) {
+      console.error('Erro ao carregar mais produtos:', error)
+    } finally {
+      setLoadingMore(false)
     }
   }
 
@@ -130,6 +159,15 @@ export default function ProdutosPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {hasNext && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Button onClick={loadMore} disabled={loadingMore} variant="outlined">
+            {loadingMore ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            Carregar mais
+          </Button>
+        </Box>
+      )}
 
       <Fab color="primary" aria-label="add" onClick={() => handleOpen()} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
         <Add />

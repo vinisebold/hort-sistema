@@ -89,4 +89,35 @@ public class FifoService {
         // Retorna o Custo Médio Ponderado exato para gravar na linha da venda
         return custoTotalDaVenda.divide(itemVenda.getQuantidade(), 2, RoundingMode.HALF_UP);
     }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void estornarLoteCompra(ItemPedido itemCompra) {
+        LoteEntrada lote = loteEntradaRepository.findByItemPedido(itemCompra)
+                .orElseThrow(() -> new IllegalArgumentException("Lote de entrada não encontrado para estorno"));
+                
+        if (lote.getQuantidadeDisponivel().compareTo(lote.getQuantidadeOriginal()) != 0) {
+            throw new IllegalStateException("Não é possível cancelar esta compra pois parte dos produtos já foi vendida. Cancele as vendas primeiro.");
+        }
+        
+        loteEntradaRepository.delete(lote);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void estornarVendaFifo(ItemPedido itemVenda) {
+        List<LoteSaida> consumos = loteSaidaRepository.findByItemPedidoVenda(itemVenda);
+
+        for (LoteSaida consumo : consumos) {
+            LoteEntrada lote = consumo.getLoteEntrada();
+            
+            lote.setQuantidadeDisponivel(lote.getQuantidadeDisponivel().add(consumo.getQuantidadeConsumida()));
+            
+            if (lote.getIsEsgotado()) {
+                lote.setIsEsgotado(false);
+            }
+            
+            loteEntradaRepository.save(lote);
+        }
+        
+        loteSaidaRepository.deleteAll(consumos);
+    }
 }

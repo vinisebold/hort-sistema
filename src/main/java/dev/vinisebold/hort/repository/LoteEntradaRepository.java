@@ -16,4 +16,6 @@ public interface LoteEntradaRepository extends JpaRepository<LoteEntrada, Intege
      * e ordena do mais antigo para o mais novo (OrderByDataEntradaAsc).
      */
     List<LoteEntrada> findByProdutoAndIsEsgotadoFalseOrderByDataEntradaAsc(Produto produto);
+
+    java.util.Optional<LoteEntrada> findByItemPedido(dev.vinisebold.hort.model.ItemPedido itemPedido);
 }

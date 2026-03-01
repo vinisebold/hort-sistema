@@ -81,8 +81,11 @@ export default function NovoPedidoPage() {
 
   const loadProdutos = async () => {
     try {
-      const response = await produtosApi.listar()
-      setProdutos(response.data)
+      const response = await produtosApi.listarTodos()
+      // support both old raw-array responses and new CursorResponse<{data,nextCursor,hasNext}>
+      const payload = response.data
+      const items = Array.isArray(payload) ? payload : (payload.data ?? [])
+      setProdutos(items)
     } catch (error) {
       console.error('Erro ao carregar produtos:', error)
     }
@@ -90,8 +93,10 @@ export default function NovoPedidoPage() {
 
   const loadClientes = async () => {
     try {
-      const response = await clientesApi.listar()
-      setClientes(response.data)
+      const response = await clientesApi.listarTodos()
+      const payload = response.data
+      const items = Array.isArray(payload) ? payload : (payload.data ?? [])
+      setClientes(items)
     } catch (error) {
       console.error('Erro ao carregar clientes:', error)
     }

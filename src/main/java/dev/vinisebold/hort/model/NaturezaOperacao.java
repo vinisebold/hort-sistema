@@ -16,8 +16,9 @@ public class NaturezaOperacao {
     @Column(nullable = false)
     private String descricao;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String tipoMovimento;
+    private TipoMovimento tipoMovimento;
 
     @Column(nullable = false)
     private Boolean geraFinanceiro = true;

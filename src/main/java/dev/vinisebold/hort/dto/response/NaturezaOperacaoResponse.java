@@ -2,12 +2,13 @@ package dev.vinisebold.hort.dto.response;
 
 import lombok.Builder;
 import lombok.Data;
+import dev.vinisebold.hort.model.TipoMovimento;
 
 @Data
 @Builder
 public class NaturezaOperacaoResponse {
     private Integer id;
     private String descricao;
-    private String tipoMovimento;
+    private TipoMovimento tipoMovimento;
     private Boolean geraFinanceiro;
 }

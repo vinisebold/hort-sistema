@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions, Button, Alert, Checkbox
+  Paper, IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, Alert, Checkbox, CircularProgress
 } from '@mui/material'
-import { Add, Visibility } from '@mui/icons-material'
+import { Add, Visibility, Cancel } from '@mui/icons-material'
 import { pedidosApi, naturezasApi } from '../services/api'
 import NaturezaOverlay from '../components/NaturezaOverlay'
 
@@ -36,13 +37,16 @@ interface ItemPedido {
 export default function PedidosPage() {
   const navigate = useNavigate()
   const [pedidos, setPedidos] = useState<Pedido[]>([])
+  const [nextCursor, setNextCursor] = useState<number | null>(null)
+  const [hasNext, setHasNext] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [openView, setOpenView] = useState(false)
   const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [naturezas, setNaturezas] = useState<NaturezaOperacao[]>([])
   const [showOverlay, setShowOverlay] = useState(false)
-
   const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [cancelConfirm, setCancelConfirm] = useState<Pedido | null>(null)
 
   useEffect(() => {
     loadPedidos().catch(console.error)
@@ -58,7 +62,7 @@ export default function PedidosPage() {
   }
 
   const handleSelectOne = (id: number) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     )
   }
@@ -66,9 +70,34 @@ export default function PedidosPage() {
   const loadPedidos = async () => {
     try {
       const response = await pedidosApi.listar()
-      setPedidos(response.data)
+      const payload = response.data
+      const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const nc = Array.isArray(payload) ? null : payload.nextCursor
+      const hn = Array.isArray(payload) ? false : payload.hasNext
+      setPedidos(data)
+      setNextCursor(nc ?? null)
+      setHasNext(hn)
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error)
+    }
+  }
+
+  const loadMore = async () => {
+    if (!hasNext || loadingMore || nextCursor == null) return
+    setLoadingMore(true)
+    try {
+      const response = await pedidosApi.listar(nextCursor)
+      const payload = response.data
+      const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const nc = Array.isArray(payload) ? null : payload.nextCursor
+      const hn = Array.isArray(payload) ? false : payload.hasNext
+      setPedidos(prev => [...prev, ...data])
+      setNextCursor(nc ?? null)
+      setHasNext(hn)
+    } catch (error) {
+      console.error('Erro ao carregar mais pedidos:', error)
+    } finally {
+      setLoadingMore(false)
     }
   }
 
@@ -96,11 +125,33 @@ export default function PedidosPage() {
     }
   }
 
-  const getNaturezaChip = (tipo: string, tipoMovimento?: string) => {
-    if (tipoMovimento === 'ENTRADA') {
-      return <Chip label={tipo} color="success" size="small" />
+  const handleCancelar = async () => {
+    if (!cancelConfirm) return
+    try {
+      await pedidosApi.cancelar(cancelConfirm.id)
+      setCancelConfirm(null)
+      setOpenView(false)
+      setSnackbar({ open: true, message: 'Pedido cancelado com sucesso.', severity: 'success' })
+      await loadPedidos()
+    } catch (error: any) {
+      setCancelConfirm(null)
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Erro ao cancelar pedido.',
+        severity: 'error'
+      })
     }
-    return <Chip label={tipo} color="warning" size="small" />
+  }
+
+  const getStatusColor = (status: string) => {
+    if (status === 'CANCELADO') return 'error'
+    if (status === 'PAGO') return 'success'
+    return 'warning'
+  }
+
+  const getNaturezaChip = (tipo: string) => {
+    const isEntrada = tipo?.toLowerCase().includes('compra') || tipo?.toLowerCase().includes('estorno')
+    return <Chip label={tipo} color={isEntrada ? 'success' : 'warning'} size="small" />
   }
 
   return (
@@ -127,7 +178,11 @@ export default function PedidosPage() {
           </TableHead>
           <TableBody>
             {pedidos.map((pedido) => (
-              <TableRow key={pedido.id} selected={selectedIds.includes(pedido.id)}>
+              <TableRow
+                key={pedido.id}
+                selected={selectedIds.includes(pedido.id)}
+                sx={{ opacity: pedido.statusPagamento === 'CANCELADO' ? 0.5 : 1 }}
+              >
                 <TableCell padding="checkbox">
                   <Checkbox
                     checked={selectedIds.includes(pedido.id)}
@@ -139,10 +194,10 @@ export default function PedidosPage() {
                 <TableCell>{pedido.clienteNome}</TableCell>
                 <TableCell align="right" sx={{ pr: 6 }}>R$ {pedido.valorTotal.toFixed(2)}</TableCell>
                 <TableCell sx={{ pl: 6, pr: 1.5 }}>
-                  <Chip 
-                    label={pedido.statusPagamento} 
-                    color={pedido.statusPagamento === 'PAGO' ? 'success' : 'warning'} 
-                    size="small" 
+                  <Chip
+                    label={pedido.statusPagamento}
+                    color={getStatusColor(pedido.statusPagamento)}
+                    size="small"
                   />
                 </TableCell>
                 <TableCell sx={{ pl: 1.5 }}>{getNaturezaChip(pedido.naturezaOperacao)}</TableCell>
@@ -150,6 +205,15 @@ export default function PedidosPage() {
                   <IconButton onClick={() => handleView(pedido.id)}>
                     <Visibility />
                   </IconButton>
+                  {pedido.statusPagamento !== 'CANCELADO' && (
+                    <IconButton
+                      color="error"
+                      onClick={() => setCancelConfirm(pedido)}
+                      title="Cancelar pedido"
+                    >
+                      <Cancel />
+                    </IconButton>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -157,13 +221,22 @@ export default function PedidosPage() {
         </Table>
       </TableContainer>
 
-      <Fab 
-        color="primary" 
-        aria-label="add" 
-        onClick={() => setShowOverlay(true)} 
-        sx={{ 
-          position: 'fixed', 
-          bottom: 32, 
+      {hasNext && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Button onClick={loadMore} disabled={loadingMore} variant="outlined">
+            {loadingMore ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            Carregar mais
+          </Button>
+        </Box>
+      )}
+
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => setShowOverlay(true)}
+        sx={{
+          position: 'fixed',
+          bottom: 32,
           right: 32,
           transition: 'transform 0.2s',
           ...(showOverlay && { transform: 'scale(0)' })
@@ -172,16 +245,38 @@ export default function PedidosPage() {
         <Add />
       </Fab>
 
-      <NaturezaOverlay 
-        open={showOverlay} 
+      <NaturezaOverlay
+        open={showOverlay}
         onClose={() => setShowOverlay(false)}
         naturezas={naturezas}
         onSelect={handleSelectNatureza}
       />
 
+      {/* Dialog Confirmar Cancelamento */}
+      <Dialog open={!!cancelConfirm} onClose={() => setCancelConfirm(null)}>
+        <DialogTitle>Cancelar Pedido #{cancelConfirm?.id}?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Esta ação irá estornar o estoque e reverter os lotes FIFO associados a este pedido.
+            Esta operação não pode ser desfeita.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCancelConfirm(null)}>Voltar</Button>
+          <Button onClick={handleCancelar} color="error" variant="contained">
+            Confirmar Cancelamento
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Dialog Visualizar Pedido */}
       <Dialog open={openView} onClose={() => setOpenView(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Pedido #{selectedPedido?.id}</DialogTitle>
+        <DialogTitle>
+          Pedido #{selectedPedido?.id}
+          {selectedPedido?.statusPagamento === 'CANCELADO' && (
+            <Chip label="CANCELADO" color="error" size="small" sx={{ ml: 1 }} />
+          )}
+        </DialogTitle>
         <DialogContent>
           {selectedPedido && (
             <Box>
@@ -204,9 +299,9 @@ export default function PedidosPage() {
                 </Box>
                 <Box>
                   <Typography variant="body2" color="text.secondary">Status</Typography>
-                  <Chip 
-                    label={selectedPedido.statusPagamento} 
-                    color={selectedPedido.statusPagamento === 'PAGO' ? 'success' : 'warning'} 
+                  <Chip
+                    label={selectedPedido.statusPagamento}
+                    color={getStatusColor(selectedPedido.statusPagamento)}
                   />
                 </Box>
               </Box>
@@ -240,6 +335,17 @@ export default function PedidosPage() {
           )}
         </DialogContent>
         <DialogActions>
+          {selectedPedido?.statusPagamento !== 'CANCELADO' && (
+            <Button
+              color="error"
+              onClick={() => {
+                setOpenView(false)
+                setCancelConfirm(selectedPedido)
+              }}
+            >
+              Cancelar Pedido
+            </Button>
+          )}
           <Button onClick={() => setOpenView(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>

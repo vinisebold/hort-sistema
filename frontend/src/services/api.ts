@@ -39,7 +39,12 @@ export const authApi = {
 
 // ========== PRODUTOS ==========
 export const produtosApi = {
-  listar: () => api.get('/produtos'),
+  listar: (cursor?: number, limit: number = 20) => {
+    const params = new URLSearchParams({ limit: String(limit) })
+    if (cursor != null) params.append('cursor', String(cursor))
+    return api.get(`/produtos?${params}`)
+  },
+  listarTodos: () => api.get('/produtos?limit=1000'),
   buscar: (id: number) => api.get(`/produtos/${id}`),
   criar: (data: any) => api.post('/produtos', data),
   atualizar: (id: number, data: any) => api.put(`/produtos/${id}`, data),
@@ -48,7 +53,12 @@ export const produtosApi = {
 
 // ========== CLIENTES ==========
 export const clientesApi = {
-  listar: () => api.get('/clientes'),
+  listar: (cursor?: number, limit: number = 20) => {
+    const params = new URLSearchParams({ limit: String(limit) })
+    if (cursor != null) params.append('cursor', String(cursor))
+    return api.get(`/clientes?${params}`)
+  },
+  listarTodos: () => api.get('/clientes?limit=1000'),
   buscar: (id: number) => api.get(`/clientes/${id}`),
   criar: (data: any) => api.post('/clientes', data),
   atualizar: (id: number, data: any) => api.put(`/clientes/${id}`, data),
@@ -84,10 +94,15 @@ export const formasPagamentoApi = {
 
 // ========== PEDIDOS ==========
 export const pedidosApi = {
-  listar: () => api.get('/pedidos'),
+  listar: (cursor?: number, limit: number = 20) => {
+    const params = new URLSearchParams({ limit: String(limit) })
+    if (cursor != null) params.append('cursor', String(cursor))
+    return api.get(`/pedidos?${params}`)
+  },
   buscar: (id: number) => api.get(`/pedidos/${id}`),
   criar: (data: any) => api.post('/pedidos', data),
   atualizar: (id: number, data: any) => api.put(`/pedidos/${id}`, data),
+  cancelar: (id: number) => api.post(`/pedidos/${id}/cancelar`),
 }
 
 // ========== DASHBOARD ==========

@@ -12,6 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import dev.vinisebold.hort.dto.response.CursorResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,9 +44,26 @@ public class ProdutoService {
         return mapToResponse(produtoRepository.save(produto));
     }
 
-    public List<ProdutoResponse> listarAtivos() {
-        return produtoRepository.findAllByIsActiveTrue()
+    public CursorResponse<ProdutoResponse> listarAtivos(Integer cursor, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        Page<Produto> page;
+        
+        if (cursor != null) {
+            page = produtoRepository.findByIdLessThanAndIsActiveTrueOrderByIdDesc(cursor, pageable);
+        } else {
+            page = produtoRepository.findAllByIsActiveTrueOrderByIdDesc(pageable);
+        }
+        
+        List<ProdutoResponse> data = page.getContent()
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
+                
+        Integer nextCursor = data.isEmpty() ? null : data.get(data.size() - 1).getId();
+
+        return CursorResponse.<ProdutoResponse>builder()
+                .data(data)
+                .nextCursor(nextCursor)
+                .hasNext(page.hasNext())
+                .build();
     }
 
     public ProdutoResponse buscarPorId(Integer id) {

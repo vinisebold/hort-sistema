@@ -3,6 +3,7 @@ package dev.vinisebold.hort.service;
 import dev.vinisebold.hort.dto.request.NaturezaOperacaoRequest;
 import dev.vinisebold.hort.dto.response.NaturezaOperacaoResponse;
 import dev.vinisebold.hort.model.NaturezaOperacao;
+import dev.vinisebold.hort.model.TipoMovimento;
 import dev.vinisebold.hort.repository.NaturezaOperacaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

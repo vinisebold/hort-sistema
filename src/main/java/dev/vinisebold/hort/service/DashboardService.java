@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DashboardService {
 
-    private static final String TIPO_SAIDA = "SAIDA";
+    private static final dev.vinisebold.hort.model.TipoMovimento TIPO_SAIDA = dev.vinisebold.hort.model.TipoMovimento.SAIDA;
 
     private final PedidoRepository pedidoRepository;
     private final ItemPedidoRepository itemPedidoRepository;

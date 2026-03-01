@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import dev.vinisebold.hort.dto.response.CursorResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,11 +34,28 @@ public class ClienteService {
         return mapToResponse(cliente);
     }
 
-    public List<ClienteResponse> listarAtivos() {
-        return clienteRepository.findAllByIsActiveTrue()
+    public CursorResponse<ClienteResponse> listarAtivos(Integer cursor, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        Page<Cliente> page;
+
+        if (cursor != null) {
+            page = clienteRepository.findByIdLessThanAndIsActiveTrueOrderByIdDesc(cursor, pageable);
+        } else {
+            page = clienteRepository.findAllByIsActiveTrueOrderByIdDesc(pageable);
+        }
+
+        List<ClienteResponse> data = page.getContent()
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+
+        Integer nextCursor = data.isEmpty() ? null : data.get(data.size() - 1).getId();
+
+        return CursorResponse.<ClienteResponse>builder()
+                .data(data)
+                .nextCursor(nextCursor)
+                .hasNext(page.hasNext())
+                .build();
     }
 
     public ClienteResponse buscarPorId(Integer id) {

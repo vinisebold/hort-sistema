@@ -16,6 +16,9 @@ interface Cliente {
 
 export default function ClientesPage() {
   const [clientes, setClientes] = useState<Cliente[]>([])
+  const [nextCursor, setNextCursor] = useState<number | null>(null)
+  const [hasNext, setHasNext] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [open, setOpen] = useState(false)
   const [openCnpj, setOpenCnpj] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
@@ -37,9 +40,34 @@ export default function ClientesPage() {
   const loadClientes = async () => {
     try {
       const response = await clientesApi.listar()
-      setClientes(response.data)
+      const payload = response.data
+      const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const nc = Array.isArray(payload) ? null : payload.nextCursor
+      const hn = Array.isArray(payload) ? false : payload.hasNext
+      setClientes(data)
+      setNextCursor(nc ?? null)
+      setHasNext(hn)
     } catch (error) {
       console.error('Erro ao carregar clientes:', error)
+    }
+  }
+
+  const loadMore = async () => {
+    if (!hasNext || loadingMore || nextCursor == null) return
+    setLoadingMore(true)
+      try {
+        const response = await clientesApi.listar(nextCursor)
+      const payload = response.data
+      const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const nc = Array.isArray(payload) ? null : payload.nextCursor
+      const hn = Array.isArray(payload) ? false : payload.hasNext
+      setClientes(prev => [...prev, ...data])
+      setNextCursor(nc ?? null)
+      setHasNext(hn)
+    } catch (error) {
+      console.error('Erro ao carregar mais clientes:', error)
+    } finally {
+      setLoadingMore(false)
     }
   }
 
@@ -172,6 +200,15 @@ export default function ClientesPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {hasNext && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Button onClick={loadMore} disabled={loadingMore} variant="outlined">
+            {loadingMore ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            Carregar mais
+          </Button>
+        </Box>
+      )}
 
       <Fab color="primary" aria-label="add" onClick={() => handleOpen()} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
         <Add />

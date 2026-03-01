@@ -1,6 +1,7 @@
 package dev.vinisebold.hort.controller;
 
 import dev.vinisebold.hort.dto.request.ProdutoRequest;
+import dev.vinisebold.hort.dto.response.CursorResponse;
 import dev.vinisebold.hort.dto.response.ProdutoResponse;
 import dev.vinisebold.hort.service.ProdutoService;
 import jakarta.validation.Valid;
@@ -24,8 +25,10 @@ public class ProdutoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProdutoResponse>> listar() {
-        return ResponseEntity.ok(service.listarAtivos());
+    public ResponseEntity<CursorResponse<ProdutoResponse>> listar(
+            @RequestParam(required = false) Integer cursor,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(service.listarAtivos(cursor, limit));
     }
 
     @GetMapping("/{id}")

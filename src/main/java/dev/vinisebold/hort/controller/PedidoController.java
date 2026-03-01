@@ -1,5 +1,6 @@
 package dev.vinisebold.hort.controller;
 
+import dev.vinisebold.hort.dto.response.CursorResponse;
 import dev.vinisebold.hort.dto.request.PedidoRequest;
 import dev.vinisebold.hort.dto.response.PedidoResponse;
 import dev.vinisebold.hort.service.PedidoService;
@@ -25,12 +26,20 @@ public class PedidoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PedidoResponse>> listar() {
-        return ResponseEntity.ok(pedidoService.listarTodos());
+    public ResponseEntity<CursorResponse<PedidoResponse>> listar(
+            @RequestParam(required = false) Integer cursor,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(pedidoService.listarTodos(cursor, limit));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PedidoResponse> buscar(@PathVariable Integer id) {
         return ResponseEntity.ok(pedidoService.buscarPorId(id));
+    }
+
+    @PostMapping("/{id}/cancelar")
+    public ResponseEntity<Void> cancelar(@PathVariable Integer id) {
+        pedidoService.cancelarPedido(id);
+        return ResponseEntity.noContent().build();
     }
 }

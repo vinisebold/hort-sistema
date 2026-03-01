@@ -4,6 +4,10 @@ import dev.vinisebold.hort.dto.request.ItemPedidoRequest;
 import dev.vinisebold.hort.dto.request.PedidoRequest;
 import dev.vinisebold.hort.dto.response.ItemPedidoResponse;
 import dev.vinisebold.hort.dto.response.PedidoResponse;
+import dev.vinisebold.hort.dto.response.CursorResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import dev.vinisebold.hort.model.*;
 import dev.vinisebold.hort.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -84,14 +88,14 @@ public class PedidoService {
             item = itemPedidoRepository.save(item);
 
             // 4. Mágica do Fluxo (Entrada vs Saída)
-            if ("ENTRADA".equalsIgnoreCase(natureza.getTipoMovimento())) {
+            if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
                 item.setCustoUnitario(item.getValorUnitario());
                 item = itemPedidoRepository.save(item);
 
                 estoqueService.processarMovimentacao(produto, natureza, pedido, item.getQuantidade());
                 fifoService.registrarLoteCompra(item);
 
-            } else if ("SAIDA".equalsIgnoreCase(natureza.getTipoMovimento())) {
+            } else if (TipoMovimento.SAIDA.equals(natureza.getTipoMovimento())) {
                 estoqueService.processarMovimentacao(produto, natureza, pedido, item.getQuantidade());
 
                 // Puxa o custo exato do banco de lotes FIFO
@@ -126,16 +130,61 @@ public class PedidoService {
                 .build();
     }
 
-    public List<PedidoResponse> listarTodos() {
-        return pedidoRepository.findAll().stream()
+    public CursorResponse<PedidoResponse> listarTodos(Integer cursor, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        Page<Pedido> page;
+
+        if (cursor != null) {
+            page = pedidoRepository.findByIdLessThanOrderByIdDesc(cursor, pageable);
+        } else {
+            page = pedidoRepository.findAllByOrderByIdDesc(pageable);
+        }
+
+        List<PedidoResponse> data = page.getContent().stream()
                 .map(this::mapToResponse)
                 .toList();
+
+        Integer nextCursor = data.isEmpty() ? null : data.get(data.size() - 1).getId();
+
+        return CursorResponse.<PedidoResponse>builder()
+                .data(data)
+                .nextCursor(nextCursor)
+                .hasNext(page.hasNext())
+                .build();
     }
 
     public PedidoResponse buscarPorId(Integer id) {
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
         return mapToResponse(pedido);
+    }
+
+    @Transactional
+    public void cancelarPedido(Integer id) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
+                
+        if ("CANCELADO".equalsIgnoreCase(pedido.getStatusPagamento())) {
+            throw new IllegalStateException("Pedido já está cancelado.");
+        }
+        
+        List<ItemPedido> itens = itemPedidoRepository.findByPedido(pedido);
+        NaturezaOperacao natureza = pedido.getNaturezaOperacao();
+        
+        for (ItemPedido item : itens) {
+            Produto produto = item.getProduto();
+            
+            if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
+                fifoService.estornarLoteCompra(item);
+            } else if (TipoMovimento.SAIDA.equals(natureza.getTipoMovimento())) {
+                fifoService.estornarVendaFifo(item);
+            }
+            
+            estoqueService.estornarMovimentacao(produto, natureza, pedido, item.getQuantidade());
+        }
+        
+        pedido.setStatusPagamento("CANCELADO");
+        pedidoRepository.save(pedido);
     }
 
     private PedidoResponse mapToResponse(Pedido pedido) {

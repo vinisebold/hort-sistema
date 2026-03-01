@@ -2,6 +2,7 @@ package dev.vinisebold.hort.controller;
 
 import dev.vinisebold.hort.dto.request.ClienteRequest;
 import dev.vinisebold.hort.dto.response.ClienteResponse;
+import dev.vinisebold.hort.dto.response.CursorResponse;
 import dev.vinisebold.hort.dto.response.ConsultaCnpjResponse;
 import dev.vinisebold.hort.service.BrasilApiService;
 import dev.vinisebold.hort.service.ClienteService;
@@ -27,8 +28,10 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClienteResponse>> listar() {
-        return ResponseEntity.ok(clienteService.listarAtivos());
+    public ResponseEntity<CursorResponse<ClienteResponse>> listar(
+            @RequestParam(required = false) Integer cursor,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(clienteService.listarAtivos(cursor, limit));
     }
 
     @GetMapping("/{id}")
