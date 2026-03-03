@@ -59,14 +59,14 @@ public class BrasilApiService {
         }
 
         if (apiResponse.getNumero() != null && !apiResponse.getNumero().isBlank()) {
-            if (endereco.length() > 0) {
+            if (!endereco.isEmpty()) {
                 endereco.append(", ");
             }
             endereco.append(apiResponse.getNumero());
         }
 
         if (apiResponse.getMunicipio() != null && !apiResponse.getMunicipio().isBlank()) {
-            if (endereco.length() > 0) {
+            if (!endereco.isEmpty()) {
                 endereco.append(" - ");
             }
             endereco.append(apiResponse.getMunicipio());
