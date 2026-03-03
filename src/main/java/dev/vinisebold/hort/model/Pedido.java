@@ -26,10 +26,6 @@ public class Pedido {
     @JoinColumn
     private Cliente cliente;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
-    private FormaPagamento formaPagamento;
-
     private String documentoReferencia;
 
     @Column(nullable = false, precision = 10, scale = 2)

@@ -19,7 +19,6 @@ interface Pedido {
   naturezaOperacao: string
   naturezaOperacaoTipo?: string
   clienteNome: string
-  formaPagamento: string
   documentoReferencia: string
   valorTotal: number
   statusPagamento: string
@@ -292,10 +291,6 @@ export default function PedidosPage() {
                 <Box>
                   <Typography variant="body2" color="text.secondary">Cliente</Typography>
                   <Typography>{selectedPedido.clienteNome}</Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">Forma de Pagamento</Typography>
-                  <Typography>{selectedPedido.formaPagamento}</Typography>
                 </Box>
                 <Box>
                   <Typography variant="body2" color="text.secondary">Status</Typography>

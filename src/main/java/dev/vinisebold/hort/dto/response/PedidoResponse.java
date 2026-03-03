@@ -12,7 +12,6 @@ public class PedidoResponse {
     private Integer id;
     private String naturezaOperacao;
     private String clienteNome; // Pode ser nulo em vendas de balcão
-    private String formaPagamento;
     private String documentoReferencia;
     private BigDecimal valorTotal;
     private String statusPagamento;

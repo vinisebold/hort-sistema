@@ -1,10 +1,8 @@
 package dev.vinisebold.hort.config;
 
-import dev.vinisebold.hort.model.FormaPagamento;
 import dev.vinisebold.hort.model.NaturezaOperacao;
 import dev.vinisebold.hort.model.TipoMovimento;
 import dev.vinisebold.hort.model.UnidadeMedida;
-import dev.vinisebold.hort.repository.FormaPagamentoRepository;
 import dev.vinisebold.hort.repository.NaturezaOperacaoRepository;
 import dev.vinisebold.hort.repository.UnidadeMedidaRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Component;
 public class DataInitializer implements CommandLineRunner {
 
     private final NaturezaOperacaoRepository naturezaOperacaoRepository;
-    private final FormaPagamentoRepository formaPagamentoRepository;
     private final UnidadeMedidaRepository unidadeMedidaRepository;
 
     @Override
@@ -30,7 +27,6 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Verificando dados iniciais...");
         
         inicializarNaturezasOperacao();
-        inicializarFormasPagamento();
         inicializarUnidadesMedida();
         
         log.info("Dados iniciais verificados com sucesso.");
@@ -46,17 +42,6 @@ public class DataInitializer implements CommandLineRunner {
             naturezaOperacaoRepository.save(createNatureza("Estorno", TipoMovimento.ENTRADA, false));
             
             log.info("4 naturezas de operação inseridas.");
-        }
-    }
-
-    private void inicializarFormasPagamento() {
-        if (formaPagamentoRepository.count() == 0) {
-            log.info("Inicializando formas de pagamento...");
-            
-            formaPagamentoRepository.save(createFormaPagamento("Dinheiro - À Vista", false));
-            formaPagamentoRepository.save(createFormaPagamento("Dinheiro - Fiado", true));
-            
-            log.info("2 formas de pagamento inseridas.");
         }
     }
 
@@ -78,15 +63,6 @@ public class DataInitializer implements CommandLineRunner {
         natureza.setTipoMovimento(tipoMovimento);
         natureza.setGeraFinanceiro(geraFinanceiro);
         return natureza;
-    }
-
-    private FormaPagamento createFormaPagamento(String descricao, Boolean exigeCliente) {
-        FormaPagamento forma = new FormaPagamento();
-        forma.setDescricao(descricao);
-        forma.setExigeCliente(exigeCliente);
-        forma.setExigeDocumentoReferencia(false);
-        forma.setIsActive(true);
-        return forma;
     }
 
     private UnidadeMedida createUnidadeMedida(String sigla, String descricao) {

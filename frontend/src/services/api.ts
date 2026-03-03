@@ -83,15 +83,6 @@ export const naturezasApi = {
   atualizar: (id: number, data: any) => api.put(`/naturezas-operacao/${id}`, data),
 }
 
-// ========== FORMAS PAGAMENTO ==========
-export const formasPagamentoApi = {
-  listar: () => api.get('/formas-pagamento'),
-  buscar: (id: number) => api.get(`/formas-pagamento/${id}`),
-  criar: (data: any) => api.post('/formas-pagamento', data),
-  atualizar: (id: number, data: any) => api.put(`/formas-pagamento/${id}`, data),
-  deletar: (id: number) => api.delete(`/formas-pagamento/${id}`),
-}
-
 // ========== PEDIDOS ==========
 export const pedidosApi = {
   listar: (cursor?: number, limit: number = 20) => {

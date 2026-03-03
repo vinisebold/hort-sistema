@@ -14,10 +14,7 @@ public class PedidoRequest {
 
     private Integer clienteId; // Opcional (venda rápida no balcão)
 
-    @NotNull(message = "A forma de pagamento é obrigatória")
-    private Integer formaPagamentoId;
-
-    private String documentoReferencia; // Opcional (número do PIX, ticket do Fiado)
+    private String documentoReferencia; // Obrigatório quando statusPagamento = PENDENTE
 
     @NotNull(message = "O status de pagamento é obrigatório")
     private String statusPagamento; // PENDENTE, PAGO

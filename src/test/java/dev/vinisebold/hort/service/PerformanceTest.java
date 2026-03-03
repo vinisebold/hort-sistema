@@ -82,12 +82,11 @@ class PerformanceTest {
         return lote;
     }
 
-    private Pedido criarPedidoVenda(int id, NaturezaOperacao natureza, Cliente cliente, FormaPagamento formaPgto) {
+    private Pedido criarPedidoVenda(int id, NaturezaOperacao natureza, Cliente cliente) {
         Pedido p = new Pedido();
         p.setId(id);
         p.setNaturezaOperacao(natureza);
         p.setCliente(cliente);
-        p.setFormaPagamento(formaPgto);
         p.setValorTotal(new BigDecimal("150.00"));
         p.setStatusPagamento("PAGO");
         p.setDataEmissao(LocalDateTime.now().minusDays(id % 30));
@@ -255,7 +254,6 @@ class PerformanceTest {
         @Mock private PedidoRepository pedidoRepository;
         @Mock private ItemPedidoRepository itemPedidoRepository;
         @Mock private NaturezaOperacaoRepository naturezaOperacaoRepository;
-        @Mock private FormaPagamentoRepository formaPagamentoRepository;
         @Mock private ProdutoRepository produtoRepository;
         @Mock private EstoqueService estoqueService;
         @Mock private FifoService fifoService;
@@ -270,15 +268,7 @@ class PerformanceTest {
             naturezaEntrada.setTipoMovimento(TipoMovimento.ENTRADA);
             naturezaEntrada.setGeraFinanceiro(true);
 
-            FormaPagamento formaPgto = new FormaPagamento();
-            formaPgto.setId(1);
-            formaPgto.setDescricao("Dinheiro");
-            formaPgto.setExigeCliente(false);
-            formaPgto.setExigeDocumentoReferencia(false);
-            formaPgto.setIsActive(true);
-
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPgto));
 
             // Build 50-item request
             List<ItemPedidoRequest> itensRequest = new ArrayList<>(50);
@@ -292,7 +282,6 @@ class PerformanceTest {
 
             PedidoRequest request = new PedidoRequest();
             request.setNaturezaOperacaoId(1);
-            request.setFormaPagamentoId(1);
             request.setStatusPagamento("PAGO");
             request.setItens(itensRequest);
 
@@ -376,13 +365,6 @@ class PerformanceTest {
             naturezaSaida.setTipoMovimento(TipoMovimento.SAIDA);
             naturezaSaida.setGeraFinanceiro(true);
 
-            FormaPagamento formaPgto = new FormaPagamento();
-            formaPgto.setId(1);
-            formaPgto.setDescricao("Dinheiro");
-            formaPgto.setExigeCliente(false);
-            formaPgto.setExigeDocumentoReferencia(false);
-            formaPgto.setIsActive(true);
-
             List<Produto> produtos = gerarProdutos(100);
             List<Cliente> clientes = gerarClientes(50);
 
@@ -390,7 +372,7 @@ class PerformanceTest {
             List<Pedido> vendas = new ArrayList<>(1000);
             for (int i = 1; i <= 1000; i++) {
                 Cliente cliente = clientes.get(i % clientes.size());
-                vendas.add(criarPedidoVenda(i, naturezaSaida, cliente, formaPgto));
+                vendas.add(criarPedidoVenda(i, naturezaSaida, cliente));
             }
 
             // Generate 5000 item pedidos (5 items per pedido)
@@ -430,13 +412,6 @@ class PerformanceTest {
             naturezaSaida.setTipoMovimento(TipoMovimento.SAIDA);
             naturezaSaida.setGeraFinanceiro(true);
 
-            FormaPagamento formaPgto = new FormaPagamento();
-            formaPgto.setId(1);
-            formaPgto.setDescricao("Dinheiro");
-            formaPgto.setExigeCliente(false);
-            formaPgto.setExigeDocumentoReferencia(false);
-            formaPgto.setIsActive(true);
-
             List<Produto> produtos = gerarProdutos(500);
 
             // Generate 10000 item pedidos across 500 products
@@ -445,7 +420,6 @@ class PerformanceTest {
                 Pedido pedido = new Pedido();
                 pedido.setId(i);
                 pedido.setNaturezaOperacao(naturezaSaida);
-                pedido.setFormaPagamento(formaPgto);
                 pedido.setDataEmissao(LocalDateTime.now().minusDays(i % 30));
                 pedido.setValorTotal(new BigDecimal("50.00"));
                 pedido.setStatusPagamento("PAGO");

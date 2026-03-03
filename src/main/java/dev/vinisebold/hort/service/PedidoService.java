@@ -26,7 +26,6 @@ public class PedidoService {
     private final ItemPedidoRepository itemPedidoRepository;
     private final NaturezaOperacaoRepository naturezaOperacaoRepository;
     private final ClienteRepository clienteRepository;
-    private final FormaPagamentoRepository formaPagamentoRepository;
     private final ProdutoRepository produtoRepository;
 
     // Injeção dos nossos sub-serviços
@@ -36,26 +35,27 @@ public class PedidoService {
     @Transactional
     public PedidoResponse processarPedido(PedidoRequest request) {
 
-        // 1. Validar Cadastros
+        // 1. Validar documento baseado no status
+        if ("PENDENTE".equals(request.getStatusPagamento())) {
+            if (request.getDocumentoReferencia() == null || request.getDocumentoReferencia().trim().isEmpty()) {
+                throw new IllegalArgumentException("Documento de referência é obrigatório para pedidos pendentes.");
+            }
+        }
+
+        // 2. Validar Cadastros
         NaturezaOperacao natureza = naturezaOperacaoRepository.findById(request.getNaturezaOperacaoId())
                 .orElseThrow(() -> new IllegalArgumentException("Natureza de Operação inválida"));
-
-        FormaPagamento formaPgto = formaPagamentoRepository.findById(request.getFormaPagamentoId())
-                .orElseThrow(() -> new IllegalArgumentException("Forma de Pagamento inválida"));
 
         Cliente cliente = null;
         if (request.getClienteId() != null) {
             cliente = clienteRepository.findById(request.getClienteId())
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
-        } else if (formaPgto.getExigeCliente()) {
-            throw new IllegalArgumentException("Esta forma de pagamento exige que um cliente seja informado.");
         }
 
-        // 2. Criar Cabeçalho do Pedido
+        // 3. Criar Cabeçalho do Pedido
         Pedido pedido = new Pedido();
         pedido.setNaturezaOperacao(natureza);
         pedido.setCliente(cliente);
-        pedido.setFormaPagamento(formaPgto);
         pedido.setDocumentoReferencia(request.getDocumentoReferencia());
         pedido.setStatusPagamento(request.getStatusPagamento());
         pedido.setDataEmissao(LocalDateTime.now());
@@ -68,7 +68,7 @@ public class PedidoService {
 
         pedido = pedidoRepository.save(pedido);
 
-        // 3. Processar Itens
+        // 4. Processar Itens
         for (ItemPedidoRequest itemReq : request.getItens()) {
             Produto produto = produtoRepository.findById(itemReq.getProdutoId())
                     .orElseThrow(() -> new IllegalArgumentException("Produto ID " + itemReq.getProdutoId() + " não encontrado."));
@@ -86,7 +86,7 @@ public class PedidoService {
             // Salva o item para gerar o ID (necessário para o FIFO e Estoque)
             item = itemPedidoRepository.save(item);
 
-            // 4. Mágica do Fluxo (Entrada vs Saída)
+            // 5. Mágica do Fluxo (Entrada vs Saída)
             if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
                 item.setCustoUnitario(item.getValorUnitario());
                 item = itemPedidoRepository.save(item);
@@ -120,7 +120,6 @@ public class PedidoService {
                 .id(pedido.getId())
                 .naturezaOperacao(natureza.getDescricao())
                 .clienteNome(cliente != null ? cliente.getRazaoSocial() : "Consumidor Final")
-                .formaPagamento(formaPgto.getDescricao())
                 .documentoReferencia(pedido.getDocumentoReferencia())
                 .valorTotal(pedido.getValorTotal())
                 .statusPagamento(pedido.getStatusPagamento())
@@ -198,7 +197,7 @@ public class PedidoService {
                         .quantidade(item.getQuantidade())
                         .valorUnitario(item.getValorUnitario())
                         .valorTotal(item.getValorTotal())
-                        .custoUnitario(item.getCustoUnitario()) // Mostra o custo calculado pelo FIFO!
+                        .custoUnitario(item.getCustoUnitario())
                         .build()
         ).toList();
 
@@ -206,7 +205,6 @@ public class PedidoService {
                 .id(pedido.getId())
                 .naturezaOperacao(pedido.getNaturezaOperacao().getDescricao())
                 .clienteNome(pedido.getCliente() != null ? pedido.getCliente().getRazaoSocial() : "Consumidor Final")
-                .formaPagamento(pedido.getFormaPagamento().getDescricao())
                 .documentoReferencia(pedido.getDocumentoReferencia())
                 .valorTotal(pedido.getValorTotal())
                 .statusPagamento(pedido.getStatusPagamento())

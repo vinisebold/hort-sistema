@@ -59,7 +59,6 @@ class PedidoControllerTest {
         PedidoRequest request = new PedidoRequest();
         request.setNaturezaOperacaoId(1);
         request.setClienteId(1);
-        request.setFormaPagamentoId(1);
         request.setDocumentoReferencia("PIX-12345");
         request.setStatusPagamento("PAGO");
         request.setItens(List.of(buildItemPedidoRequest()));
@@ -81,7 +80,6 @@ class PedidoControllerTest {
                 .id(id)
                 .naturezaOperacao("Venda")
                 .clienteNome("João da Silva")
-                .formaPagamento("PIX")
                 .documentoReferencia("PIX-12345")
                 .valorTotal(new BigDecimal("17.500"))
                 .statusPagamento("PAGO")
@@ -103,7 +101,6 @@ class PedidoControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.naturezaOperacao").value("Venda"))
                 .andExpect(jsonPath("$.clienteNome").value("João da Silva"))
-                .andExpect(jsonPath("$.formaPagamento").value("PIX"))
                 .andExpect(jsonPath("$.valorTotal").value(17.500))
                 .andExpect(jsonPath("$.statusPagamento").value("PAGO"))
                 .andExpect(jsonPath("$.itens").isArray())

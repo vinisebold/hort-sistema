@@ -75,7 +75,6 @@ class DashboardServiceTest {
         pedido.setNaturezaOperacao(criarNaturezaSaida());
         pedido.setDataEmissao(dataEmissao);
         pedido.setStatusPagamento("PAGO");
-        pedido.setFormaPagamento(new FormaPagamento());
         return pedido;
     }
 

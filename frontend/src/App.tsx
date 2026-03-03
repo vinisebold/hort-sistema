@@ -9,7 +9,6 @@ import ClientesPage from './pages/ClientesPage'
 import PedidosPage from './pages/PedidosPage'
 import NovoPedidoPage from './pages/NovoPedidoPage'
 import EstoquePage from './pages/EstoquePage'
-import FormasPagamentoPage from './pages/FormasPagamentoPage'
 import NaturezasOperacaoPage from './pages/NaturezasOperacaoPage'
 import UnidadesMedidaPage from './pages/UnidadesMedidaPage'
 import ContaPage from './pages/ContaPage'
@@ -35,7 +34,6 @@ function App() {
             <Route path="pedidos/:id" element={<NovoPedidoPage />} />
             <Route path="estoque" element={<EstoquePage />} />
             <Route path="configuracoes">
-              <Route path="formas-pagamento" element={<FormasPagamentoPage />} />
               <Route path="naturezas-operacao" element={<NaturezasOperacaoPage />} />
               <Route path="unidades-medida" element={<UnidadesMedidaPage />} />
             </Route>

@@ -24,7 +24,6 @@ import {
     Settings,
     ExpandLess,
     ExpandMore,
-    Payment,
     SyncAlt,
     Scale,
     Menu,
@@ -48,7 +47,6 @@ const menuItems = [
 ]
 
 const configItems = [
-    { text: 'Formas de Pagamento', icon: <Payment />, path: '/configuracoes/formas-pagamento', title: 'Formas de Pagamento' },
     { text: 'Naturezas de Operação', icon: <SyncAlt />, path: '/configuracoes/naturezas-operacao', title: 'Naturezas de Operação' },
     { text: 'Unidades de Medida', icon: <Scale />, path: '/configuracoes/unidades-medida', title: 'Unidades de Medida' },
 ]

@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  IconButton, TextField, Select, MenuItem, FormControl, InputLabel, Card, CardContent,
+  IconButton, TextField, Card, CardContent,
   Autocomplete, Alert, Snackbar, Grid, Fab, ToggleButton, ToggleButtonGroup, InputAdornment
 } from '@mui/material'
 import { ArrowBack, Close, InfoOutlined, Edit, Search, Check } from '@mui/icons-material'
-import { pedidosApi, produtosApi, clientesApi, naturezasApi, formasPagamentoApi } from '../services/api'
+import { pedidosApi, produtosApi, clientesApi, naturezasApi } from '../services/api'
 
 interface ItemPedido {
   id?: number
@@ -37,12 +37,6 @@ interface NaturezaOperacao {
   tipoMovimento: string
 }
 
-interface FormaPagamento {
-  id: number
-  descricao: string
-  exigeCliente: boolean
-}
-
 export default function NovoPedidoPage() {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -53,7 +47,6 @@ export default function NovoPedidoPage() {
   const [produtos, setProdutos] = useState<Produto[]>([])
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [naturezas, setNaturezas] = useState<NaturezaOperacao[]>([])
-  const [formasPagamento, setFormasPagamento] = useState<FormaPagamento[]>([])
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [loading, setLoading] = useState(false)
   const [activeInput, setActiveInput] = useState<{ index: number, field: string, value: string } | null>(null)
@@ -61,7 +54,6 @@ export default function NovoPedidoPage() {
   const [form, setForm] = useState({
     naturezaOperacaoId: '',
     clienteId: null as number | null,
-    formaPagamentoId: '',
     documentoReferencia: '',
     statusPagamento: 'PAGO',
     itens: [{ produtoId: 0, produtoDescricao: '', quantidade: 0, valorUnitario: 0, valorTotal: 0 }] as ItemPedido[]
@@ -72,7 +64,6 @@ export default function NovoPedidoPage() {
       loadProdutos(),
       loadClientes(),
       loadNaturezas(),
-      loadFormasPagamento()
     ])
     if (isEditing) {
       loadPedido()
@@ -115,15 +106,6 @@ export default function NovoPedidoPage() {
     }
   }
 
-  const loadFormasPagamento = async () => {
-    try {
-      const response = await formasPagamentoApi.listar()
-      setFormasPagamento(response.data)
-    } catch (error) {
-      console.error('Erro ao carregar formas de pagamento:', error)
-    }
-  }
-
   const loadPedido = async () => {
     try {
       const response = await pedidosApi.buscar(Number(id))
@@ -131,7 +113,6 @@ export default function NovoPedidoPage() {
       setForm({
         naturezaOperacaoId: String(pedido.naturezaOperacaoId || pedido.naturezaOperacao?.id || ''),
         clienteId: pedido.clienteId,
-        formaPagamentoId: String(pedido.formaPagamentoId || pedido.formaPagamento?.id || ''),
         documentoReferencia: pedido.documentoReferencia || '',
         statusPagamento: pedido.statusPagamento,
         itens: pedido.itens.length > 0 ? pedido.itens : [{ produtoId: 0, produtoDescricao: '', quantidade: 1, valorUnitario: 0, valorTotal: 0 }]
@@ -191,14 +172,13 @@ export default function NovoPedidoPage() {
   }
 
   const handleSubmit = async () => {
-    if (!form.naturezaOperacaoId || !form.formaPagamentoId || form.itens.length === 0) {
+    if (!form.naturezaOperacaoId || form.itens.length === 0) {
       setSnackbar({ open: true, message: 'Preencha todos os campos obrigatórios', severity: 'error' })
       return
     }
 
-    const formaPgto = formasPagamento.find(f => f.id === Number(form.formaPagamentoId))
-    if (formaPgto?.exigeCliente && !form.clienteId) {
-      setSnackbar({ open: true, message: 'Esta forma de pagamento exige um cliente', severity: 'error' })
+    if (form.statusPagamento === 'PENDENTE' && !form.documentoReferencia.trim()) {
+      setSnackbar({ open: true, message: 'Documento de referência é obrigatório para pedidos pendentes.', severity: 'error' })
       return
     }
 
@@ -207,7 +187,6 @@ export default function NovoPedidoPage() {
       const payload = {
         naturezaOperacaoId: Number(form.naturezaOperacaoId),
         clienteId: form.clienteId,
-        formaPagamentoId: Number(form.formaPagamentoId),
         documentoReferencia: form.documentoReferencia || null,
         statusPagamento: form.statusPagamento,
         itens: form.itens
@@ -240,8 +219,6 @@ export default function NovoPedidoPage() {
       setLoading(false)
     }
   }
-
-  const selectedFormaPgto = formasPagamento.find(f => f.id === Number(form.formaPagamentoId))
 
   const selectedNatureza = naturezas.find(n => String(n.id) === form.naturezaOperacaoId)
 
@@ -336,36 +313,16 @@ export default function NovoPedidoPage() {
               </Grid>
               
               <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Forma de Pagamento *</InputLabel>
-                  <Select
-                    value={form.formaPagamentoId}
-                    label="Forma de Pagamento *"
-                    onChange={(e) => setForm({ ...form, formaPagamentoId: e.target.value })}
-                  >
-                    {formasPagamento.map((f) => (
-                      <MenuItem key={f.id} value={f.id}>
-                        {f.descricao} {f.exigeCliente && '(Exige cliente)'}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={6}>
                 <TextField
-                  label="Documento de Referência (Opcional)"
+                  label={form.statusPagamento === 'PENDENTE' ? 'Documento de Referência *' : 'Documento de Referência'}
                   value={form.documentoReferencia}
                   onChange={(e) => setForm({ ...form, documentoReferencia: e.target.value })}
                   fullWidth
+                  required={form.statusPagamento === 'PENDENTE'}
+                  helperText={form.statusPagamento === 'PENDENTE' ? 'Obrigatório para pedidos pendentes' : undefined}
                 />
               </Grid>
             </Grid>
-
-            {selectedFormaPgto?.exigeCliente && !form.clienteId && (
-              <Alert severity="warning" sx={{ mt: 2 }}>
-                Esta forma de pagamento exige um cliente
-              </Alert>
-            )}
           </CardContent>
         </Card>
 

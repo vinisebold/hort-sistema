@@ -47,9 +47,6 @@ class PedidoServiceTest {
     private ClienteRepository clienteRepository;
 
     @Mock
-    private FormaPagamentoRepository formaPagamentoRepository;
-
-    @Mock
     private ProdutoRepository produtoRepository;
 
     @Mock
@@ -63,8 +60,6 @@ class PedidoServiceTest {
 
     private NaturezaOperacao naturezaEntrada;
     private NaturezaOperacao naturezaSaida;
-    private FormaPagamento formaPagamento;
-    private FormaPagamento formaPagamentoExigeCliente;
     private Cliente cliente;
     private Produto produto;
 
@@ -81,20 +76,6 @@ class PedidoServiceTest {
         naturezaSaida.setDescricao("Venda");
         naturezaSaida.setTipoMovimento(TipoMovimento.SAIDA);
         naturezaSaida.setGeraFinanceiro(true);
-
-        formaPagamento = new FormaPagamento();
-        formaPagamento.setId(1);
-        formaPagamento.setDescricao("Dinheiro");
-        formaPagamento.setExigeCliente(false);
-        formaPagamento.setExigeDocumentoReferencia(false);
-        formaPagamento.setIsActive(true);
-
-        formaPagamentoExigeCliente = new FormaPagamento();
-        formaPagamentoExigeCliente.setId(2);
-        formaPagamentoExigeCliente.setDescricao("Fiado");
-        formaPagamentoExigeCliente.setExigeCliente(true);
-        formaPagamentoExigeCliente.setExigeDocumentoReferencia(true);
-        formaPagamentoExigeCliente.setIsActive(true);
 
         cliente = new Cliente();
         cliente.setId(1);
@@ -117,12 +98,10 @@ class PedidoServiceTest {
     // ──────────────────────────────────────────────────────────────
 
     private PedidoRequest criarPedidoRequest(Integer naturezaId, Integer clienteId,
-                                              Integer formaPgtoId,
                                               List<ItemPedidoRequest> itens) {
         PedidoRequest request = new PedidoRequest();
         request.setNaturezaOperacaoId(naturezaId);
         request.setClienteId(clienteId);
-        request.setFormaPagamentoId(formaPgtoId);
         request.setDocumentoReferencia("DOC-001");
         request.setStatusPagamento("PAGO");
         request.setItens(itens);
@@ -138,12 +117,11 @@ class PedidoServiceTest {
     }
 
     private Pedido criarPedidoSalvo(Integer id, NaturezaOperacao natureza, Cliente cliente,
-                                     FormaPagamento formaPgto, BigDecimal valorTotal, String status) {
+                                     BigDecimal valorTotal, String status) {
         Pedido pedido = new Pedido();
         pedido.setId(id);
         pedido.setNaturezaOperacao(natureza);
         pedido.setCliente(cliente);
-        pedido.setFormaPagamento(formaPgto);
         pedido.setDocumentoReferencia("DOC-001");
         pedido.setValorTotal(valorTotal);
         pedido.setStatusPagamento(status);
@@ -205,10 +183,9 @@ class PedidoServiceTest {
         @DisplayName("ENTRADA - deve criar pedido, salvar itens, chamar estoque e fifo, e setar custoUnitario = valorUnitario")
         void deveProcessarPedidoEntrada() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, 1, 1, List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
             when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente));
             when(produtoRepository.findById(1)).thenReturn(Optional.of(produto));
             configurarPedidoSaveComId();
@@ -220,7 +197,6 @@ class PedidoServiceTest {
             assertEquals(1, response.getId());
             assertEquals("Compra", response.getNaturezaOperacao());
             assertEquals("Fornecedor ABC", response.getClienteNome());
-            assertEquals("Dinheiro", response.getFormaPagamento());
             assertThat(response.getValorTotal()).isEqualByComparingTo(new BigDecimal("55.000"));
             assertEquals("PAGO", response.getStatusPagamento());
             assertNotNull(response.getDataEmissao());
@@ -238,10 +214,9 @@ class PedidoServiceTest {
         @DisplayName("SAIDA - deve criar pedido, salvar itens, chamar estoque e fifo, e setar custoUnitario do FIFO")
         void deveProcessarPedidoSaida() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "5.000", "20.00");
-            PedidoRequest request = criarPedidoRequest(2, 1, 1, List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(2, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(2)).thenReturn(Optional.of(naturezaSaida));
-            when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
             when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente));
             when(produtoRepository.findById(1)).thenReturn(Optional.of(produto));
             configurarPedidoSaveComId();
@@ -269,7 +244,7 @@ class PedidoServiceTest {
         @DisplayName("deve lancar IllegalArgumentException quando natureza de operacao nao encontrada")
         void deveLancarExcecaoNaturezaNaoEncontrada() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(999, 1, 1, List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(999, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(999)).thenReturn(Optional.empty());
 
@@ -281,29 +256,12 @@ class PedidoServiceTest {
         }
 
         @Test
-        @DisplayName("deve lancar IllegalArgumentException quando forma de pagamento nao encontrada")
-        void deveLancarExcecaoFormaPagamentoNaoEncontrada() {
-            ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, 1, 999, List.of(itemReq));
-
-            when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(formaPagamentoRepository.findById(999)).thenReturn(Optional.empty());
-
-            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                    () -> pedidoService.processarPedido(request));
-
-            assertEquals("Forma de Pagamento inválida", ex.getMessage());
-            verifyNoInteractions(pedidoRepository, itemPedidoRepository, estoqueService, fifoService);
-        }
-
-        @Test
         @DisplayName("deve lancar IllegalArgumentException quando cliente nao encontrado")
         void deveLancarExcecaoClienteNaoEncontrado() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, 999, 1, List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(1, 999, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
             when(clienteRepository.findById(999)).thenReturn(Optional.empty());
 
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
@@ -314,29 +272,12 @@ class PedidoServiceTest {
         }
 
         @Test
-        @DisplayName("deve lancar IllegalArgumentException quando exigeCliente e clienteId e null")
-        void deveLancarExcecaoExigeClienteSemCliente() {
+        @DisplayName("deve permitir clienteId null")
+        void devePermitirClienteNull() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, null, 2, List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(1, null, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(formaPagamentoRepository.findById(2)).thenReturn(Optional.of(formaPagamentoExigeCliente));
-
-            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                    () -> pedidoService.processarPedido(request));
-
-            assertEquals("Esta forma de pagamento exige que um cliente seja informado.", ex.getMessage());
-            verifyNoInteractions(pedidoRepository, itemPedidoRepository, estoqueService, fifoService);
-        }
-
-        @Test
-        @DisplayName("deve permitir clienteId null quando forma de pagamento nao exige cliente")
-        void devePermitirClienteNullQuandoNaoExigeCliente() {
-            ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, null, 1, List.of(itemReq));
-
-            when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
             when(produtoRepository.findById(1)).thenReturn(Optional.of(produto));
             configurarPedidoSaveComId();
             configurarItemPedidoSaveComId();
@@ -352,10 +293,9 @@ class PedidoServiceTest {
         @DisplayName("deve lancar IllegalArgumentException quando produto nao encontrado")
         void deveLancarExcecaoProdutoNaoEncontrado() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(999, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, 1, 1, List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
             when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente));
             configurarPedidoSaveComId();
             when(produtoRepository.findById(999)).thenReturn(Optional.empty());
@@ -379,10 +319,9 @@ class PedidoServiceTest {
 
             ItemPedidoRequest itemReq1 = criarItemPedidoRequest(1, "10.000", "5.50");
             ItemPedidoRequest itemReq2 = criarItemPedidoRequest(2, "20.000", "3.00");
-            PedidoRequest request = criarPedidoRequest(1, 1, 1, List.of(itemReq1, itemReq2));
+            PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq1, itemReq2));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
             when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente));
             when(produtoRepository.findById(1)).thenReturn(Optional.of(produto));
             when(produtoRepository.findById(2)).thenReturn(Optional.of(produto2));
@@ -400,6 +339,61 @@ class PedidoServiceTest {
             verify(estoqueService).processarMovimentacao(eq(produto2), eq(naturezaEntrada), any(Pedido.class), eq(new BigDecimal("20.000")));
             verify(fifoService, times(2)).registrarLoteCompra(any(ItemPedido.class));
         }
+
+        @Test
+        @DisplayName("deve lancar IllegalArgumentException quando PENDENTE sem documentoReferencia")
+        void deveLancarExcecaoPendenteSemDocumento() {
+            ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
+            PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq));
+            request.setStatusPagamento("PENDENTE");
+            request.setDocumentoReferencia(null);
+
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                    () -> pedidoService.processarPedido(request));
+
+            assertEquals("Documento de referência é obrigatório para pedidos pendentes.", ex.getMessage());
+            verifyNoInteractions(naturezaOperacaoRepository, pedidoRepository, itemPedidoRepository, estoqueService, fifoService);
+        }
+
+        @Test
+        @DisplayName("deve permitir PAGO sem documentoReferencia")
+        void devePermitirPagoSemDocumento() {
+            ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
+            PedidoRequest request = criarPedidoRequest(1, null, List.of(itemReq));
+            request.setStatusPagamento("PAGO");
+            request.setDocumentoReferencia(null);
+
+            when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
+            when(produtoRepository.findById(1)).thenReturn(Optional.of(produto));
+            configurarPedidoSaveComId();
+            configurarItemPedidoSaveComId();
+
+            PedidoResponse response = pedidoService.processarPedido(request);
+
+            assertNotNull(response);
+            assertEquals("PAGO", response.getStatusPagamento());
+            assertNull(response.getDocumentoReferencia());
+        }
+
+        @Test
+        @DisplayName("deve permitir PENDENTE com documentoReferencia")
+        void devePermitirPendenteComDocumento() {
+            ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
+            PedidoRequest request = criarPedidoRequest(1, null, List.of(itemReq));
+            request.setStatusPagamento("PENDENTE");
+            request.setDocumentoReferencia("NF-001");
+
+            when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
+            when(produtoRepository.findById(1)).thenReturn(Optional.of(produto));
+            configurarPedidoSaveComId();
+            configurarItemPedidoSaveComId();
+
+            PedidoResponse response = pedidoService.processarPedido(request);
+
+            assertNotNull(response);
+            assertEquals("PENDENTE", response.getStatusPagamento());
+            assertEquals("NF-001", response.getDocumentoReferencia());
+        }
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -413,9 +407,9 @@ class PedidoServiceTest {
         @Test
         @DisplayName("deve listar pedidos sem cursor (primeira pagina)")
         void deveListarSemCursor() {
-            Pedido pedido1 = criarPedidoSalvo(2, naturezaSaida, cliente, formaPagamento,
+            Pedido pedido1 = criarPedidoSalvo(2, naturezaSaida, cliente,
                     new BigDecimal("100.00"), "PAGO");
-            Pedido pedido2 = criarPedidoSalvo(1, naturezaEntrada, null, formaPagamento,
+            Pedido pedido2 = criarPedidoSalvo(1, naturezaEntrada, null,
                     new BigDecimal("50.00"), "PENDENTE");
 
             Page<Pedido> page = new PageImpl<>(List.of(pedido1, pedido2));
@@ -443,7 +437,7 @@ class PedidoServiceTest {
         @Test
         @DisplayName("deve listar pedidos com cursor (paginacao)")
         void deveListarComCursor() {
-            Pedido pedido1 = criarPedidoSalvo(5, naturezaSaida, cliente, formaPagamento,
+            Pedido pedido1 = criarPedidoSalvo(5, naturezaSaida, cliente,
                     new BigDecimal("200.00"), "PAGO");
 
             Page<Pedido> page = new PageImpl<>(List.of(pedido1), org.springframework.data.domain.PageRequest.of(0, 10), 20);
@@ -481,7 +475,7 @@ class PedidoServiceTest {
         @Test
         @DisplayName("deve mapear corretamente os campos do PedidoResponse via mapToResponse")
         void deveMapearCamposCorretamente() {
-            Pedido pedido = criarPedidoSalvo(1, naturezaSaida, cliente, formaPagamento,
+            Pedido pedido = criarPedidoSalvo(1, naturezaSaida, cliente,
                     new BigDecimal("100.00"), "PAGO");
 
             Page<Pedido> page = new PageImpl<>(List.of(pedido));
@@ -498,7 +492,6 @@ class PedidoServiceTest {
                     () -> assertEquals(1, response.getId()),
                     () -> assertEquals("Venda", response.getNaturezaOperacao()),
                     () -> assertEquals("Fornecedor ABC", response.getClienteNome()),
-                    () -> assertEquals("Dinheiro", response.getFormaPagamento()),
                     () -> assertEquals("DOC-001", response.getDocumentoReferencia()),
                     () -> assertEquals(new BigDecimal("100.00"), response.getValorTotal()),
                     () -> assertEquals("PAGO", response.getStatusPagamento()),
@@ -517,7 +510,7 @@ class PedidoServiceTest {
         @Test
         @DisplayName("deve retornar 'Consumidor Final' quando pedido nao tem cliente")
         void deveRetornarConsumidorFinalQuandoSemCliente() {
-            Pedido pedido = criarPedidoSalvo(1, naturezaSaida, null, formaPagamento,
+            Pedido pedido = criarPedidoSalvo(1, naturezaSaida, null,
                     new BigDecimal("50.00"), "PAGO");
 
             Page<Pedido> page = new PageImpl<>(List.of(pedido));
@@ -541,7 +534,7 @@ class PedidoServiceTest {
         @Test
         @DisplayName("deve retornar PedidoResponse quando pedido encontrado")
         void deveRetornarPedidoQuandoEncontrado() {
-            Pedido pedido = criarPedidoSalvo(1, naturezaSaida, cliente, formaPagamento,
+            Pedido pedido = criarPedidoSalvo(1, naturezaSaida, cliente,
                     new BigDecimal("100.00"), "PAGO");
 
             when(pedidoRepository.findById(1)).thenReturn(Optional.of(pedido));
@@ -586,7 +579,7 @@ class PedidoServiceTest {
         @Test
         @DisplayName("ENTRADA - deve estornar lote de compra e movimentacao de estoque, e marcar como CANCELADO")
         void deveCancelarPedidoEntrada() {
-            Pedido pedido = criarPedidoSalvo(1, naturezaEntrada, cliente, formaPagamento,
+            Pedido pedido = criarPedidoSalvo(1, naturezaEntrada, cliente,
                     new BigDecimal("55.00"), "PAGO");
 
             ItemPedido item = criarItemPedidoSalvo(1, pedido, produto, new BigDecimal("10.000"),
@@ -607,7 +600,7 @@ class PedidoServiceTest {
         @Test
         @DisplayName("SAIDA - deve estornar venda FIFO e movimentacao de estoque, e marcar como CANCELADO")
         void deveCancelarPedidoSaida() {
-            Pedido pedido = criarPedidoSalvo(1, naturezaSaida, cliente, formaPagamento,
+            Pedido pedido = criarPedidoSalvo(1, naturezaSaida, cliente,
                     new BigDecimal("100.00"), "PAGO");
 
             ItemPedido item = criarItemPedidoSalvo(1, pedido, produto, new BigDecimal("5.000"),
@@ -633,7 +626,7 @@ class PedidoServiceTest {
             produto2.setCodigo("P002");
             produto2.setDescricao("Cebola");
 
-            Pedido pedido = criarPedidoSalvo(1, naturezaEntrada, cliente, formaPagamento,
+            Pedido pedido = criarPedidoSalvo(1, naturezaEntrada, cliente,
                     new BigDecimal("115.00"), "PAGO");
 
             ItemPedido item1 = criarItemPedidoSalvo(1, pedido, produto, new BigDecimal("10.000"),
@@ -669,7 +662,7 @@ class PedidoServiceTest {
         @Test
         @DisplayName("deve lancar IllegalStateException quando pedido ja esta cancelado")
         void deveLancarExcecaoQuandoPedidoJaCancelado() {
-            Pedido pedido = criarPedidoSalvo(1, naturezaEntrada, cliente, formaPagamento,
+            Pedido pedido = criarPedidoSalvo(1, naturezaEntrada, cliente,
                     new BigDecimal("55.00"), "CANCELADO");
 
             when(pedidoRepository.findById(1)).thenReturn(Optional.of(pedido));
@@ -685,7 +678,7 @@ class PedidoServiceTest {
         @Test
         @DisplayName("deve verificar case-insensitive no status CANCELADO")
         void deveVerificarCaseInsensitiveStatusCancelado() {
-            Pedido pedido = criarPedidoSalvo(1, naturezaEntrada, cliente, formaPagamento,
+            Pedido pedido = criarPedidoSalvo(1, naturezaEntrada, cliente,
                     new BigDecimal("55.00"), "cancelado");
 
             when(pedidoRepository.findById(1)).thenReturn(Optional.of(pedido));
