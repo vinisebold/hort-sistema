@@ -181,7 +181,7 @@ export default function ClientesPage() {
               <TableCell>Nome Fantasia</TableCell>
               <TableCell>Documento</TableCell>
               <TableCell>Telefone</TableCell>
-              <TableCell align="center">Ações</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -102,7 +102,7 @@ export default function UnidadesMedidaPage() {
               <TableCell>Sigla</TableCell>
               <TableCell>Descrição</TableCell>
               <TableCell align="center">Status</TableCell>
-              <TableCell align="center">Ações</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

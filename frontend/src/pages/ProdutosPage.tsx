@@ -140,7 +140,7 @@ export default function ProdutosPage() {
               <TableCell>Descrição</TableCell>
               <TableCell>Un. de estoque</TableCell>
               <TableCell align="right">Estoque</TableCell>
-              <TableCell align="center">Ações</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

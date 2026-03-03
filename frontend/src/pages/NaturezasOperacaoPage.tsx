@@ -101,7 +101,7 @@ export default function NaturezasOperacaoPage() {
               <TableCell>Descrição</TableCell>
               <TableCell>Tipo de Movimento</TableCell>
               <TableCell align="center">Gera Financeiro</TableCell>
-              <TableCell align="center">Ações</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

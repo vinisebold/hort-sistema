@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Alert, Checkbox, CircularProgress
+  Button, Alert, Checkbox, CircularProgress, Menu, MenuItem
 } from '@mui/material'
-import { Add, Visibility, Cancel } from '@mui/icons-material'
+import { Add, Visibility, Cancel, MoreVert } from '@mui/icons-material'
 import { pedidosApi, naturezasApi } from '../services/api'
 import NaturezaOverlay from '../components/NaturezaOverlay'
 
@@ -46,6 +46,19 @@ export default function PedidosPage() {
   const [showOverlay, setShowOverlay] = useState(false)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [cancelConfirm, setCancelConfirm] = useState<Pedido | null>(null)
+  
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
+  const [selectedMenuPedido, setSelectedMenuPedido] = useState<Pedido | null>(null)
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, pedido: Pedido) => {
+    setMenuAnchorEl(event.currentTarget)
+    setSelectedMenuPedido(pedido)
+  }
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null)
+    setSelectedMenuPedido(null)
+  }
 
   useEffect(() => {
     loadPedidos().catch(console.error)
@@ -172,7 +185,7 @@ export default function PedidosPage() {
               <TableCell align="right" sx={{ pr: 6 }}>Valor (R$)</TableCell>
               <TableCell sx={{ pl: 6, pr: 1.5 }}>Status</TableCell>
               <TableCell sx={{ pl: 1.5 }}>Tipo/Origem</TableCell>
-              <TableCell align="center">Ações</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -201,18 +214,12 @@ export default function PedidosPage() {
                 </TableCell>
                 <TableCell sx={{ pl: 1.5 }}>{getNaturezaChip(pedido.naturezaOperacao)}</TableCell>
                 <TableCell align="center">
-                  <IconButton onClick={() => handleView(pedido.id)}>
+                  <IconButton onClick={() => handleView(pedido.id)} title="Visualizar">
                     <Visibility />
                   </IconButton>
-                  {pedido.statusPagamento !== 'CANCELADO' && (
-                    <IconButton
-                      color="error"
-                      onClick={() => setCancelConfirm(pedido)}
-                      title="Cancelar pedido"
-                    >
-                      <Cancel />
-                    </IconButton>
-                  )}
+                  <IconButton onClick={(e) => handleMenuOpen(e, pedido)} title="Mais opções">
+                    <MoreVert />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -250,6 +257,49 @@ export default function PedidosPage() {
         naturezas={naturezas}
         onSelect={handleSelectNatureza}
       />
+
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        TransitionProps={{
+          timeout: 150,
+        }}
+        slotProps={{
+          paper: {
+            sx: {
+              marginLeft: '-38px',
+            }
+          }
+        }}
+      >
+        <MenuItem onClick={() => { handleMenuClose(); /* TODO: Implement Devolver */ }}>
+          Devolver
+        </MenuItem>
+        <MenuItem onClick={() => { handleMenuClose(); /* TODO: Implement Retornar */ }}>
+          Retornar
+        </MenuItem>
+        <MenuItem 
+          onClick={() => { 
+            handleMenuClose()
+            if (selectedMenuPedido) setCancelConfirm(selectedMenuPedido)
+          }}
+          disabled={selectedMenuPedido?.statusPagamento === 'CANCELADO'}
+        >
+          Cancelar
+        </MenuItem>
+        <MenuItem onClick={() => { handleMenuClose(); /* TODO: Implement Ver financeiro */ }}>
+          Ver financeiro
+        </MenuItem>
+      </Menu>
 
       {/* Dialog Confirmar Cancelamento */}
       <Dialog open={!!cancelConfirm} onClose={() => setCancelConfirm(null)}>
