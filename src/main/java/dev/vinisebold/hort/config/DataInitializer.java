@@ -40,10 +40,10 @@ public class DataInitializer implements CommandLineRunner {
         if (naturezaOperacaoRepository.count() == 0) {
             log.info("Inicializando naturezas de operação...");
             
-            naturezaOperacaoRepository.save(createNatureza(1, "Venda de Mercadoria", TipoMovimento.SAIDA, true));
-            naturezaOperacaoRepository.save(createNatureza(2, "Compra de Mercadoria", TipoMovimento.ENTRADA, true));
-            naturezaOperacaoRepository.save(createNatureza(3, "Devolução", TipoMovimento.SAIDA, false));
-            naturezaOperacaoRepository.save(createNatureza(4, "Estorno", TipoMovimento.ENTRADA, false));
+            naturezaOperacaoRepository.save(createNatureza("Venda de Mercadoria", TipoMovimento.SAIDA, true));
+            naturezaOperacaoRepository.save(createNatureza("Compra de Mercadoria", TipoMovimento.ENTRADA, true));
+            naturezaOperacaoRepository.save(createNatureza("Devolução", TipoMovimento.SAIDA, false));
+            naturezaOperacaoRepository.save(createNatureza("Estorno", TipoMovimento.ENTRADA, false));
             
             log.info("4 naturezas de operação inseridas.");
         }
@@ -72,9 +72,8 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private NaturezaOperacao createNatureza(Integer id, String descricao, TipoMovimento tipoMovimento, Boolean geraFinanceiro) {
+    private NaturezaOperacao createNatureza(String descricao, TipoMovimento tipoMovimento, Boolean geraFinanceiro) {
         NaturezaOperacao natureza = new NaturezaOperacao();
-        natureza.setId(id);
         natureza.setDescricao(descricao);
         natureza.setTipoMovimento(tipoMovimento);
         natureza.setGeraFinanceiro(geraFinanceiro);

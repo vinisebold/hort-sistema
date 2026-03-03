@@ -10,7 +10,7 @@ public class NaturezaOperacaoRequest {
     @NotBlank(message = "A descrição é obrigatória")
     private String descricao;
 
-    @NotBlank(message = "O tipo de movimento (ENTRADA ou SAIDA) é obrigatório")
+    @NotNull(message = "O tipo de movimento (ENTRADA ou SAIDA) é obrigatório")
     private TipoMovimento tipoMovimento;
 
     @NotNull(message = "Defina se gera financeiro")
