@@ -166,7 +166,7 @@ export default function PedidosPage() {
                   onChange={handleSelectAll}
                 />
               </TableCell>
-              <TableCell>ID</TableCell>
+              <TableCell>Série/Número</TableCell>
               <TableCell>Data</TableCell>
               <TableCell>Cliente</TableCell>
               <TableCell align="right" sx={{ pr: 6 }}>Valor (R$)</TableCell>
@@ -188,7 +188,7 @@ export default function PedidosPage() {
                     onChange={() => handleSelectOne(pedido.id)}
                   />
                 </TableCell>
-                <TableCell>#{pedido.id}</TableCell>
+                <TableCell>{pedido.id}</TableCell>
                 <TableCell>{new Date(pedido.dataEmissao).toLocaleDateString('pt-BR')}</TableCell>
                 <TableCell>{pedido.clienteNome}</TableCell>
                 <TableCell align="right" sx={{ pr: 6 }}>R$ {pedido.valorTotal.toFixed(2)}</TableCell>
@@ -253,7 +253,7 @@ export default function PedidosPage() {
 
       {/* Dialog Confirmar Cancelamento */}
       <Dialog open={!!cancelConfirm} onClose={() => setCancelConfirm(null)}>
-        <DialogTitle>Cancelar Pedido #{cancelConfirm?.id}?</DialogTitle>
+        <DialogTitle>Cancelar Pedido {cancelConfirm?.id}?</DialogTitle>
         <DialogContent>
           <Typography>
             Esta ação irá estornar o estoque e reverter os lotes FIFO associados a este pedido.
@@ -271,7 +271,7 @@ export default function PedidosPage() {
       {/* Dialog Visualizar Pedido */}
       <Dialog open={openView} onClose={() => setOpenView(false)} maxWidth="md" fullWidth>
         <DialogTitle>
-          Pedido #{selectedPedido?.id}
+          Pedido {selectedPedido?.id}
           {selectedPedido?.statusPagamento === 'CANCELADO' && (
             <Chip label="CANCELADO" color="error" size="small" sx={{ ml: 1 }} />
           )}

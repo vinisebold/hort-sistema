@@ -12,7 +12,7 @@ export default function LoginPage() {
 
   // Redirect if already authenticated
   if (isAuthenticated && !isLoading) {
-    navigate('/dashboard')
+    navigate('/inicio')
     return null
   }
 
@@ -26,7 +26,7 @@ export default function LoginPage() {
       } else {
         await login(senha)
       }
-      navigate('/dashboard')
+      navigate('/inicio')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao autenticar')
     }

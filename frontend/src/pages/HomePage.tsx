@@ -25,7 +25,7 @@ export default function HomePage() {
         { label: 'Novo Pedido', icon: <AddShoppingCart fontSize="small" />, path: '/pedidos/novo' },
         { label: 'Lista de Pedidos', icon: <ShoppingCart fontSize="small" />, path: '/pedidos' },
         { label: 'Controle de Estoque', icon: <Widgets fontSize="small" />, path: '/estoque' },
-        { label: 'Resumo Financeiro', icon: <AccountBalanceWallet fontSize="small" />, path: '/dashboard' },
+        { label: 'Financeiro', icon: <AccountBalanceWallet fontSize="small" />, path: '/financeiro' },
         { label: 'Produtos', icon: <Inventory fontSize="small" />, path: '/produtos' },
         { label: 'Clientes', icon: <PersonAdd fontSize="small" />, path: '/clientes' },
     ]

@@ -317,7 +317,7 @@ export default function NovoPedidoPage() {
               <Grid item xs={12} sx={{ pt: form.statusPagamento === 'PENDENTE' ? 4 : 0, transition: 'padding-top 0.3s' }}>
                 <Collapse in={form.statusPagamento === 'PENDENTE'} timeout={300}>
                   <TextField
-                    label="Documento de Referência *"
+                    label="Documento de Referência"
                     value={form.documentoReferencia}
                     onChange={(e) => setForm({ ...form, documentoReferencia: e.target.value })}
                     fullWidth

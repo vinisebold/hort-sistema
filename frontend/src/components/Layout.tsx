@@ -38,7 +38,7 @@ const menuCategories = [
         title: 'Principal',
         items: [
             { text: 'Início', icon: <Dashboard />, path: '/inicio', title: 'Início' },
-            { text: 'Financeiro', icon: <AttachMoney />, path: '/dashboard', title: 'Financeiro' },
+            { text: 'Financeiro', icon: <AttachMoney />, path: '/financeiro', title: 'Financeiro' },
         ]
     },
     {
