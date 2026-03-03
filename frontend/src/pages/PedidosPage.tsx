@@ -5,7 +5,7 @@ import {
   Paper, IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Alert, Checkbox, CircularProgress, Menu, MenuItem
 } from '@mui/material'
-import { Add, Visibility, Cancel, MoreVert } from '@mui/icons-material'
+import { Add, Visibility, Cancel, MoreVert, ArrowDownward, ArrowUpward } from '@mui/icons-material'
 import { pedidosApi, naturezasApi } from '../services/api'
 import NaturezaOverlay from '../components/NaturezaOverlay'
 
@@ -163,7 +163,12 @@ export default function PedidosPage() {
 
   const getNaturezaChip = (tipo: string) => {
     const isEntrada = tipo?.toLowerCase().includes('compra') || tipo?.toLowerCase().includes('estorno')
-    return <Chip label={tipo} color={isEntrada ? 'success' : 'warning'} size="small" />
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        {isEntrada ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />}
+        <Typography variant="body2">{tipo}</Typography>
+      </Box>
+    )
   }
 
   return (
