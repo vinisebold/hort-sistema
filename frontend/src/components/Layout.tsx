@@ -10,7 +10,6 @@ import {
     ListItemIcon,
     ListItemText,
     IconButton,
-    Collapse,
     CssBaseline,
     Divider,
 } from '@mui/material'
@@ -21,9 +20,6 @@ import {
     ShoppingCart,
     Widgets,
     Logout,
-    Settings,
-    ExpandLess,
-    ExpandMore,
     SyncAlt,
     Scale,
     Menu,
@@ -37,18 +33,30 @@ import { useAuth } from '../contexts/AuthContext'
 
 const drawerWidth = 280
 
-const menuItems = [
-    { text: 'Início', icon: <Dashboard />, path: '/inicio', title: 'Início' },
-    { text: 'Resumo Financeiro', icon: <AttachMoney />, path: '/dashboard', title: 'Resumo Financeiro' },
-    { text: 'Produtos', icon: <Inventory />, path: '/produtos', title: 'Produtos' },
-    { text: 'Clientes', icon: <People />, path: '/clientes', title: 'Clientes' },
-    { text: 'Pedidos', icon: <ShoppingCart />, path: '/pedidos', title: 'Pedidos' },
-    { text: 'Estoque', icon: <Widgets />, path: '/estoque', title: 'Estoque' },
-]
-
-const configItems = [
-    { text: 'Naturezas de Operação', icon: <SyncAlt />, path: '/configuracoes/naturezas-operacao', title: 'Naturezas de Operação' },
-    { text: 'Unidades de Medida', icon: <Scale />, path: '/configuracoes/unidades-medida', title: 'Unidades de Medida' },
+const menuCategories = [
+    {
+        title: 'Principal',
+        items: [
+            { text: 'Início', icon: <Dashboard />, path: '/inicio', title: 'Início' },
+            { text: 'Financeiro', icon: <AttachMoney />, path: '/dashboard', title: 'Financeiro' },
+        ]
+    },
+    {
+        title: 'Movimentações',
+        items: [
+            { text: 'Pedidos', icon: <ShoppingCart />, path: '/pedidos', title: 'Pedidos' },
+            { text: 'Estoque', icon: <Widgets />, path: '/estoque', title: 'Estoque' },
+        ]
+    },
+    {
+        title: 'Cadastros',
+        items: [
+            { text: 'Produtos', icon: <Inventory />, path: '/produtos', title: 'Produtos' },
+            { text: 'Clientes', icon: <People />, path: '/clientes', title: 'Clientes' },
+            { text: 'Naturezas de Operação', icon: <SyncAlt />, path: '/naturezas-operacao', title: 'Naturezas de Operação' },
+            { text: 'Unidades de Medida', icon: <Scale />, path: '/unidades-medida', title: 'Unidades de Medida' },
+        ]
+    }
 ]
 
 export default function Layout() {
@@ -58,11 +66,10 @@ export default function Layout() {
 
     const [open, setOpen] = useState(false)
     const [accountOpen, setAccountOpen] = useState(false)
-    const [configOpen, setConfigOpen] = useState(false)
     const [pageTitle, setPageTitle] = useState('Hort Sistema')
 
     useEffect(() => {
-        const allItems = [...menuItems, ...configItems, { text: 'Conta', path: '/conta', title: 'Minha Conta' }]
+        const allItems = menuCategories.flatMap(cat => cat.items).concat([{ text: 'Conta', icon: <Person />, path: '/conta', title: 'Minha Conta' }])
         
         const found = allItems.find(item => {
             if (item.path === '/inicio') {
@@ -73,8 +80,6 @@ export default function Layout() {
 
         if (found) {
             setPageTitle(found.title)
-        } else if (location.pathname.startsWith('/configuracoes')) {
-            setPageTitle('Configurações')
         } else {
             setPageTitle('Hort Sistema')
         }
@@ -99,7 +104,6 @@ export default function Layout() {
         setAccountOpen(false)
     }
 
-    const isConfigActive = location.pathname.startsWith('/configuracoes')
     // Routes that should show the page-level header acting as an extension of the AppBar
     const isExtendedHeaderRoute = location.pathname === '/pedidos/novo' || /^\/pedidos\/\d+/.test(location.pathname)
 
@@ -123,8 +127,6 @@ export default function Layout() {
                     right: 0,
                     height: 64,
                     bgcolor: (theme) => theme.palette.primary.main,
-                    // when a page provides a full-width header (ex: /pedidos/novo),
-                    // remove AppBar shadow so the page header can take it and visually extend
                     boxShadow: isExtendedHeaderRoute ? 'none' : 2,
                     display: 'flex',
                     alignItems: 'center',
@@ -194,7 +196,7 @@ export default function Layout() {
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center', // Centralizado para a logo ficar melhor
+                    justifyContent: 'center',
                     px: 3,
                     height: 84
                 }}>
@@ -205,70 +207,56 @@ export default function Layout() {
                     />
                 </Box>
 
-                <Box sx={{ overflow: 'auto'}}>
-                    <List>
-                        {menuItems.map((item) => (
-                            <ListItem key={item.text} disablePadding>
-                                <ListItemButton
-                                    selected={isSelected(item.path)}
-                                    onClick={() => handleNavigate(item.path)}
+                <Box sx={{ overflow: 'auto' }}>
+                    <List disablePadding>
+                        {menuCategories.map((category, index) => (
+                            <Box key={category.title}>
+                                <Typography
+                                    variant="caption"
                                     sx={{
-                                        py: 1.5,
                                         px: 3,
-                                        borderLeft: isSelected(item.path) ? '4px solid #2e7d32' : '4px solid transparent',
-                                        '&.Mui-selected': {
-                                            bgcolor: 'rgba(46, 125, 50, 0.08)',
-                                            color: '#2e7d32',
-                                            '& .MuiListItemIcon-root': { color: '#2e7d32' },
-                                            '&:hover': { bgcolor: 'rgba(46, 125, 50, 0.12)' },
-                                        },
-                                        '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.04)' }
+                                        pt: 2,
+                                        pb: 1,
+                                        display: 'block',
+                                        color: '#9e9e9e',
+                                        fontWeight: 600,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.05em'
                                     }}
                                 >
-                                    <ListItemIcon sx={{ minWidth: 40, color: '#757575' }}>
-                                        {item.icon}
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={item.text}
-                                        primaryTypographyProps={{ fontWeight: isSelected(item.path) ? 600 : 400 }}
-                                    />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-
-                        <Divider sx={{ my: 1 }} />
-
-                        <ListItem disablePadding>
-                            <ListItemButton
-                                selected={isConfigActive}
-                                onClick={() => setConfigOpen(!configOpen)}
-                                sx={{ py: 1.5, px: 3, borderLeft: '4px solid transparent' }}
-                            >
-                                <ListItemIcon sx={{ minWidth: 40, color: '#757575' }}>
-                                    <Settings />
-                                </ListItemIcon>
-                                <ListItemText primary="Configurações" />
-                                {configOpen ? <ExpandLess /> : <ExpandMore />}
-                            </ListItemButton>
-                        </ListItem>
-
-                        <Collapse in={configOpen} timeout="auto" unmountOnExit>
-                            <List component="div" disablePadding>
-                                {configItems.map((item) => (
-                                    <ListItemButton
-                                        key={item.text}
-                                        sx={{ pl: 9, py: 1 }}
-                                        selected={location.pathname === item.path}
-                                        onClick={() => handleNavigate(item.path)}
-                                    >
-                                        <ListItemText
-                                            primary={item.text}
-                                            primaryTypographyProps={{ fontSize: '0.9rem' }}
-                                        />
-                                    </ListItemButton>
+                                    {category.title}
+                                </Typography>
+                                {category.items.map((item) => (
+                                    <ListItem key={item.text} disablePadding>
+                                        <ListItemButton
+                                            selected={isSelected(item.path)}
+                                            onClick={() => handleNavigate(item.path)}
+                                            sx={{
+                                                py: 1,
+                                                px: 3,
+                                                borderLeft: isSelected(item.path) ? '4px solid #2e7d32' : '4px solid transparent',
+                                                '&.Mui-selected': {
+                                                    bgcolor: 'rgba(46, 125, 50, 0.08)',
+                                                    color: '#2e7d32',
+                                                    '& .MuiListItemIcon-root': { color: '#2e7d32' },
+                                                    '&:hover': { bgcolor: 'rgba(46, 125, 50, 0.12)' },
+                                                },
+                                                '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.04)' }
+                                            }}
+                                        >
+                                            <ListItemIcon sx={{ minWidth: 40, color: '#757575' }}>
+                                                {item.icon}
+                                            </ListItemIcon>
+                                            <ListItemText
+                                                primary={item.text}
+                                                primaryTypographyProps={{ fontWeight: isSelected(item.path) ? 600 : 400, fontSize: '0.95rem' }}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
                                 ))}
-                            </List>
-                        </Collapse>
+                                {index < menuCategories.length - 1 && <Divider sx={{ mt: 1, mb: 1, mx: 2 }} />}
+                            </Box>
+                        ))}
                     </List>
                 </Box>
             </Drawer>

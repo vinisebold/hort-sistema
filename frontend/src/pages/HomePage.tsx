@@ -12,9 +12,9 @@ import {
     Inventory,
     PersonAdd,
     ShoppingCart,
+    AddShoppingCart,
+    Widgets,
     ArrowForward,
-    LocalShipping,
-    Description,
     AccountBalanceWallet
 } from '@mui/icons-material'
 
@@ -22,13 +22,12 @@ export default function HomePage() {
     const navigate = useNavigate()
 
     const acessoRapidoItems = [
-        { label: 'Orçamentos', icon: <Description fontSize="small" />, path: '/orcamentos' },
-        { label: 'Pedidos de Venda', icon: <ShoppingCart fontSize="small" />, path: '/pedidos' },
-        { label: 'NF-e', icon: <Description fontSize="small" />, path: '/nfe' },
+        { label: 'Novo Pedido', icon: <AddShoppingCart fontSize="small" />, path: '/pedidos/novo' },
+        { label: 'Lista de Pedidos', icon: <ShoppingCart fontSize="small" />, path: '/pedidos' },
+        { label: 'Controle de Estoque', icon: <Widgets fontSize="small" />, path: '/estoque' },
+        { label: 'Resumo Financeiro', icon: <AccountBalanceWallet fontSize="small" />, path: '/dashboard' },
         { label: 'Produtos', icon: <Inventory fontSize="small" />, path: '/produtos' },
         { label: 'Clientes', icon: <PersonAdd fontSize="small" />, path: '/clientes' },
-        { label: 'Fornecedores', icon: <LocalShipping fontSize="small" />, path: '/fornecedores' },
-        { label: 'Resumo financeiro', icon: <AccountBalanceWallet fontSize="small" />, path: '/dashboard' },
     ]
 
     const cadastrosRapidos = [

@@ -33,10 +33,8 @@ function App() {
             <Route path="pedidos/novo" element={<NovoPedidoPage />} />
             <Route path="pedidos/:id" element={<NovoPedidoPage />} />
             <Route path="estoque" element={<EstoquePage />} />
-            <Route path="configuracoes">
-              <Route path="naturezas-operacao" element={<NaturezasOperacaoPage />} />
-              <Route path="unidades-medida" element={<UnidadesMedidaPage />} />
-            </Route>
+            <Route path="naturezas-operacao" element={<NaturezasOperacaoPage />} />
+            <Route path="unidades-medida" element={<UnidadesMedidaPage />} />
             <Route path="conta" element={<ContaPage />} />
           </Route>
           
