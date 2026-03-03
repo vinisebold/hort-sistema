@@ -54,12 +54,12 @@ class UnidadeMedidaControllerTest {
         return request;
     }
 
-    private UnidadeMedidaResponse criarResponse(Integer id, String sigla, String descricao, Boolean isActive) {
+    private UnidadeMedidaResponse criarResponse(Integer id, String sigla, String descricao) {
         return UnidadeMedidaResponse.builder()
                 .id(id)
                 .sigla(sigla)
                 .descricao(descricao)
-                .isActive(isActive)
+                .isActive(true)
                 .build();
     }
 
@@ -75,7 +75,7 @@ class UnidadeMedidaControllerTest {
         @DisplayName("Deve retornar 201 ao criar unidade de medida com sucesso")
         void deveRetornar201AoCriarComSucesso() throws Exception {
             UnidadeMedidaRequest request = criarRequest("KG", "Quilograma");
-            UnidadeMedidaResponse response = criarResponse(1, "KG", "Quilograma", true);
+            UnidadeMedidaResponse response = criarResponse(1, "KG", "Quilograma");
 
             when(service.criar(any(UnidadeMedidaRequest.class))).thenReturn(response);
 
@@ -127,8 +127,8 @@ class UnidadeMedidaControllerTest {
         @Test
         @DisplayName("Deve retornar 200 com lista de unidades de medida ativas")
         void deveRetornar200ComLista() throws Exception {
-            UnidadeMedidaResponse um1 = criarResponse(1, "KG", "Quilograma", true);
-            UnidadeMedidaResponse um2 = criarResponse(2, "CX", "Caixa", true);
+            UnidadeMedidaResponse um1 = criarResponse(1, "KG", "Quilograma");
+            UnidadeMedidaResponse um2 = criarResponse(2, "CX", "Caixa");
 
             when(service.listarAtivos()).thenReturn(List.of(um1, um2));
 
@@ -155,7 +155,7 @@ class UnidadeMedidaControllerTest {
         @Test
         @DisplayName("Deve retornar 200 ao buscar unidade de medida por id")
         void deveRetornar200AoBuscarPorId() throws Exception {
-            UnidadeMedidaResponse response = criarResponse(1, "KG", "Quilograma", true);
+            UnidadeMedidaResponse response = criarResponse(1, "KG", "Quilograma");
 
             when(service.buscarPorId(1)).thenReturn(response);
 
@@ -193,7 +193,7 @@ class UnidadeMedidaControllerTest {
         @DisplayName("Deve retornar 200 ao atualizar unidade de medida com sucesso")
         void deveRetornar200AoAtualizarComSucesso() throws Exception {
             UnidadeMedidaRequest request = criarRequest("UN", "Unidade");
-            UnidadeMedidaResponse response = criarResponse(1, "UN", "Unidade", true);
+            UnidadeMedidaResponse response = criarResponse(1, "UN", "Unidade");
 
             when(service.atualizar(eq(1), any(UnidadeMedidaRequest.class))).thenReturn(response);
 

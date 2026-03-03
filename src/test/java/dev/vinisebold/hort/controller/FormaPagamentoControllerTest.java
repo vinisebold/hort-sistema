@@ -56,13 +56,13 @@ class FormaPagamentoControllerTest {
     }
 
     private FormaPagamentoResponse criarResponse(Integer id, String descricao, Boolean exigeCliente,
-                                                  Boolean exigeDocumentoReferencia, Boolean isActive) {
+                                                  Boolean exigeDocumentoReferencia) {
         return FormaPagamentoResponse.builder()
                 .id(id)
                 .descricao(descricao)
                 .exigeCliente(exigeCliente)
                 .exigeDocumentoReferencia(exigeDocumentoReferencia)
-                .isActive(isActive)
+                .isActive(true)
                 .build();
     }
 
@@ -78,7 +78,7 @@ class FormaPagamentoControllerTest {
         @DisplayName("Deve retornar 201 ao criar forma de pagamento com sucesso")
         void deveRetornar201AoCriarComSucesso() throws Exception {
             FormaPagamentoRequest request = criarRequest("Dinheiro", false, false);
-            FormaPagamentoResponse response = criarResponse(1, "Dinheiro", false, false, true);
+            FormaPagamentoResponse response = criarResponse(1, "Dinheiro", false, false);
 
             when(service.criar(any(FormaPagamentoRequest.class))).thenReturn(response);
 
@@ -131,8 +131,8 @@ class FormaPagamentoControllerTest {
         @Test
         @DisplayName("Deve retornar 200 com lista de formas de pagamento ativas")
         void deveRetornar200ComLista() throws Exception {
-            FormaPagamentoResponse fp1 = criarResponse(1, "Dinheiro", false, false, true);
-            FormaPagamentoResponse fp2 = criarResponse(2, "Cartao", true, false, true);
+            FormaPagamentoResponse fp1 = criarResponse(1, "Dinheiro", false, false);
+            FormaPagamentoResponse fp2 = criarResponse(2, "Cartao", true, false);
 
             when(service.listarAtivos()).thenReturn(List.of(fp1, fp2));
 
@@ -157,7 +157,7 @@ class FormaPagamentoControllerTest {
         @Test
         @DisplayName("Deve retornar 200 ao buscar forma de pagamento por id")
         void deveRetornar200AoBuscarPorId() throws Exception {
-            FormaPagamentoResponse response = criarResponse(1, "Dinheiro", false, false, true);
+            FormaPagamentoResponse response = criarResponse(1, "Dinheiro", false, false);
 
             when(service.buscarPorId(1)).thenReturn(response);
 
@@ -196,7 +196,7 @@ class FormaPagamentoControllerTest {
         @DisplayName("Deve retornar 200 ao atualizar forma de pagamento com sucesso")
         void deveRetornar200AoAtualizarComSucesso() throws Exception {
             FormaPagamentoRequest request = criarRequest("Cartao de Credito", true, true);
-            FormaPagamentoResponse response = criarResponse(1, "Cartao de Credito", true, true, true);
+            FormaPagamentoResponse response = criarResponse(1, "Cartao de Credito", true, true);
 
             when(service.atualizar(eq(1), any(FormaPagamentoRequest.class))).thenReturn(response);
 

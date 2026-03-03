@@ -171,8 +171,8 @@ class ClienteServiceTest {
 
             assertThat(result).isNotNull();
             assertThat(result.getData()).hasSize(2);
-            assertThat(result.getData().get(0).getId()).isEqualTo(1);
-            assertThat(result.getData().get(1).getId()).isEqualTo(2);
+            assertThat(result.getData().getFirst().getId()).isEqualTo(1);
+            assertThat(result.getData().getLast().getId()).isEqualTo(2);
             assertThat(result.getNextCursor()).isEqualTo(2);
             assertThat(result.isHasNext()).isTrue();
 
@@ -203,8 +203,8 @@ class ClienteServiceTest {
 
             assertThat(result).isNotNull();
             assertThat(result.getData()).hasSize(1);
-            assertThat(result.getData().get(0).getId()).isEqualTo(3);
-            assertThat(result.getData().get(0).getRazaoSocial()).isEqualTo("Outra Empresa");
+            assertThat(result.getData().getFirst().getId()).isEqualTo(3);
+            assertThat(result.getData().getFirst().getRazaoSocial()).isEqualTo("Outra Empresa");
             assertThat(result.getNextCursor()).isEqualTo(3);
             assertThat(result.isHasNext()).isFalse();
 

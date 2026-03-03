@@ -214,10 +214,10 @@ class DashboardServiceTest {
             List<VendasPeriodoResponse> resultado = dashboardService.getVendasPorDia("HOJE");
 
             assertThat(resultado).hasSize(2);
-            assertThat(resultado.get(0).getPeriodo()).isEqualTo("15/01");
-            assertThat(resultado.get(0).getTotalVendido()).isEqualByComparingTo(new BigDecimal("150.00"));
-            assertThat(resultado.get(1).getPeriodo()).isEqualTo("16/01");
-            assertThat(resultado.get(1).getTotalVendido()).isEqualByComparingTo(new BigDecimal("200.00"));
+            assertThat(resultado.getFirst().getPeriodo()).isEqualTo("15/01");
+            assertThat(resultado.getFirst().getTotalVendido()).isEqualByComparingTo(new BigDecimal("150.00"));
+            assertThat(resultado.getLast().getPeriodo()).isEqualTo("16/01");
+            assertThat(resultado.getLast().getTotalVendido()).isEqualByComparingTo(new BigDecimal("200.00"));
         }
 
         @Test
@@ -255,10 +255,10 @@ class DashboardServiceTest {
             List<VendasPeriodoResponse> resultado = dashboardService.getVendasPorMes("ESTE_ANO");
 
             assertThat(resultado).hasSize(2);
-            assertThat(resultado.get(0).getPeriodo()).isEqualTo("01/2026");
-            assertThat(resultado.get(0).getTotalVendido()).isEqualByComparingTo(new BigDecimal("500.00"));
-            assertThat(resultado.get(1).getPeriodo()).isEqualTo("02/2026");
-            assertThat(resultado.get(1).getTotalVendido()).isEqualByComparingTo(new BigDecimal("500.00"));
+            assertThat(resultado.getFirst().getPeriodo()).isEqualTo("01/2026");
+            assertThat(resultado.getFirst().getTotalVendido()).isEqualByComparingTo(new BigDecimal("500.00"));
+            assertThat(resultado.getLast().getPeriodo()).isEqualTo("02/2026");
+            assertThat(resultado.getLast().getTotalVendido()).isEqualByComparingTo(new BigDecimal("500.00"));
         }
 
         @Test
@@ -298,11 +298,11 @@ class DashboardServiceTest {
             List<TopProdutoResponse> resultado = dashboardService.getTop10ProdutosMaisVendidos("HOJE");
 
             assertThat(resultado).hasSize(10);
-            assertThat(resultado.get(0).getProdutoNome()).isEqualTo("Produto 12");
-            assertThat(resultado.get(0).getQuantidadeVendida())
+            assertThat(resultado.getFirst().getProdutoNome()).isEqualTo("Produto 12");
+            assertThat(resultado.getFirst().getQuantidadeVendida())
                     .isEqualByComparingTo(new BigDecimal("120"));
-            assertThat(resultado.get(9).getProdutoNome()).isEqualTo("Produto 3");
-            assertThat(resultado.get(9).getQuantidadeVendida())
+            assertThat(resultado.getLast().getProdutoNome()).isEqualTo("Produto 3");
+            assertThat(resultado.getLast().getQuantidadeVendida())
                     .isEqualByComparingTo(new BigDecimal("30"));
         }
 
@@ -324,8 +324,8 @@ class DashboardServiceTest {
             List<TopProdutoResponse> resultado = dashboardService.getTop10ProdutosMaisVendidos("HOJE");
 
             assertThat(resultado).hasSize(1);
-            assertThat(resultado.get(0).getProdutoNome()).isEqualTo("Tomate");
-            assertThat(resultado.get(0).getQuantidadeVendida())
+            assertThat(resultado.getFirst().getProdutoNome()).isEqualTo("Tomate");
+            assertThat(resultado.getFirst().getQuantidadeVendida())
                     .isEqualByComparingTo(new BigDecimal("25"));
         }
 
@@ -389,8 +389,8 @@ class DashboardServiceTest {
             List<TopProdutoResponse> resultado = dashboardService.getTop10ProdutosMaisLucrativos("HOJE");
 
             assertThat(resultado).hasSize(10);
-            assertThat(resultado.get(0).getProdutoNome()).isEqualTo("Produto 12");
-            assertThat(resultado.get(0).getValorTotal())
+            assertThat(resultado.getFirst().getProdutoNome()).isEqualTo("Produto 12");
+            assertThat(resultado.getFirst().getValorTotal())
                     .isEqualByComparingTo(new BigDecimal("840"));  // 12*70
         }
 
@@ -430,10 +430,10 @@ class DashboardServiceTest {
             List<TopClienteResponse> resultado = dashboardService.getTop10ClientesMaisFieis("HOJE");
 
             assertThat(resultado).hasSize(2);
-            assertThat(resultado.get(0).getClienteNome()).isEqualTo("Joao");
-            assertThat(resultado.get(0).getQuantidadeCompras()).isEqualTo(3);
-            assertThat(resultado.get(1).getClienteNome()).isEqualTo("Maria");
-            assertThat(resultado.get(1).getQuantidadeCompras()).isEqualTo(1);
+            assertThat(resultado.getFirst().getClienteNome()).isEqualTo("Joao");
+            assertThat(resultado.getFirst().getQuantidadeCompras()).isEqualTo(3);
+            assertThat(resultado.getLast().getClienteNome()).isEqualTo("Maria");
+            assertThat(resultado.getLast().getQuantidadeCompras()).isEqualTo(1);
         }
 
         @Test
@@ -450,8 +450,8 @@ class DashboardServiceTest {
             List<TopClienteResponse> resultado = dashboardService.getTop10ClientesMaisFieis("HOJE");
 
             assertThat(resultado).hasSize(1);
-            assertThat(resultado.get(0).getClienteNome()).isEqualTo("Carlos");
-            assertThat(resultado.get(0).getQuantidadeCompras()).isEqualTo(1);
+            assertThat(resultado.getFirst().getClienteNome()).isEqualTo("Carlos");
+            assertThat(resultado.getFirst().getQuantidadeCompras()).isEqualTo(1);
         }
 
         @Test
@@ -506,11 +506,11 @@ class DashboardServiceTest {
             List<TopClienteResponse> resultado = dashboardService.getTop10ClientesMaisLucrativos("HOJE");
 
             assertThat(resultado).hasSize(2);
-            assertThat(resultado.get(0).getClienteNome()).isEqualTo("Maria");
-            assertThat(resultado.get(0).getValorTotal())
+            assertThat(resultado.getFirst().getClienteNome()).isEqualTo("Maria");
+            assertThat(resultado.getFirst().getValorTotal())
                     .isEqualByComparingTo(new BigDecimal("600.00"));
-            assertThat(resultado.get(1).getClienteNome()).isEqualTo("Joao");
-            assertThat(resultado.get(1).getValorTotal())
+            assertThat(resultado.getLast().getClienteNome()).isEqualTo("Joao");
+            assertThat(resultado.getLast().getValorTotal())
                     .isEqualByComparingTo(new BigDecimal("500.00"));
         }
 

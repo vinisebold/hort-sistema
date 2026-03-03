@@ -17,8 +17,8 @@ import org.mockito.quality.Strictness;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,7 +98,7 @@ class FifoIntegrationTest {
                     return lotesEntrada.stream()
                             .filter(l -> l.getProduto().equals(p))
                             .filter(l -> !l.getIsEsgotado())
-                            .sorted((a, b) -> a.getDataEntrada().compareTo(b.getDataEntrada()))
+                            .sorted(Comparator.comparing(LoteEntrada::getDataEntrada))
                             .toList();
                 });
 
@@ -235,12 +235,12 @@ class FifoIntegrationTest {
             assertThat(custoMedio).isEqualByComparingTo("6.00");
 
             // Lote A deve estar esgotado
-            LoteEntrada loteA = lotesEntrada.get(0);
+            LoteEntrada loteA = lotesEntrada.getFirst();
             assertThat(loteA.getIsEsgotado()).isTrue();
             assertThat(loteA.getQuantidadeDisponivel()).isEqualByComparingTo("0");
 
             // Lote B deve ter 5 restantes
-            LoteEntrada loteB = lotesEntrada.get(1);
+            LoteEntrada loteB = lotesEntrada.getLast();
             assertThat(loteB.getIsEsgotado()).isFalse();
             assertThat(loteB.getQuantidadeDisponivel()).isEqualByComparingTo("5.000");
 
@@ -272,9 +272,9 @@ class FifoIntegrationTest {
             assertThat(custoMedioPrimeiraVenda).isEqualByComparingTo("3.40");
 
             // Lotes A e B esgotados, C com 5 restantes
-            assertThat(lotesEntrada.get(0).getIsEsgotado()).isTrue();
+            assertThat(lotesEntrada.getFirst().getIsEsgotado()).isTrue();
             assertThat(lotesEntrada.get(1).getIsEsgotado()).isTrue();
-            assertThat(lotesEntrada.get(2).getQuantidadeDisponivel()).isEqualByComparingTo("5.000");
+            assertThat(lotesEntrada.getLast().getQuantidadeDisponivel()).isEqualByComparingTo("5.000");
 
             // Segunda venda: 5 unidades → C(5) restantes
             BigDecimal custoMedioSegundaVenda = vender(new BigDecimal("5.000"));
@@ -282,8 +282,8 @@ class FifoIntegrationTest {
             assertThat(custoMedioSegundaVenda).isEqualByComparingTo("6.00");
 
             // Lote C agora esgotado
-            assertThat(lotesEntrada.get(2).getIsEsgotado()).isTrue();
-            assertThat(lotesEntrada.get(2).getQuantidadeDisponivel()).isEqualByComparingTo("0");
+            assertThat(lotesEntrada.getLast().getIsEsgotado()).isTrue();
+            assertThat(lotesEntrada.getLast().getQuantidadeDisponivel()).isEqualByComparingTo("0");
         }
     }
 
@@ -301,12 +301,12 @@ class FifoIntegrationTest {
 
             assertThat(custoMedio).isEqualByComparingTo("5.00");
 
-            LoteEntrada lote = lotesEntrada.get(0);
+            LoteEntrada lote = lotesEntrada.getFirst();
             assertThat(lote.getIsEsgotado()).isTrue();
             assertThat(lote.getQuantidadeDisponivel()).isEqualByComparingTo("0");
 
             assertThat(lotesSaida).hasSize(1);
-            assertThat(lotesSaida.get(0).getQuantidadeConsumida()).isEqualByComparingTo("10.000");
+            assertThat(lotesSaida.getFirst().getQuantidadeConsumida()).isEqualByComparingTo("10.000");
         }
     }
 
@@ -344,14 +344,14 @@ class FifoIntegrationTest {
             BigDecimal custoMedio = fifoService.processarVendaFifo(itemVenda);
 
             assertThat(custoMedio).isEqualByComparingTo("5.00");
-            assertThat(lotesEntrada.get(0).getQuantidadeDisponivel()).isEqualByComparingTo("3.000");
+            assertThat(lotesEntrada.getFirst().getQuantidadeDisponivel()).isEqualByComparingTo("3.000");
             assertThat(lotesSaida).hasSize(1);
 
             // Cancela a venda
             fifoService.estornarVendaFifo(itemVenda);
 
             // Lote A deve voltar a ter 10 disponíveis
-            LoteEntrada loteA = lotesEntrada.get(0);
+            LoteEntrada loteA = lotesEntrada.getFirst();
             assertThat(loteA.getQuantidadeDisponivel()).isEqualByComparingTo("10.000");
             assertThat(loteA.getIsEsgotado()).isFalse();
 
@@ -392,7 +392,7 @@ class FifoIntegrationTest {
             // Vende 3 → Lote com 7 restantes
             vender(new BigDecimal("3.000"));
 
-            assertThat(lotesEntrada.get(0).getQuantidadeDisponivel()).isEqualByComparingTo("7.000");
+            assertThat(lotesEntrada.getFirst().getQuantidadeDisponivel()).isEqualByComparingTo("7.000");
 
             // Tenta cancelar compra → deve falhar
             assertThatThrownBy(() -> fifoService.estornarLoteCompra(itemCompra))
@@ -423,18 +423,18 @@ class FifoIntegrationTest {
             assertThat(custoMedio25).isEqualByComparingTo("4.40");
 
             // Verifica estado pós-venda
-            assertThat(lotesEntrada.get(0).getIsEsgotado()).isTrue();           // Lote A esgotado
-            assertThat(lotesEntrada.get(0).getQuantidadeDisponivel()).isEqualByComparingTo("0");
+            assertThat(lotesEntrada.getFirst().getIsEsgotado()).isTrue();           // Lote A esgotado
+            assertThat(lotesEntrada.getFirst().getQuantidadeDisponivel()).isEqualByComparingTo("0");
             assertThat(lotesEntrada.get(1).getQuantidadeDisponivel()).isEqualByComparingTo("5.000"); // Lote B parcial
             assertThat(lotesSaida).hasSize(2);
 
             // Cancela a venda de 25 → restaura A(20) e B(10)
             fifoService.estornarVendaFifo(itemVenda25);
 
-            assertThat(lotesEntrada.get(0).getQuantidadeDisponivel()).isEqualByComparingTo("20.000");
-            assertThat(lotesEntrada.get(0).getIsEsgotado()).isFalse();
-            assertThat(lotesEntrada.get(1).getQuantidadeDisponivel()).isEqualByComparingTo("10.000");
-            assertThat(lotesEntrada.get(1).getIsEsgotado()).isFalse();
+            assertThat(lotesEntrada.getFirst().getQuantidadeDisponivel()).isEqualByComparingTo("20.000");
+            assertThat(lotesEntrada.getFirst().getIsEsgotado()).isFalse();
+            assertThat(lotesEntrada.getLast().getQuantidadeDisponivel()).isEqualByComparingTo("10.000");
+            assertThat(lotesEntrada.getLast().getIsEsgotado()).isFalse();
             assertThat(lotesSaida).isEmpty();
 
             // Nova venda: 15 → consome apenas A(15), custo = R$4.00
@@ -443,9 +443,9 @@ class FifoIntegrationTest {
             assertThat(custoMedio15).isEqualByComparingTo("4.00");
 
             // Lote A com 5 restantes, Lote B intacto
-            assertThat(lotesEntrada.get(0).getQuantidadeDisponivel()).isEqualByComparingTo("5.000");
-            assertThat(lotesEntrada.get(0).getIsEsgotado()).isFalse();
-            assertThat(lotesEntrada.get(1).getQuantidadeDisponivel()).isEqualByComparingTo("10.000");
+            assertThat(lotesEntrada.getFirst().getQuantidadeDisponivel()).isEqualByComparingTo("5.000");
+            assertThat(lotesEntrada.getFirst().getIsEsgotado()).isFalse();
+            assertThat(lotesEntrada.getLast().getQuantidadeDisponivel()).isEqualByComparingTo("10.000");
             assertThat(lotesSaida).hasSize(1);
         }
     }
@@ -472,8 +472,8 @@ class FifoIntegrationTest {
             assertThat(custoMedio).isEqualByComparingTo("9.30");
 
             // Ambos esgotados
-            assertThat(lotesEntrada.get(0).getIsEsgotado()).isTrue();
-            assertThat(lotesEntrada.get(1).getIsEsgotado()).isTrue();
+            assertThat(lotesEntrada.getFirst().getIsEsgotado()).isTrue();
+            assertThat(lotesEntrada.getLast().getIsEsgotado()).isTrue();
         }
     }
 }

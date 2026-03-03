@@ -45,10 +45,10 @@ class AuthControllerTest {
     // Helpers
     // ---------------------------------------------------------------------------
 
-    private SetupRequest criarSetupRequest(String senha, String nomeNegocio) {
+    private SetupRequest criarSetupRequest(String senha) {
         SetupRequest request = new SetupRequest();
         request.setSenha(senha);
-        request.setNomeNegocio(nomeNegocio);
+        request.setNomeNegocio("Hortifruti do Ze");
         return request;
     }
 
@@ -105,7 +105,7 @@ class AuthControllerTest {
 
             when(authService.setup(any(SetupRequest.class))).thenReturn(response);
 
-            SetupRequest request = criarSetupRequest("minhaSenha123", "Hortifruti do Ze");
+            SetupRequest request = criarSetupRequest("minhaSenha123");
 
             mockMvc.perform(post("/api/auth/setup")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -118,7 +118,7 @@ class AuthControllerTest {
         @Test
         @DisplayName("Deve retornar 400 quando senha estiver em branco")
         void deveRetornar400QuandoSenhaEmBranco() throws Exception {
-            SetupRequest request = criarSetupRequest("", "Hortifruti do Ze");
+            SetupRequest request = criarSetupRequest("");
 
             mockMvc.perform(post("/api/auth/setup")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -131,7 +131,7 @@ class AuthControllerTest {
         @Test
         @DisplayName("Deve retornar 400 quando senha for nula")
         void deveRetornar400QuandoSenhaNula() throws Exception {
-            SetupRequest request = criarSetupRequest(null, "Hortifruti do Ze");
+            SetupRequest request = criarSetupRequest(null);
 
             mockMvc.perform(post("/api/auth/setup")
                             .contentType(MediaType.APPLICATION_JSON)

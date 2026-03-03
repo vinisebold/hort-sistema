@@ -117,14 +117,14 @@ class PedidoServiceTest {
     // ──────────────────────────────────────────────────────────────
 
     private PedidoRequest criarPedidoRequest(Integer naturezaId, Integer clienteId,
-                                              Integer formaPgtoId, String statusPagamento,
+                                              Integer formaPgtoId,
                                               List<ItemPedidoRequest> itens) {
         PedidoRequest request = new PedidoRequest();
         request.setNaturezaOperacaoId(naturezaId);
         request.setClienteId(clienteId);
         request.setFormaPagamentoId(formaPgtoId);
         request.setDocumentoReferencia("DOC-001");
-        request.setStatusPagamento(statusPagamento);
+        request.setStatusPagamento("PAGO");
         request.setItens(itens);
         return request;
     }
@@ -205,7 +205,7 @@ class PedidoServiceTest {
         @DisplayName("ENTRADA - deve criar pedido, salvar itens, chamar estoque e fifo, e setar custoUnitario = valorUnitario")
         void deveProcessarPedidoEntrada() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, 1, 1, "PAGO", List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(1, 1, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
             when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
@@ -238,7 +238,7 @@ class PedidoServiceTest {
         @DisplayName("SAIDA - deve criar pedido, salvar itens, chamar estoque e fifo, e setar custoUnitario do FIFO")
         void deveProcessarPedidoSaida() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "5.000", "20.00");
-            PedidoRequest request = criarPedidoRequest(2, 1, 1, "PAGO", List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(2, 1, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(2)).thenReturn(Optional.of(naturezaSaida));
             when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
@@ -269,7 +269,7 @@ class PedidoServiceTest {
         @DisplayName("deve lancar IllegalArgumentException quando natureza de operacao nao encontrada")
         void deveLancarExcecaoNaturezaNaoEncontrada() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(999, 1, 1, "PAGO", List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(999, 1, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(999)).thenReturn(Optional.empty());
 
@@ -284,7 +284,7 @@ class PedidoServiceTest {
         @DisplayName("deve lancar IllegalArgumentException quando forma de pagamento nao encontrada")
         void deveLancarExcecaoFormaPagamentoNaoEncontrada() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, 1, 999, "PAGO", List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(1, 1, 999, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
             when(formaPagamentoRepository.findById(999)).thenReturn(Optional.empty());
@@ -300,7 +300,7 @@ class PedidoServiceTest {
         @DisplayName("deve lancar IllegalArgumentException quando cliente nao encontrado")
         void deveLancarExcecaoClienteNaoEncontrado() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, 999, 1, "PAGO", List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(1, 999, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
             when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
@@ -317,7 +317,7 @@ class PedidoServiceTest {
         @DisplayName("deve lancar IllegalArgumentException quando exigeCliente e clienteId e null")
         void deveLancarExcecaoExigeClienteSemCliente() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, null, 2, "PAGO", List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(1, null, 2, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
             when(formaPagamentoRepository.findById(2)).thenReturn(Optional.of(formaPagamentoExigeCliente));
@@ -333,7 +333,7 @@ class PedidoServiceTest {
         @DisplayName("deve permitir clienteId null quando forma de pagamento nao exige cliente")
         void devePermitirClienteNullQuandoNaoExigeCliente() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, null, 1, "PAGO", List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(1, null, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
             when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
@@ -352,7 +352,7 @@ class PedidoServiceTest {
         @DisplayName("deve lancar IllegalArgumentException quando produto nao encontrado")
         void deveLancarExcecaoProdutoNaoEncontrado() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(999, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, 1, 1, "PAGO", List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(1, 1, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
             when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));
@@ -379,7 +379,7 @@ class PedidoServiceTest {
 
             ItemPedidoRequest itemReq1 = criarItemPedidoRequest(1, "10.000", "5.50");
             ItemPedidoRequest itemReq2 = criarItemPedidoRequest(2, "20.000", "3.00");
-            PedidoRequest request = criarPedidoRequest(1, 1, 1, "PAGO", List.of(itemReq1, itemReq2));
+            PedidoRequest request = criarPedidoRequest(1, 1, 1, List.of(itemReq1, itemReq2));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
             when(formaPagamentoRepository.findById(1)).thenReturn(Optional.of(formaPagamento));

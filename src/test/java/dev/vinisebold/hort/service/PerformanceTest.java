@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +127,7 @@ class PerformanceTest {
         LocalDateTime baseDate = LocalDateTime.of(2026, 1, 1, 0, 0);
         for (int i = 1; i <= quantidade; i++) {
             BigDecimal qtd = new BigDecimal("10.000");
-            BigDecimal custo = new BigDecimal(5 + (i % 10)).setScale(2);
+            BigDecimal custo = new BigDecimal(5 + (i % 10)).setScale(2, RoundingMode.HALF_UP);
             lotes.add(criarLoteEntrada(i, produto, qtd, custo, baseDate.plusDays(i)));
         }
         return lotes;
@@ -254,7 +255,6 @@ class PerformanceTest {
         @Mock private PedidoRepository pedidoRepository;
         @Mock private ItemPedidoRepository itemPedidoRepository;
         @Mock private NaturezaOperacaoRepository naturezaOperacaoRepository;
-        @Mock private ClienteRepository clienteRepository;
         @Mock private FormaPagamentoRepository formaPagamentoRepository;
         @Mock private ProdutoRepository produtoRepository;
         @Mock private EstoqueService estoqueService;
@@ -337,8 +337,6 @@ class PerformanceTest {
     class EstoquePerformance {
 
         @Mock private ProdutoRepository produtoRepository;
-        @Mock private MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
-        @Mock private ItemPedidoRepository itemPedidoRepository;
         @InjectMocks private EstoqueService estoqueService;
 
         @Test
@@ -479,7 +477,6 @@ class PerformanceTest {
     class ProdutoPerformance {
 
         @Mock private ProdutoRepository produtoRepository;
-        @Mock private UnidadeMedidaRepository unidadeMedidaRepository;
         @Mock private UnidadeMedidaService unidadeMedidaService;
         @InjectMocks private ProdutoService produtoService;
 

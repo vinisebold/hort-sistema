@@ -53,7 +53,6 @@ class EstoqueServiceTest {
     private NaturezaOperacao naturezaSaida;
     private Pedido pedido;
     private UnidadeMedida unidadeMedida;
-    private Cliente cliente;
 
     @BeforeEach
     void setUp() {
@@ -83,7 +82,7 @@ class EstoqueServiceTest {
         naturezaSaida.setTipoMovimento(TipoMovimento.SAIDA);
         naturezaSaida.setGeraFinanceiro(true);
 
-        cliente = new Cliente();
+        Cliente cliente = new Cliente();
         cliente.setId(1);
         cliente.setTipoPessoa("PJ");
         cliente.setDocumento("12345678000100");
@@ -351,7 +350,7 @@ class EstoqueServiceTest {
 
             assertThat(resultado).hasSize(2);
 
-            ProdutoEstoqueResponse primeiro = resultado.get(0);
+            ProdutoEstoqueResponse primeiro = resultado.getFirst();
             assertThat(primeiro.getId()).isEqualTo(1);
             assertThat(primeiro.getCodigo()).isEqualTo("PROD-001");
             assertThat(primeiro.getDescricao()).isEqualTo("Tomate");
@@ -359,7 +358,7 @@ class EstoqueServiceTest {
             assertThat(primeiro.getEstoqueAtual()).isEqualByComparingTo(new BigDecimal("100.000"));
             assertThat(primeiro.getIsActive()).isTrue();
 
-            ProdutoEstoqueResponse segundo = resultado.get(1);
+            ProdutoEstoqueResponse segundo = resultado.getLast();
             assertThat(segundo.getId()).isEqualTo(2);
             assertThat(segundo.getCodigo()).isEqualTo("PROD-002");
             assertThat(segundo.getDescricao()).isEqualTo("Cebola");
@@ -400,7 +399,7 @@ class EstoqueServiceTest {
             List<ProdutoEstoqueResponse> resultado = estoqueService.listarProdutosComEstoque();
 
             assertThat(resultado).hasSize(1);
-            assertThat(resultado.get(0).getUnidadeMedidaSigla()).isEqualTo("UN");
+            assertThat(resultado.getFirst().getUnidadeMedidaSigla()).isEqualTo("UN");
         }
 
         @Test
@@ -443,7 +442,7 @@ class EstoqueServiceTest {
             List<MovimentacaoEstoqueResponse> resultado = estoqueService.getTimelineProduto(1);
 
             assertThat(resultado).hasSize(1);
-            MovimentacaoEstoqueResponse response = resultado.get(0);
+            MovimentacaoEstoqueResponse response = resultado.getFirst();
             assertThat(response.getId()).isEqualTo(10);
             assertThat(response.getProdutoId()).isEqualTo(1);
             assertThat(response.getProdutoDescricao()).isEqualTo("Tomate");
@@ -474,7 +473,7 @@ class EstoqueServiceTest {
             List<MovimentacaoEstoqueResponse> resultado = estoqueService.getTimelineProduto(1);
 
             assertThat(resultado).hasSize(1);
-            assertThat(resultado.get(0).getPedidoId()).isNull();
+            assertThat(resultado.getFirst().getPedidoId()).isNull();
         }
 
         @Test
@@ -529,10 +528,10 @@ class EstoqueServiceTest {
             List<MovimentacaoEstoqueResponse> resultado = estoqueService.getTimelineProduto(1);
 
             assertThat(resultado).hasSize(2);
-            assertThat(resultado.get(0).getId()).isEqualTo(10);
-            assertThat(resultado.get(0).getTipoMovimento()).isEqualTo("ENTRADA");
-            assertThat(resultado.get(1).getId()).isEqualTo(9);
-            assertThat(resultado.get(1).getTipoMovimento()).isEqualTo("SAIDA");
+            assertThat(resultado.getFirst().getId()).isEqualTo(10);
+            assertThat(resultado.getFirst().getTipoMovimento()).isEqualTo("ENTRADA");
+            assertThat(resultado.getLast().getId()).isEqualTo(9);
+            assertThat(resultado.getLast().getTipoMovimento()).isEqualTo("SAIDA");
         }
     }
 
@@ -609,7 +608,7 @@ class EstoqueServiceTest {
             // Verify itens
             assertThat(resultado.getItens()).hasSize(2);
 
-            ItemPedidoResumidoResponse itemResp1 = resultado.getItens().get(0);
+            ItemPedidoResumidoResponse itemResp1 = resultado.getItens().getFirst();
             assertThat(itemResp1.getId()).isEqualTo(100);
             assertThat(itemResp1.getProdutoId()).isEqualTo(1);
             assertThat(itemResp1.getProdutoDescricao()).isEqualTo("Tomate");
@@ -618,7 +617,7 @@ class EstoqueServiceTest {
             assertThat(itemResp1.getValorTotal()).isEqualByComparingTo(new BigDecimal("250.00"));
             assertThat(itemResp1.getIsDestacado()).isTrue();
 
-            ItemPedidoResumidoResponse itemResp2 = resultado.getItens().get(1);
+            ItemPedidoResumidoResponse itemResp2 = resultado.getItens().getLast();
             assertThat(itemResp2.getId()).isEqualTo(101);
             assertThat(itemResp2.getProdutoId()).isEqualTo(2);
             assertThat(itemResp2.getProdutoDescricao()).isEqualTo("Cebola");
@@ -736,10 +735,10 @@ class EstoqueServiceTest {
             DetalheMovimentacaoResponse resultado = estoqueService.getDetalheMovimentacao(20);
 
             assertThat(resultado.getItens()).hasSize(2);
-            assertThat(resultado.getItens().get(0).getIsDestacado()).isTrue();
-            assertThat(resultado.getItens().get(0).getProdutoId()).isEqualTo(5);
-            assertThat(resultado.getItens().get(1).getIsDestacado()).isFalse();
-            assertThat(resultado.getItens().get(1).getProdutoId()).isEqualTo(6);
+            assertThat(resultado.getItens().getFirst().getIsDestacado()).isTrue();
+            assertThat(resultado.getItens().getFirst().getProdutoId()).isEqualTo(5);
+            assertThat(resultado.getItens().getLast().getIsDestacado()).isFalse();
+            assertThat(resultado.getItens().getLast().getProdutoId()).isEqualTo(6);
         }
 
         @Test

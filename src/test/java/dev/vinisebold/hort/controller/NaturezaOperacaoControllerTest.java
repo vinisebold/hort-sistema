@@ -1,6 +1,5 @@
 package dev.vinisebold.hort.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.vinisebold.hort.dto.request.NaturezaOperacaoRequest;
 import dev.vinisebold.hort.dto.response.NaturezaOperacaoResponse;
 import dev.vinisebold.hort.model.TipoMovimento;
@@ -31,8 +30,6 @@ class NaturezaOperacaoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @MockitoBean
     private NaturezaOperacaoService service;
