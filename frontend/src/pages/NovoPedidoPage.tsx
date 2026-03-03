@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   IconButton, TextField, Card, CardContent,
-  Autocomplete, Alert, Snackbar, Grid, Fab, ToggleButton, ToggleButtonGroup, InputAdornment
+  Autocomplete, Alert, Snackbar, Grid, Fab, ToggleButton, ToggleButtonGroup, InputAdornment, Collapse
 } from '@mui/material'
 import { ArrowBack, Close, InfoOutlined, Edit, Search, Check } from '@mui/icons-material'
 import { pedidosApi, produtosApi, clientesApi, naturezasApi } from '../services/api'
@@ -255,34 +255,36 @@ export default function NovoPedidoPage() {
         <Card sx={{ mb: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
           <CardContent sx={{ p: 4 }}>
             <Grid container spacing={4} alignItems="flex-end">
-              <Grid item xs={12} md={8}>
-                <Autocomplete
-                  options={clientes}
-                  getOptionLabel={(option) => option.razaoSocial}
-                  value={clientes.find(c => c.id === form.clienteId) || null}
-                  onChange={(_, value) => setForm({ ...form, clienteId: value?.id || null })}
-                  renderInput={(params) => (
-                    <TextField 
-                      {...params}  
-                      label="Cliente" 
-                      placeholder="Selecione ou busque o cliente"
-                      fullWidth 
-                      autoFocus // Automatic focus on mount
-                    />
-                  )}
-                  renderOption={(props, option) => (
-                    <li {...props} key={option.id}>
-                      <Box>
-                        <Typography variant="body1">{option.razaoSocial}</Typography>
-                        <Typography variant="caption" color="text.secondary">{option.documento}</Typography>
-                      </Box>
-                    </li>
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Box>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, mb: 1, display: 'block', ml: 0.5 }}>
+              {selectedNatureza?.tipoMovimento !== 'ENTRADA' && (
+                <Grid item xs={12} md={8}>
+                  <Autocomplete
+                    options={clientes}
+                    getOptionLabel={(option) => option.razaoSocial}
+                    value={clientes.find(c => c.id === form.clienteId) || null}
+                    onChange={(_, value) => setForm({ ...form, clienteId: value?.id || null })}
+                    renderInput={(params) => (
+                      <TextField 
+                        {...params}  
+                        label="Cliente" 
+                        placeholder="Selecione ou busque o cliente"
+                        fullWidth 
+                        autoFocus // Automatic focus on mount
+                      />
+                    )}
+                    renderOption={(props, option) => (
+                      <li {...props} key={option.id}>
+                        <Box>
+                          <Typography variant="body1">{option.razaoSocial}</Typography>
+                          <Typography variant="caption" color="text.secondary">{option.documento}</Typography>
+                        </Box>
+                      </li>
+                    )}
+                  />
+                </Grid>
+              )}
+              <Grid item xs={12} md={selectedNatureza?.tipoMovimento === 'ENTRADA' ? 12 : 4}>
+                <Box sx={selectedNatureza?.tipoMovimento === 'ENTRADA' ? { maxWidth: 400, mx: 'auto' } : {}}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, mb: 1, display: 'block', ml: 0.5, textAlign: selectedNatureza?.tipoMovimento === 'ENTRADA' ? 'center' : 'left' }}>
                     STATUS DO PAGAMENTO
                   </Typography>
                   <ToggleButtonGroup
@@ -312,15 +314,17 @@ export default function NovoPedidoPage() {
                 </Box>
               </Grid>
               
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label={form.statusPagamento === 'PENDENTE' ? 'Documento de Referência *' : 'Documento de Referência'}
-                  value={form.documentoReferencia}
-                  onChange={(e) => setForm({ ...form, documentoReferencia: e.target.value })}
-                  fullWidth
-                  required={form.statusPagamento === 'PENDENTE'}
-                  helperText={form.statusPagamento === 'PENDENTE' ? 'Obrigatório para pedidos pendentes' : undefined}
-                />
+              <Grid item xs={12} sx={{ pt: form.statusPagamento === 'PENDENTE' ? 4 : 0, transition: 'padding-top 0.3s' }}>
+                <Collapse in={form.statusPagamento === 'PENDENTE'} timeout={300}>
+                  <TextField
+                    label="Documento de Referência *"
+                    value={form.documentoReferencia}
+                    onChange={(e) => setForm({ ...form, documentoReferencia: e.target.value })}
+                    fullWidth
+                    required={form.statusPagamento === 'PENDENTE'}
+                    helperText="Obrigatório para pedidos pendentes"
+                  />
+                </Collapse>
               </Grid>
             </Grid>
           </CardContent>

@@ -186,7 +186,7 @@ class PedidoServiceTest {
             PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente));
+            // when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente)); // ENTRADA ignores cliente
             when(produtoRepository.findById(1)).thenReturn(Optional.of(produto));
             configurarPedidoSaveComId();
             configurarItemPedidoSaveComId();
@@ -196,7 +196,7 @@ class PedidoServiceTest {
             assertNotNull(response);
             assertEquals(1, response.getId());
             assertEquals("Compra", response.getNaturezaOperacao());
-            assertEquals("Fornecedor ABC", response.getClienteNome());
+            assertEquals("Consumidor Final", response.getClienteNome());
             assertThat(response.getValorTotal()).isEqualByComparingTo(new BigDecimal("55.000"));
             assertEquals("PAGO", response.getStatusPagamento());
             assertNotNull(response.getDataEmissao());
@@ -256,12 +256,12 @@ class PedidoServiceTest {
         }
 
         @Test
-        @DisplayName("deve lancar IllegalArgumentException quando cliente nao encontrado")
+        @DisplayName("deve lançar exceção quando natureza de operação for SAÍDA e cliente não for encontrado")
         void deveLancarExcecaoClienteNaoEncontrado() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, 999, List.of(itemReq));
+            PedidoRequest request = criarPedidoRequest(2, 999, List.of(itemReq));
 
-            when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
+            when(naturezaOperacaoRepository.findById(2)).thenReturn(Optional.of(naturezaSaida));
             when(clienteRepository.findById(999)).thenReturn(Optional.empty());
 
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
@@ -296,7 +296,6 @@ class PedidoServiceTest {
             PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente));
             configurarPedidoSaveComId();
             when(produtoRepository.findById(999)).thenReturn(Optional.empty());
 
@@ -322,7 +321,7 @@ class PedidoServiceTest {
             PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq1, itemReq2));
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
-            when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente));
+            // when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente));
             when(produtoRepository.findById(1)).thenReturn(Optional.of(produto));
             when(produtoRepository.findById(2)).thenReturn(Optional.of(produto2));
             configurarPedidoSaveComId();

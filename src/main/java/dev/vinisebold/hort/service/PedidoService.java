@@ -47,9 +47,11 @@ public class PedidoService {
                 .orElseThrow(() -> new IllegalArgumentException("Natureza de Operação inválida"));
 
         Cliente cliente = null;
-        if (request.getClienteId() != null) {
-            cliente = clienteRepository.findById(request.getClienteId())
-                    .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+        if (TipoMovimento.SAIDA.equals(natureza.getTipoMovimento())) {
+            if (request.getClienteId() != null) {
+                cliente = clienteRepository.findById(request.getClienteId())
+                        .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+            }
         }
 
         // 3. Criar Cabeçalho do Pedido
