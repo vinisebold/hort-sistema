@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,6 +35,9 @@ public class Cliente {
 
     @Column(nullable = false)
     private Boolean isActive = true;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal saldoCredito = BigDecimal.ZERO;
 
     @CreationTimestamp
     @Column(updatable = false)

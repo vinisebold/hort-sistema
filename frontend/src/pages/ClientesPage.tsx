@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel, Fab, InputAdornment, CircularProgress } from '@mui/material'
-import { Add, Edit, Delete, Search } from '@mui/icons-material'
+import { Add, Edit, Delete, Search, Visibility } from '@mui/icons-material'
 import { clientesApi } from '../services/api'
 
 interface Cliente {
@@ -15,6 +16,7 @@ interface Cliente {
 }
 
 export default function ClientesPage() {
+  const navigate = useNavigate()
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [nextCursor, setNextCursor] = useState<number | null>(null)
   const [hasNext, setHasNext] = useState(false)
@@ -132,6 +134,10 @@ export default function ClientesPage() {
         alert(error.response?.data?.message || 'Erro ao excluir cliente')
       }
     }
+  }
+
+  const handleVerDetalhes = (clienteId: number) => {
+    navigate(`/clientes/${clienteId}`)
   }
 
    const handleBuscarCnpj = async () => {
@@ -261,6 +267,9 @@ export default function ClientesPage() {
                 <TableCell>{exibirDocumento(cliente.documento, cliente.tipoPessoa)}</TableCell>
                 <TableCell>{cliente.contato || '-'}</TableCell>
                 <TableCell align="center">
+                  <IconButton onClick={() => handleVerDetalhes(cliente.id)} title="Ver detalhes e gerenciar dívida">
+                    <Visibility />
+                  </IconButton>
                   <IconButton onClick={() => handleOpen(cliente)}>
                     <Edit />
                   </IconButton>

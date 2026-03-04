@@ -21,4 +21,10 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     Page<Pedido> findByIdLessThanOrderByIdDesc(Integer id, Pageable pageable);
 
     Page<Pedido> findAllByOrderByIdDesc(Pageable pageable);
+
+    List<Pedido> findByClienteIdOrderByDataEmissaoAsc(Integer clienteId);
+
+    List<Pedido> findByClienteIdAndStatusOrderByDataEmissaoAsc(Integer clienteId, String status);
+
+    List<Pedido> findByClienteIdAndStatusAndDataEmissaoBetween(Integer clienteId, String status, LocalDateTime inicio, LocalDateTime fim);
 }

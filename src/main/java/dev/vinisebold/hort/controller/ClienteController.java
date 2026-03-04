@@ -1,7 +1,10 @@
 package dev.vinisebold.hort.controller;
 
 import dev.vinisebold.hort.dto.request.ClienteRequest;
+import dev.vinisebold.hort.dto.request.AbaterDividaRequest;
 import dev.vinisebold.hort.dto.response.ClienteResponse;
+import dev.vinisebold.hort.dto.response.ClienteFinanceiroResponse;
+import dev.vinisebold.hort.dto.response.AbaterDividaResponse;
 import dev.vinisebold.hort.dto.response.CursorResponse;
 import dev.vinisebold.hort.dto.response.ConsultaCnpjResponse;
 import dev.vinisebold.hort.service.BrasilApiService;
@@ -56,5 +59,17 @@ public class ClienteController {
     @GetMapping("/buscar-ou-criar-pf")
     public ResponseEntity<ClienteResponse> buscarOuCriarClientePF(@RequestParam String nome) {
         return ResponseEntity.ok(clienteService.buscarOuCriarClientePF(nome));
+    }
+
+    @GetMapping("/{id}/financeiro")
+    public ResponseEntity<ClienteFinanceiroResponse> obterResumoFinanceiro(@PathVariable Integer id) {
+        return ResponseEntity.ok(clienteService.getResumoFinanceiro(id));
+    }
+
+    @PostMapping("/{id}/abater-divida")
+    public ResponseEntity<AbaterDividaResponse> abaterDivida(
+            @PathVariable Integer id,
+            @Valid @RequestBody AbaterDividaRequest request) {
+        return ResponseEntity.ok(clienteService.abaterDivida(id, request));
     }
 }

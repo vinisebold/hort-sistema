@@ -43,3 +43,31 @@ export interface Cliente {
   razaoSocial: string;
   documento: string;
 }
+
+export interface ClienteFinanceiroResponse {
+  cliente: Cliente & { 
+    tipoPessoa: string;
+    documento: string;
+    endereco?: string;
+    contato?: string;
+  };
+  dividaTotal: number;
+  dividaMesAtual: number;
+  dividaMesAnterior: number;
+  saldoCredito: number;
+  totalPedidosPendentes: number;
+  totalPedidosPagos: number;
+  historicoPedidos: Pedido[];
+}
+
+export interface AbaterDividaRequest {
+  valorPago: number;
+}
+
+export interface AbaterDividaResponse {
+  pedidosQuitados: number[];
+  valorUtilizado: number;
+  creditoAdicionado: number;
+  novoSaldoCredito: number;
+  novaDividaTotal: number;
+}

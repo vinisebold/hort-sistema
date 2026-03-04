@@ -8,6 +8,7 @@ import Layout from './components/Layout'
 import PrivateRoute from './components/PrivateRoute'
 import ProdutosPage from './pages/ProdutosPage'
 import ClientesPage from './pages/ClientesPage'
+import ClienteDetalhePage from './pages/ClienteDetalhePage'
 import PedidosPage from './pages/PedidosPage'
 import NovoPedidoPage from './pages/NovoPedidoPage'
 import EstoquePage from './pages/EstoquePage'
@@ -32,6 +33,7 @@ function App() {
             <Route path="financeiro" element={<DashboardPage />} />
             <Route path="produtos" element={<ProdutosPage />} />
             <Route path="clientes" element={<ClientesPage />} />
+            <Route path="clientes/:id" element={<ClienteDetalhePage />} />
             <Route path="pedidos" element={<PedidosPage />} />
             <Route path="pedidos/novo" element={<NovoPedidoPage />} />
             <Route path="pedidos/:id" element={<NovoPedidoPage />} />

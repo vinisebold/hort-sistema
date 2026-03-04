@@ -40,4 +40,10 @@ public class PedidoController {
         pedidoService.cancelarPedido(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/marcar-pago")
+    public ResponseEntity<PedidoResponse> marcarComoPago(@PathVariable Integer id) {
+        pedidoService.marcarComoPago(id);
+        return ResponseEntity.ok(pedidoService.buscarPorId(id));
+    }
 }

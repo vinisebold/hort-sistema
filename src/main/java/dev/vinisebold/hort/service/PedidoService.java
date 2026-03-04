@@ -255,6 +255,30 @@ public class PedidoService {
         pedidoRepository.save(pedido);
     }
 
+    /**
+     * Marca um pedido como PAGO
+     * @param pedidoId ID do pedido a marcar como pago
+     */
+    @Transactional
+    public void marcarComoPago(Integer pedidoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
+        
+        // Validar que pedido já não é PAGO
+        if ("PAGO".equalsIgnoreCase(pedido.getStatus())) {
+            throw new IllegalStateException("Pedido já está marcado como PAGO.");
+        }
+        
+        // Validar que status é PENDENTE
+        if (!"PENDENTE".equalsIgnoreCase(pedido.getStatus())) {
+            throw new IllegalStateException("Apenas pedidos com status PENDENTE podem ser marcados como PAGO.");
+        }
+        
+        // Marcar como PAGO
+        pedido.setStatus("PAGO");
+        pedidoRepository.save(pedido);
+    }
+
     private PedidoResponse mapToResponse(Pedido pedido) {
         // Busca os itens do pedido no banco
         List<ItemPedido> itens = itemPedidoRepository.findByPedido(pedido);

@@ -64,6 +64,8 @@ export const clientesApi = {
   deletar: (id: number) => api.delete(`/clientes/${id}`),
   consultarCnpj: (cnpj: string) => api.get(`/clientes/consulta-cnpj/${cnpj}`),
   buscarOuCriarPF: (nome: string) => api.get(`/clientes/buscar-ou-criar-pf?nome=${encodeURIComponent(nome)}`),
+  getResumoFinanceiro: (clienteId: number) => api.get(`/clientes/${clienteId}/financeiro`),
+  abaterDivida: (clienteId: number, data: any) => api.post(`/clientes/${clienteId}/abater-divida`, data),
 }
 
 // ========== UNIDADES MEDIDA ==========
@@ -94,6 +96,7 @@ export const pedidosApi = {
   criar: (data: any) => api.post('/pedidos', data),
   atualizar: (id: number, data: any) => api.put(`/pedidos/${id}`, data),
   cancelar: (id: number) => api.post(`/pedidos/${id}/cancelar`),
+  marcarComoPago: (pedidoId: number) => api.post(`/pedidos/${pedidoId}/marcar-pago`),
 }
 
 // ========== DASHBOARD ==========

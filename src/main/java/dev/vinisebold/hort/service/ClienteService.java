@@ -1,9 +1,18 @@
 package dev.vinisebold.hort.service;
 
 import dev.vinisebold.hort.dto.request.ClienteRequest;
+import dev.vinisebold.hort.dto.request.AbaterDividaRequest;
 import dev.vinisebold.hort.dto.response.ClienteResponse;
+import dev.vinisebold.hort.dto.response.ClienteFinanceiroResponse;
+import dev.vinisebold.hort.dto.response.AbaterDividaResponse;
+import dev.vinisebold.hort.dto.response.PedidoResponse;
+import dev.vinisebold.hort.dto.response.ItemPedidoResponse;
 import dev.vinisebold.hort.model.Cliente;
+import dev.vinisebold.hort.model.Pedido;
+import dev.vinisebold.hort.model.ItemPedido;
 import dev.vinisebold.hort.repository.ClienteRepository;
+import dev.vinisebold.hort.repository.PedidoRepository;
+import dev.vinisebold.hort.repository.ItemPedidoRepository;
 import dev.vinisebold.hort.util.ClienteFormatter;
 import dev.vinisebold.hort.validator.CpfValidator;
 import dev.vinisebold.hort.validator.CnpjValidator;
@@ -12,17 +21,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.math.BigDecimal;
+import java.time.YearMonth;
 import dev.vinisebold.hort.dto.response.CursorResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final PedidoRepository pedidoRepository;
+    private final ItemPedidoRepository itemPedidoRepository;
 
     @Transactional
     public ClienteResponse criar(ClienteRequest request) {
@@ -124,6 +139,126 @@ public class ClienteService {
         novoClienteRequest.setRazaoSocial(nome.trim());
 
         return criar(novoClienteRequest);
+    }
+
+    /**
+     * Obtém o resumo financeiro de um cliente
+     * @param clienteId ID do cliente
+     * @return ClienteFinanceiroResponse com dados financeiros
+     */
+    @Transactional(readOnly = true)
+    public ClienteFinanceiroResponse getResumoFinanceiro(Integer clienteId) {
+        Cliente cliente = getClienteEntity(clienteId);
+        
+        // Buscar todos pedidos do cliente ordenados cronologicamente
+        List<Pedido> pedidos = pedidoRepository.findByClienteIdOrderByDataEmissaoAsc(clienteId);
+        
+        // Calcular métricas financeiras
+        YearMonth mesAtual = YearMonth.now();
+        YearMonth mesAnterior = mesAtual.minusMonths(1);
+        
+        BigDecimal dividaTotal = BigDecimal.ZERO;
+        BigDecimal dividaMesAtual = BigDecimal.ZERO;
+        BigDecimal dividaMesAnterior = BigDecimal.ZERO;
+        Integer totalPedidosPendentes = 0;
+        Integer totalPedidosPagos = 0;
+        
+        List<PedidoResponse> pedidosResponse = new ArrayList<>();
+        
+        for (Pedido pedido : pedidos) {
+            PedidoResponse pedidoResp = mapPedidoToResponse(pedido);
+            pedidosResponse.add(pedidoResp);
+            
+            if ("PENDENTE".equalsIgnoreCase(pedido.getStatus())) {
+                totalPedidosPendentes++;
+                dividaTotal = dividaTotal.add(pedido.getValorTotal());
+                
+                // Verificar se é do mês atual ou anterior
+                YearMonth mesEmissao = YearMonth.from(pedido.getDataEmissao());
+                if (mesEmissao.equals(mesAtual)) {
+                    dividaMesAtual = dividaMesAtual.add(pedido.getValorTotal());
+                } else if (mesEmissao.equals(mesAnterior)) {
+                    dividaMesAnterior = dividaMesAnterior.add(pedido.getValorTotal());
+                }
+            } else if ("PAGO".equalsIgnoreCase(pedido.getStatus())) {
+                totalPedidosPagos++;
+            }
+        }
+        
+        return ClienteFinanceiroResponse.builder()
+                .clienteResponse(mapToResponse(cliente))
+                .dividaTotal(dividaTotal)
+                .dividaMesAtual(dividaMesAtual)
+                .dividaMesAnterior(dividaMesAnterior)
+                .totalPedidosPendentes(totalPedidosPendentes)
+                .totalPedidosPagos(totalPedidosPagos)
+                .saldoCredito(cliente.getSaldoCredito())
+                .historicoPedidos(pedidosResponse)
+                .build();
+    }
+
+    /**
+     * Abate a dívida de um cliente usando pagamento e saldo de crédito
+     * @param clienteId ID do cliente
+     * @param request Contém o valor pago
+     * @return AbaterDividaResponse com resultado da operação
+     */
+    @Transactional
+    public AbaterDividaResponse abaterDivida(Integer clienteId, AbaterDividaRequest request) {
+        Cliente cliente = getClienteEntity(clienteId);
+        
+        // Validar valor pago
+        if (request.getValorPago() == null || request.getValorPago().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Valor pago deve ser maior que zero.");
+        }
+        
+        BigDecimal saldoAnterior = cliente.getSaldoCredito();
+        BigDecimal valorDisponivel = request.getValorPago().add(saldoAnterior);
+        
+        // Buscar pedidos PENDENTE ordenados por dataEmissao ASC (FIFO)
+        List<Pedido> pedidosPendentes = pedidoRepository.findByClienteIdAndStatusOrderByDataEmissaoAsc(
+                clienteId, "PENDENTE");
+        
+        List<Integer> pedidosQuitados = new ArrayList<>();
+        BigDecimal valorUtilizado = BigDecimal.ZERO;
+        
+        // Iterar pelos pedidos FIFO
+        for (Pedido pedido : pedidosPendentes) {
+            if (valorDisponivel.compareTo(pedido.getValorTotal()) >= 0) {
+                // Marcar como PAGO
+                pedido.setStatus("PAGO");
+                pedidoRepository.save(pedido);
+                
+                // Atualizar métricas
+                pedidosQuitados.add(pedido.getId());
+                valorDisponivel = valorDisponivel.subtract(pedido.getValorTotal());
+                valorUtilizado = valorUtilizado.add(pedido.getValorTotal());
+            } else {
+                // Parar pois não tem valor suficiente para quitar este pedido
+                break;
+            }
+        }
+        
+        // Atualizar saldo de crédito do cliente
+        cliente.setSaldoCredito(valorDisponivel);
+        clienteRepository.save(cliente);
+        
+        // Recalcular dívida total após atualizações
+        BigDecimal novaDividaTotal = BigDecimal.ZERO;
+        List<Pedido> pedidosRestantes = pedidoRepository.findByClienteIdAndStatusOrderByDataEmissaoAsc(
+                clienteId, "PENDENTE");
+        
+        for (Pedido pedido : pedidosRestantes) {
+            novaDividaTotal = novaDividaTotal.add(pedido.getValorTotal());
+        }
+        
+        return AbaterDividaResponse.builder()
+                .pedidosQuitados(pedidosQuitados)
+                .valorUtilizado(valorUtilizado)
+                .creditoAdicionado(request.getValorPago())
+                .novoSaldoCredito(valorDisponivel)
+                .novaDividaTotal(novaDividaTotal)
+                .build();
     }
 
     // --- Métodos Auxiliares Privados (Clean Code) ---
@@ -238,6 +373,38 @@ public class ClienteService {
                 .contato(cliente.getContato())
                 .isActive(cliente.getIsActive())
                 .createdAt(cliente.getCreatedAt())
+                .build();
+    }
+
+    /**
+     * Mapeia uma entidade Pedido para PedidoResponse
+     * @param pedido A entidade Pedido
+     * @return PedidoResponse com dados formatados
+     */
+    private PedidoResponse mapPedidoToResponse(Pedido pedido) {
+        List<ItemPedido> itens = itemPedidoRepository.findByPedido(pedido);
+        
+        List<ItemPedidoResponse> itensResponse = itens.stream().map(item ->
+                ItemPedidoResponse.builder()
+                        .id(item.getId())
+                        .produtoId(item.getProduto().getId())
+                        .produtoDescricao(item.getProduto().getDescricao())
+                        .quantidade(item.getQuantidade())
+                        .valorUnitario(item.getValorUnitario())
+                        .valorTotal(item.getValorTotal())
+                        .custoUnitario(item.getCustoUnitario())
+                        .build()
+        ).toList();
+        
+        return PedidoResponse.builder()
+                .id(pedido.getId())
+                .naturezaOperacao(pedido.getNaturezaOperacao().getDescricao())
+                .clienteNome(pedido.getCliente() != null ? pedido.getCliente().getRazaoSocial() : "Consumidor Final")
+                .documentoReferencia(pedido.getDocumentoReferencia())
+                .valorTotal(pedido.getValorTotal())
+                .status(pedido.getStatus())
+                .dataEmissao(pedido.getDataEmissao())
+                .itens(itensResponse)
                 .build();
     }
 }
