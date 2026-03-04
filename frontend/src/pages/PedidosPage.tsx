@@ -198,7 +198,6 @@ export default function PedidosPage() {
               <TableRow
                 key={pedido.id}
                 selected={selectedIds.includes(pedido.id)}
-                sx={{ opacity: pedido.statusPagamento === 'CANCELADO' ? 0.5 : 1 }}
               >
                 <TableCell padding="checkbox">
                   <Checkbox
