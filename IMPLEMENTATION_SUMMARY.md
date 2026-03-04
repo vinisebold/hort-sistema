@@ -4,6 +4,24 @@
 
 ---
 
+## 🔧 Bug Fix Applied (04/03/2026)
+
+**Issue:** NullPointerException in `abaterDivida` method when processing clients with null `saldoCredito`.
+
+**Root Cause:** Two existing client records in the database had `saldoCredito` set to `null` instead of `0`, causing arithmetic operations to fail.
+
+**Solution Implemented:**
+1. Added null safety checks in `ClienteService.abaterDivida()` - now treats null as `BigDecimal.ZERO`
+2. Updated database records: Set `saldoCredito = 0` for 2 affected clients
+3. Enhanced robustness: System now handles null values gracefully
+
+**Files Modified:**
+- `src/main/java/dev/vinisebold/hort/service/ClienteService.java:95`
+
+**Impact:** System is now fully functional and handles edge cases with legacy data. No user-facing functionality changed.
+
+---
+
 ## 📊 Estatísticas da Implementação
 
 | Categoria | Quantidade | Status |

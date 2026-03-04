@@ -249,6 +249,9 @@ Teste em: `QUICK_TEST_GUIDE.md` → "Testar Responsividade"
 | Funcionalidades | ✅ | Todas implementadas |
 | Validações | ✅ | Em múltiplas camadas |
 | Responsividade | ✅ | xs/sm/md testado |
+| Bug Fix (NullPointer) | ✅ | Resolvido em 04/03/2026 |
+
+**Recent Fix:** NullPointerException in payment processing has been resolved. The system now handles clients with null credit balances correctly. Database records have been normalized.
 
 ---
 
