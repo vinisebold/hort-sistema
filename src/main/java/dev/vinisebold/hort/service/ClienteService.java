@@ -192,7 +192,7 @@ public class ClienteService {
                 .dividaMesAnterior(dividaMesAnterior)
                 .totalPedidosPendentes(totalPedidosPendentes)
                 .totalPedidosPagos(totalPedidosPagos)
-                .saldoCredito(cliente.getSaldoCredito())
+                .saldoCredito(cliente.getSaldoCredito() != null ? cliente.getSaldoCredito() : BigDecimal.ZERO)
                 .historicoPedidos(pedidosResponse)
                 .build();
     }
@@ -212,7 +212,7 @@ public class ClienteService {
             throw new IllegalArgumentException("Valor pago deve ser maior que zero.");
         }
         
-        BigDecimal saldoAnterior = cliente.getSaldoCredito();
+        BigDecimal saldoAnterior = cliente.getSaldoCredito() != null ? cliente.getSaldoCredito() : BigDecimal.ZERO;
         BigDecimal valorDisponivel = request.getValorPago().add(saldoAnterior);
         
         // Buscar pedidos PENDENTE ordenados por dataEmissao ASC (FIFO)
