@@ -64,6 +64,7 @@ export const clientesApi = {
   atualizar: (id: number, data: any) => api.put(`/clientes/${id}`, data),
   deletar: (id: number) => api.delete(`/clientes/${id}`),
   consultarCnpj: (cnpj: string) => api.get(`/clientes/consulta-cnpj/${cnpj}`),
+  buscarOuCriarPF: (nome: string) => api.get(`/clientes/buscar-ou-criar-pf?nome=${encodeURIComponent(nome)}`),
 }
 
 // ========== UNIDADES MEDIDA ==========

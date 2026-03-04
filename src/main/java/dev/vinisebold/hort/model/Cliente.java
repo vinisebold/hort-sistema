@@ -30,7 +30,7 @@ public class Cliente {
 
     private String endereco;
 
-    private String telefone;
+    private String contato;
 
     @Column(nullable = false)
     private Boolean isActive = true;

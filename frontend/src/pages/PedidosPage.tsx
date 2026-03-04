@@ -5,7 +5,7 @@ import {
   Paper, IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Alert, Checkbox, CircularProgress, Menu, MenuItem
 } from '@mui/material'
-import { Add, Visibility, Cancel, MoreVert, ArrowDownward, ArrowUpward } from '@mui/icons-material'
+import { Add, Visibility, MoreVert, ArrowDownward, ArrowUpward } from '@mui/icons-material'
 import { pedidosApi, naturezasApi } from '../services/api'
 import NaturezaOverlay from '../components/NaturezaOverlay'
 

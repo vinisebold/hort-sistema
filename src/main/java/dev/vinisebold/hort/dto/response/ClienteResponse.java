@@ -13,7 +13,7 @@ public class ClienteResponse {
     private String razaoSocial;
     private String nomeFantasia;
     private String endereco;
-    private String telefone;
+    private String contato;
     private Boolean isActive;
     private LocalDateTime createdAt;
 }

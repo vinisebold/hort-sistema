@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
@@ -20,4 +21,7 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
     // Útil para validação: impede cadastrar dois clientes com o mesmo CPF/CNPJ
     boolean existsByDocumento(String documento);
+
+    // Busca cliente por nome (razaoSocial) e tipo, case-insensitive
+    Optional<Cliente> findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrueIgnoreCase(String razaoSocial, String tipoPessoa);
 }

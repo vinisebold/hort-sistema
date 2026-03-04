@@ -11,10 +11,10 @@ public class ClienteRequest {
 
     private String documento;
 
-    @NotBlank(message = "A razão social ou nome é obrigatório")
+    @NotBlank(message = "O nome ou razão social é obrigatório")
     private String razaoSocial;
 
     private String nomeFantasia;
     private String endereco;
-    private String telefone;
+    private String contato;
 }

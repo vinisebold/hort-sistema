@@ -50,6 +50,8 @@ export default function NovoPedidoPage() {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [loading, setLoading] = useState(false)
   const [activeInput, setActiveInput] = useState<{ index: number, field: string, value: string } | null>(null)
+  const [inputClienteValue, setInputClienteValue] = useState('')
+  const [carregandoCliente, setCarregandoCliente] = useState(false)
 
   const [form, setForm] = useState({
     naturezaOperacaoId: '',
@@ -103,6 +105,42 @@ export default function NovoPedidoPage() {
       }
     } catch (error) {
       console.error('Erro ao carregar naturezas:', error)
+    }
+  }
+
+  const buscarOuCriarClientePF = async (nome: string) => {
+    if (!nome || nome.trim().length === 0) {
+      return
+    }
+
+    try {
+      setCarregandoCliente(true)
+      const response = await clientesApi.buscarOuCriarPF(nome)
+      const novoCliente = response.data
+
+      // Adiciona à lista de clientes se não existir
+      if (!clientes.find(c => c.id === novoCliente.id)) {
+        setClientes(prev => [...prev, novoCliente])
+      }
+
+      // Seleciona o cliente
+      setForm(prev => ({ ...prev, clienteId: novoCliente.id }))
+      setInputClienteValue(novoCliente.razaoSocial)
+
+      setSnackbar({
+        open: true,
+        message: `Cliente "${novoCliente.razaoSocial}" criado/selecionado com sucesso!`,
+        severity: 'success'
+      })
+    } catch (error: any) {
+      console.error('Erro ao buscar/criar cliente:', error)
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Erro ao processar cliente',
+        severity: 'error'
+      })
+    } finally {
+      setCarregandoCliente(false)
     }
   }
 
@@ -257,29 +295,48 @@ export default function NovoPedidoPage() {
             <Grid container spacing={4} alignItems="flex-end">
               {selectedNatureza?.tipoMovimento !== 'ENTRADA' && (
                 <Grid item xs={12} md={8}>
-                  <Autocomplete
-                    options={clientes}
-                    getOptionLabel={(option) => option.razaoSocial}
-                    value={clientes.find(c => c.id === form.clienteId) || null}
-                    onChange={(_, value) => setForm({ ...form, clienteId: value?.id || null })}
-                    renderInput={(params) => (
-                      <TextField 
-                        {...params}  
-                        label="Cliente" 
-                        placeholder="Selecione ou busque o cliente"
-                        fullWidth 
-                        autoFocus // Automatic focus on mount
-                      />
-                    )}
-                    renderOption={(props, option) => (
-                      <li {...props} key={option.id}>
-                        <Box>
-                          <Typography variant="body1">{option.razaoSocial}</Typography>
-                          <Typography variant="caption" color="text.secondary">{option.documento}</Typography>
-                        </Box>
-                      </li>
-                    )}
-                  />
+                   <Autocomplete
+                      options={clientes}
+                      getOptionLabel={(option) => typeof option === 'string' ? option : option.razaoSocial}
+                      value={clientes.find(c => c.id === form.clienteId) || null}
+                      inputValue={inputClienteValue}
+                      onInputChange={(_, value) => setInputClienteValue(value || '')}
+                      onChange={(_, value) => {
+                        if (typeof value === 'string') {
+                          // É um texto livre digitado
+                          return
+                        }
+                        setForm({ ...form, clienteId: value?.id || null })
+                        setInputClienteValue(value?.razaoSocial || '')
+                      }}
+                      onKeyDown={(e) => {
+                        // Se pressionar Enter e houver texto, tenta buscar/criar cliente
+                        if (e.key === 'Enter' && inputClienteValue.trim() && !form.clienteId) {
+                          e.preventDefault()
+                          buscarOuCriarClientePF(inputClienteValue)
+                        }
+                      }}
+                      freeSolo
+                      loading={carregandoCliente}
+                      renderInput={(params) => (
+                        <TextField 
+                          {...params}  
+                          label="Cliente" 
+                          placeholder="Selecione ou busque o cliente (Enter para criar)"
+                          fullWidth 
+                          autoFocus
+                          helperText={inputClienteValue && !form.clienteId ? "Pressione Enter para criar cliente Pessoa Física" : ""}
+                        />
+                      )}
+                      renderOption={(props, option) => (
+                        <li {...props} key={option.id}>
+                          <Box>
+                            <Typography variant="body1">{option.razaoSocial}</Typography>
+                            <Typography variant="caption" color="text.secondary">{option.documento}</Typography>
+                          </Box>
+                        </li>
+                      )}
+                    />
                 </Grid>
               )}
               <Grid item xs={12} md={selectedNatureza?.tipoMovimento === 'ENTRADA' ? 12 : 4}>

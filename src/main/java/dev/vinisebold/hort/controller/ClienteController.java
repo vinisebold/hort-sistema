@@ -52,4 +52,9 @@ public class ClienteController {
     public ResponseEntity<ConsultaCnpjResponse> consultarCnpj(@PathVariable String cnpj) {
         return ResponseEntity.ok(brasilApiService.consultarCnpj(cnpj));
     }
+
+    @GetMapping("/buscar-ou-criar-pf")
+    public ResponseEntity<ClienteResponse> buscarOuCriarClientePF(@RequestParam String nome) {
+        return ResponseEntity.ok(clienteService.buscarOuCriarClientePF(nome));
+    }
 }
