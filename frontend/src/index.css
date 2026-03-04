@@ -1,0 +1,61 @@
+/* Roboto Variable Font Configuration */
+:root {
+  --font-family-primary: 'Roboto Variable', sans-serif;
+}
+
+html, body, * {
+  font-family: var(--font-family-primary);
+}
+
+/* Ensure font-weight values work with variable fonts */
+body {
+  font-weight: 400;
+}
+
+/* Typography variants */
+h1, h2, h3, h4, h5, h6,
+.MuiTypography-h1,
+.MuiTypography-h2,
+.MuiTypography-h3,
+.MuiTypography-h4,
+.MuiTypography-h5,
+.MuiTypography-h6 {
+  font-weight: 700;
+}
+
+strong,
+b,
+.MuiButton-containedPrimary,
+.MuiButton-containedSecondary,
+.MuiButton-outlined {
+  font-weight: 500;
+}
+
+/* Ensure all text nodes respect font-weight */
+.MuiTableCell-head {
+  font-weight: 500;
+}
+
+.MuiTableCell-body {
+  font-weight: 400;
+}
+
+/* Button and interactive elements */
+button,
+[role='button'],
+.MuiButton-root {
+  font-weight: 500;
+  font-family: var(--font-family-primary);
+}
+
+/* Form elements */
+input,
+textarea,
+select,
+.MuiInput-root,
+.MuiOutlinedInput-root,
+.MuiFilledInput-root {
+  font-family: var(--font-family-primary);
+  font-weight: 400;
+}
+

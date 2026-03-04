@@ -10,11 +10,11 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    fontWeightLight: 100,
-    fontWeightRegular: 300,
-    fontWeightMedium: 400,
-    fontWeightBold: 500,
+    fontFamily: '"Roboto Variable", sans-serif',
+    fontWeightLight: 300,
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+    fontWeightBold: 700,
   },
   components: {
     MuiTableCell: {

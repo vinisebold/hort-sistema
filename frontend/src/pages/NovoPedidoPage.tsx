@@ -271,11 +271,11 @@ export default function NovoPedidoPage() {
           boxShadow: (theme as any).shadows[4],
           zIndex: (theme as any).zIndex.appBar - 1,
         })}
-      >
-        <Typography variant="h5" sx={{ fontWeight: 300, color: 'white', fontSize: { xs: '1.2rem', md: '1.4rem' } }}>
-          <Box component="span" sx={{ fontWeight: 400 }}>{selectedNatureza?.descricao || 'Pedido'}</Box> no valor de <Box component="span" sx={{ fontWeight: 400 }}>R$ {calcularTotal().toFixed(2).replace('.', ',')}</Box>
-        </Typography>
-      </Box>
+       >
+         <Typography variant="h5" sx={{ fontWeight: 300, color: 'white', fontSize: { xs: '1.2rem', md: '1.4rem' } }}>
+           <Box component="span" sx={{ fontWeight: 400 }}>{selectedNatureza?.descricao || 'Pedido'}</Box> no valor de <Box component="span" sx={{ fontWeight: 400 }}>R$ {calcularTotal().toFixed(2).replace('.', ',')}</Box>
+         </Typography>
+       </Box>
 
       {/* spacer so page content sits below the fixed header */}
       <Box sx={{ height: 42, mb: 3 }} />

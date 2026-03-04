@@ -55,7 +55,7 @@ const NaturezaOverlay: React.FC<NaturezaOverlayProps> = ({ open, onClose, nature
                 color: 'white'
               }}
             >
-              Que tipo de nota fiscal deseja criar?
+              Que tipo de pedido deseja criar?
             </Typography>
 
             <Grid container spacing={0}>
