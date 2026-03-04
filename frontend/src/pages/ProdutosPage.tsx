@@ -25,7 +25,7 @@ export default function ProdutosPage() {
   const [unidades, setUnidades] = useState<UnidadeMedida[]>([])
   const [open, setOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [form, setForm] = useState({ codigo: '', descricao: '', unidadeMedidaId: '' })
+   const [form, setForm] = useState({ descricao: '', unidadeMedidaId: '' })
 
   useEffect(() => {
     loadProdutos().catch(console.error)
@@ -76,47 +76,45 @@ export default function ProdutosPage() {
     }
   }
 
-  const handleOpen = (produto?: Produto) => {
-    if (produto) {
-      setEditingId(produto.id)
-      setForm({
-        codigo: produto.codigo,
-        descricao: produto.descricao,
-        unidadeMedidaId: String(produto.unidadeMedida.id),
-      })
-    } else {
-      setEditingId(null)
-      setForm({ codigo: '', descricao: '', unidadeMedidaId: '' })
-    }
-    setOpen(true)
-  }
+   const handleOpen = (produto?: Produto) => {
+     if (produto) {
+       setEditingId(produto.id)
+       setForm({
+         descricao: produto.descricao,
+         unidadeMedidaId: String(produto.unidadeMedida.id),
+       })
+     } else {
+       setEditingId(null)
+       setForm({ descricao: '', unidadeMedidaId: '' })
+     }
+     setOpen(true)
+   }
 
-  const handleClose = () => {
-    setOpen(false)
-    setEditingId(null)
-    setForm({ codigo: '', descricao: '', unidadeMedidaId: '' })
-  }
+   const handleClose = () => {
+     setOpen(false)
+     setEditingId(null)
+     setForm({ descricao: '', unidadeMedidaId: '' })
+   }
 
-  const handleSubmit = async () => {
-    try {
-      const data = {
-        codigo: form.codigo,
-        descricao: form.descricao,
-        unidadeMedidaId: Number(form.unidadeMedidaId),
-      }
-      
-      if (editingId) {
-        await produtosApi.atualizar(editingId, data)
-      } else {
-        await produtosApi.criar(data)
-      }
-      
-      handleClose()
-      await loadProdutos()
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Erro ao salvar produto')
-    }
-  }
+   const handleSubmit = async () => {
+     try {
+       const data = {
+         descricao: form.descricao,
+         unidadeMedidaId: Number(form.unidadeMedidaId),
+       }
+       
+       if (editingId) {
+         await produtosApi.atualizar(editingId, data)
+       } else {
+         await produtosApi.criar(data)
+       }
+       
+       handleClose()
+       await loadProdutos()
+     } catch (error: any) {
+       alert(error.response?.data?.message || 'Erro ao salvar produto')
+     }
+   }
 
   const handleDelete = async (id: number) => {
     if (confirm('Tem certeza que deseja excluir este produto?')) {
@@ -168,43 +166,34 @@ export default function ProdutosPage() {
         <Add />
       </Fab>
 
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{editingId ? 'Editar Produto' : 'Novo Produto'}</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            
-            label="Código"
-            value={form.codigo}
-            onChange={(e) => setForm({ ...form, codigo: e.target.value })}
-            margin="normal"
-          />
-          <TextField
-            fullWidth
-            
-            label="Descrição"
-            value={form.descricao}
-            onChange={(e) => setForm({ ...form, descricao: e.target.value })}
-            margin="normal"
-          />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Unidade de Medida</InputLabel>
-            <Select
-              value={form.unidadeMedidaId}
-              label="Unidade de Medida"
-              onChange={(e) => setForm({ ...form, unidadeMedidaId: e.target.value })}
-            >
-              {unidades.map((u) => (
-                <MenuItem key={u.id} value={u.id}>{u.sigla} - {u.descricao}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleSubmit} variant="contained">Salvar</Button>
-        </DialogActions>
-      </Dialog>
+       <Dialog open={open} onClose={handleClose}>
+         <DialogTitle>{editingId ? 'Editar Produto' : 'Novo Produto'}</DialogTitle>
+         <DialogContent>
+           <TextField
+             fullWidth
+             label="Descrição"
+             value={form.descricao}
+             onChange={(e) => setForm({ ...form, descricao: e.target.value })}
+             margin="normal"
+           />
+           <FormControl fullWidth margin="normal">
+             <InputLabel>Unidade de Medida</InputLabel>
+             <Select
+               value={form.unidadeMedidaId}
+               label="Unidade de Medida"
+               onChange={(e) => setForm({ ...form, unidadeMedidaId: e.target.value })}
+             >
+               {unidades.map((u) => (
+                 <MenuItem key={u.id} value={u.id}>{u.sigla} - {u.descricao}</MenuItem>
+               ))}
+             </Select>
+           </FormControl>
+         </DialogContent>
+         <DialogActions>
+           <Button onClick={handleClose}>Cancelar</Button>
+           <Button onClick={handleSubmit} variant="contained">Salvar</Button>
+         </DialogActions>
+       </Dialog>
     </Box>
   )
 }

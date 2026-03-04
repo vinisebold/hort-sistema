@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 public class ProdutoRequest {
-    @NotBlank(message = "O código do produto é obrigatório")
     private String codigo;
 
     @NotBlank(message = "A descrição do produto é obrigatória")

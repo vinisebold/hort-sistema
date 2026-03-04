@@ -28,20 +28,34 @@ public class ProdutoService {
 
     @Transactional
     public ProdutoResponse criar(ProdutoRequest request) {
-        if (produtoRepository.existsByCodigo(request.getCodigo())) {
-            throw new IllegalArgumentException("Já existe um produto com este código.");
+        String codigo = request.getCodigo();
+        
+        // Se o código não foi fornecido, gera um automaticamente
+        if (codigo == null || codigo.trim().isEmpty()) {
+            codigo = gerarCodigoProduto();
+        } else {
+            // Se foi fornecido, verifica se já existe
+            if (produtoRepository.existsByCodigo(codigo)) {
+                throw new IllegalArgumentException("Já existe um produto com este código.");
+            }
         }
 
         UnidadeMedida um = unidadeMedidaRepository.findById(request.getUnidadeMedidaId())
                 .orElseThrow(() -> new IllegalArgumentException("Unidade de Medida inválida."));
 
         Produto produto = new Produto();
-        produto.setCodigo(request.getCodigo());
+        produto.setCodigo(codigo);
         produto.setDescricao(request.getDescricao());
         produto.setUnidadeMedida(um);
         produto.setEstoqueAtual(BigDecimal.ZERO); // Regra de Ouro: Estoque nasce zerado.
 
         return mapToResponse(produtoRepository.save(produto));
+    }
+
+    private String gerarCodigoProduto() {
+        // Gera código incremental: 1, 2, 3, 4, 5...
+        long proximoNumero = produtoRepository.count() + 1;
+        return String.valueOf(proximoNumero);
     }
 
     public CursorResponse<ProdutoResponse> listarAtivos(Integer cursor, int limit) {

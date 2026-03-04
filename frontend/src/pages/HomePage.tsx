@@ -39,7 +39,6 @@ interface FormState {
 }
 
 interface ProdutoForm {
-    codigo: string
     descricao: string
     unidadeMedidaId: string
 }
@@ -66,7 +65,7 @@ export default function HomePage() {
     const [unidades, setUnidades] = useState<any[]>([])
     
     // Form states
-    const [produtoForm, setProdutoForm] = useState<ProdutoForm>({ codigo: '', descricao: '', unidadeMedidaId: '' })
+    const [produtoForm, setProdutoForm] = useState<ProdutoForm>({ descricao: '', unidadeMedidaId: '' })
     const [clienteForm, setClienteForm] = useState<ClienteForm>({ razaoSocial: '', documento: '', tipoPessoa: 'JURIDICA' })
     const [unidadeForm, setUnidadeForm] = useState<UnidadeForm>({ sigla: '', descricao: '' })
     const [naturezaForm, setNaturezaForm] = useState<NaturezaForm>({ descricao: '', tipoMovimento: 'SAIDA' })
@@ -101,14 +100,14 @@ export default function HomePage() {
 
     const closeModal = () => {
         setFormState({ type: null, loading: false, error: '' })
-        setProdutoForm({ codigo: '', descricao: '', unidadeMedidaId: '' })
+        setProdutoForm({ descricao: '', unidadeMedidaId: '' })
         setClienteForm({ razaoSocial: '', documento: '', tipoPessoa: 'JURIDICA' })
         setUnidadeForm({ sigla: '', descricao: '' })
         setNaturezaForm({ descricao: '', tipoMovimento: 'SAIDA' })
     }
 
     const handleSaveProduto = async () => {
-        if (!produtoForm.codigo || !produtoForm.descricao || !produtoForm.unidadeMedidaId) {
+        if (!produtoForm.descricao || !produtoForm.unidadeMedidaId) {
             setFormState(prev => ({ ...prev, error: 'Preencha todos os campos obrigatórios' }))
             return
         }
@@ -116,7 +115,6 @@ export default function HomePage() {
         setFormState(prev => ({ ...prev, loading: true }))
         try {
             await produtosApi.criar({
-                codigo: produtoForm.codigo,
                 descricao: produtoForm.descricao,
                 unidadeMedidaId: Number(produtoForm.unidadeMedidaId),
             })
@@ -280,14 +278,6 @@ export default function HomePage() {
                 <DialogTitle>Novo Produto</DialogTitle>
                 <DialogContent sx={{ pt: 2 }}>
                     {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
-                    <TextField
-                        fullWidth
-                        label="Código"
-                        value={produtoForm.codigo}
-                        onChange={(e) => setProdutoForm({ ...produtoForm, codigo: e.target.value })}
-                        margin="normal"
-                        required
-                    />
                     <TextField
                         fullWidth
                         label="Descrição"
