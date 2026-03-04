@@ -1,9 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 import HomePage from './pages/HomePage'
 import DashboardPage from './pages/DashboardPage'
 import Layout from './components/Layout'
+import PrivateRoute from './components/PrivateRoute'
 import ProdutosPage from './pages/ProdutosPage'
 import ClientesPage from './pages/ClientesPage'
 import PedidosPage from './pages/PedidosPage'
@@ -19,11 +21,12 @@ function App() {
     <AuthProvider>
       <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
         <Routes>
-          {/* Rota pública */}
+          {/* Rotas públicas */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           
           {/* Rotas protegidas com Layout */}
-          <Route path="/" element={<Layout />}>
+          <Route path="/" element={<PrivateRoute element={<Layout />} />}>
             <Route index element={<HomePage />} />
             <Route path="inicio" element={<HomePage />} />
             <Route path="financeiro" element={<DashboardPage />} />

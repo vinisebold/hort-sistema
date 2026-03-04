@@ -32,9 +32,8 @@ api.interceptors.response.use(
 
 // ========== AUTH ==========
 export const authApi = {
-  status: () => api.get('/auth/status'),
-  login: (senha: string) => api.post('/auth/login', { senha }),
-  setup: (senha: string, nomeNegocio: string) => api.post('/auth/setup', { senha, nomeNegocio }),
+  login: (email: string, senha: string) => api.post('/auth/login', { email, senha }),
+  register: (email: string, cnpj: string, senha: string) => api.post('/auth/register', { email, cnpj, senha }),
 }
 
 // ========== PRODUTOS ==========

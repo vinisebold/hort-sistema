@@ -7,5 +7,10 @@ import lombok.Data;
 @Builder
 public class AuthResponse {
     private String token;
+    private Integer usuarioId;
+    private String email;
+    private String cnpj;
+    private String nomeFantasia;
+    private String razaoSocial;
     private boolean primeiroAcesso;
 }

@@ -1,13 +1,20 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { authApi } from '../services/api'
 
+interface UsuarioData {
+  usuarioId: number
+  email: string
+  cnpj: string
+  nomeFantasia: string
+  razaoSocial: string
+}
+
 interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
-  isSetup: boolean
-  nomeNegocio: string
-  login: (senha: string) => Promise<void>
-  setup: (senha: string, nomeNegocio: string) => Promise<void>
+  usuario: UsuarioData | null
+  login: (email: string, senha: string) => Promise<void>
+  register: (email: string, cnpj: string, senha: string) => Promise<void>
   logout: () => void
 }
 
@@ -16,8 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [isSetup, setIsSetup] = useState(false)
-  const [nomeNegocio, setNomeNegocio] = useState('')
+  const [usuario, setUsuario] = useState<UsuarioData | null>(null)
 
   useEffect(() => {
     checkAuth()
@@ -26,46 +32,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAuth = async () => {
     try {
       const token = localStorage.getItem('token')
-      const nome = localStorage.getItem('nomeNegocio')
-      if (token) {
+      const usuarioData = localStorage.getItem('usuario')
+      if (token && usuarioData) {
         setIsAuthenticated(true)
-        if (nome) setNomeNegocio(nome)
+        setUsuario(JSON.parse(usuarioData))
       }
-      
-      // Verificar se precisa de setup
-      const response = await authApi.status()
-      setIsSetup(response.data.primeiroAcesso)
     } catch (error) {
       console.error('Erro ao verificar autenticação:', error)
+      localStorage.removeItem('token')
+      localStorage.removeItem('usuario')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const login = async (senha: string) => {
-    const response = await authApi.login(senha)
+  const login = async (email: string, senha: string) => {
+    const response = await authApi.login(email, senha)
+    const usuarioData: UsuarioData = {
+      usuarioId: response.data.usuarioId,
+      email: response.data.email,
+      cnpj: response.data.cnpj,
+      nomeFantasia: response.data.nomeFantasia,
+      razaoSocial: response.data.razaoSocial,
+    }
     localStorage.setItem('token', response.data.token)
+    localStorage.setItem('usuario', JSON.stringify(usuarioData))
+    setUsuario(usuarioData)
     setIsAuthenticated(true)
   }
 
-  const setup = async (senha: string, nomeNegocio: string) => {
-    const response = await authApi.setup(senha, nomeNegocio)
+  const register = async (email: string, cnpj: string, senha: string) => {
+    const response = await authApi.register(email, cnpj, senha)
+    const usuarioData: UsuarioData = {
+      usuarioId: response.data.usuarioId,
+      email: response.data.email,
+      cnpj: response.data.cnpj,
+      nomeFantasia: response.data.nomeFantasia,
+      razaoSocial: response.data.razaoSocial,
+    }
     localStorage.setItem('token', response.data.token)
-    localStorage.setItem('nomeNegocio', nomeNegocio)
-    setNomeNegocio(nomeNegocio)
+    localStorage.setItem('usuario', JSON.stringify(usuarioData))
+    setUsuario(usuarioData)
     setIsAuthenticated(true)
-    setIsSetup(false)
   }
 
   const logout = () => {
     localStorage.removeItem('token')
-    localStorage.removeItem('nomeNegocio')
-    setNomeNegocio('')
+    localStorage.removeItem('usuario')
+    setUsuario(null)
     setIsAuthenticated(false)
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, isSetup, nomeNegocio, login, setup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, usuario, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   )

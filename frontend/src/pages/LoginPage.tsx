@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Box, Card, CardContent, TextField, Button, Typography, Alert } from '@mui/material'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { isAuthenticated, isLoading, isSetup, login, setup } = useAuth()
+  const { isAuthenticated, isLoading, login } = useAuth()
+  const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
-  const [nomeNegocio, setNomeNegocio] = useState('')
   const [error, setError] = useState('')
 
   // Redirect if already authenticated
@@ -21,14 +21,10 @@ export default function LoginPage() {
     setError('')
 
     try {
-      if (isSetup) {
-        await setup(senha, nomeNegocio)
-      } else {
-        await login(senha)
-      }
+      await login(email, senha)
       navigate('/inicio')
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao autenticar')
+      setError(err.response?.data?.message || 'Email ou senha incorretos')
     }
   }
 
@@ -49,33 +45,31 @@ export default function LoginPage() {
           </Typography>
           
           <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 3 }}>
-            {isSetup ? 'Primeiro acesso - Configure sua senha' : 'Digite sua senha para acessar'}
+            Faça login com sua conta
           </Typography>
 
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
           <form onSubmit={handleSubmit}>
-            {isSetup && (
-              <TextField
-                fullWidth
-                label="Nome do Negócio"
-                value={nomeNegocio}
-                onChange={(e) => setNomeNegocio(e.target.value)}
-                margin="normal"
-                required
-              />
-            )}
+            <TextField
+              fullWidth
+              type="email"
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              margin="normal"
+              required
+            />
             
-               <TextField
-                 fullWidth
-                 
-                 type="password"
-                 label="Senha"
-                 value={senha}
-                 onChange={(e) => setSenha(e.target.value)}
-                 margin="normal"
-                 required
-               />
+            <TextField
+              fullWidth
+              type="password"
+              label="Senha"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              margin="normal"
+              required
+            />
             
             <Button
               type="submit"
@@ -83,9 +77,15 @@ export default function LoginPage() {
               variant="contained"
               sx={{ mt: 3 }}
             >
-              {isSetup ? 'Configurar' : 'Entrar'}
+              Entrar
             </Button>
           </form>
+
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              Não tem conta? <Link to="/register" style={{ color: '#2e7d32', textDecoration: 'none', fontWeight: 'bold' }}>Registre-se</Link>
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
     </Box>

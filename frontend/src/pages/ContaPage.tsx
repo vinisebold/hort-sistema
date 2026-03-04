@@ -1,11 +1,19 @@
 import { Box, Card, CardContent, Typography, Divider, Avatar, Button } from '@mui/material'
-import { AccountCircle, Store, Logout } from '@mui/icons-material'
+import { AccountCircle, Store, Logout, Email } from '@mui/icons-material'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
 export default function ContaPage() {
-  const { nomeNegocio, logout } = useAuth()
+  const { usuario, logout } = useAuth()
   const navigate = useNavigate()
+
+  const formatarCnpj = (cnpj: string): string => {
+    const apenasNumeros = cnpj.replace(/\D/g, '')
+    if (apenasNumeros.length !== 14) {
+      return apenasNumeros
+    }
+    return apenasNumeros.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
+  }
 
   const handleLogout = () => {
     logout()
@@ -22,7 +30,7 @@ export default function ContaPage() {
             </Avatar>
             <Box>
               <Typography variant="h6">
-                {nomeNegocio || 'Usuário'}
+                {usuario?.nomeFantasia || 'Usuário'}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Administrador
@@ -37,10 +45,46 @@ export default function ContaPage() {
               <Store color="primary" />
               <Box>
                 <Typography variant="body2" color="text.secondary">
-                  Nome do Negócio
+                  Nome Fantasia
                 </Typography>
                 <Typography variant="body1">
-                  {nomeNegocio || 'Não definido'}
+                  {usuario?.nomeFantasia || 'Não definido'}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Store color="primary" />
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Razão Social
+                </Typography>
+                <Typography variant="body1">
+                  {usuario?.razaoSocial || 'Não definido'}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Store color="primary" />
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  CNPJ
+                </Typography>
+                <Typography variant="body1">
+                  {usuario?.cnpj ? formatarCnpj(usuario.cnpj) : 'Não definido'}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Email color="primary" />
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Email
+                </Typography>
+                <Typography variant="body1">
+                  {usuario?.email || 'Não definido'}
                 </Typography>
               </Box>
             </Box>

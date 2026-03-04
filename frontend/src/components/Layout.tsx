@@ -62,7 +62,7 @@ const menuCategories = [
 export default function Layout() {
     const navigate = useNavigate()
     const location = useLocation()
-    const { logout, nomeNegocio } = useAuth()
+    const { logout, usuario } = useAuth()
 
     const [open, setOpen] = useState(false)
     const [accountOpen, setAccountOpen] = useState(false)
@@ -88,6 +88,14 @@ export default function Layout() {
     const handleLogout = () => {
         logout()
         navigate('/login')
+    }
+
+    const formatarCnpj = (cnpj: string): string => {
+        const apenasNumeros = cnpj.replace(/\D/g, '')
+        if (apenasNumeros.length !== 14) {
+            return apenasNumeros
+        }
+        return apenasNumeros.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
     }
 
     const toggleDrawer = (newOpen: boolean) => () => {
@@ -164,9 +172,9 @@ export default function Layout() {
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                    {nomeNegocio && (
-                        <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, mr: 1 }}>
-                            {nomeNegocio}
+                    {usuario && (
+                        <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, mr: 3 }}>
+                            {usuario.nomeFantasia} - {formatarCnpj(usuario.cnpj)}
                         </Typography>
                     )}
                     <IconButton color="inherit" sx={{ height: '100%', borderRadius: 0, px: 1.5 }}><Apps /></IconButton>
