@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Collapse } from '@mui/material'
-import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material'
+import { useEffect, useState, useRef } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Collapse, Tooltip } from '@mui/material'
+import { KeyboardArrowDown, KeyboardArrowUp, Launch } from '@mui/icons-material'
 import { estoqueApi } from '../services/api'
 
 interface ProdutoEstoque {
@@ -25,6 +26,19 @@ interface Movimentacao {
 }
 
 function Row({ produto, onExpand, expanded, movimentacoes }: { produto: ProdutoEstoque; onExpand: () => void; expanded: boolean; movimentacoes: Movimentacao[] }) {
+  const navigate = useNavigate()
+
+  const handleNavigateToPedido = (pedidoId: number) => {
+    navigate('/pedidos', { 
+      state: { 
+        highlightPedidoId: pedidoId,
+        fromEstoque: true,
+        expandedProdutoId: produto.id,
+        scrollPosition: window.scrollY
+      } 
+    })
+  }
+
   return (
     <>
       <TableRow>
@@ -64,6 +78,7 @@ function Row({ produto, onExpand, expanded, movimentacoes }: { produto: ProdutoE
                       <TableCell>Tipo</TableCell>
                       <TableCell align="right">Quantidade</TableCell>
                       <TableCell align="right">Estoque Após</TableCell>
+                      <TableCell align="center">Pedido</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -80,6 +95,21 @@ function Row({ produto, onExpand, expanded, movimentacoes }: { produto: ProdutoE
                         </TableCell>
                         <TableCell align="right">{mov.quantidade}</TableCell>
                         <TableCell align="right">{mov.estoqueAposMovimentacao}</TableCell>
+                        <TableCell align="center">
+                          {mov.pedidoId ? (
+                            <Tooltip title="Ver pedido">
+                              <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={() => handleNavigateToPedido(mov.pedidoId!)}
+                              >
+                                <Launch fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">-</Typography>
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -94,13 +124,30 @@ function Row({ produto, onExpand, expanded, movimentacoes }: { produto: ProdutoE
 }
 
 export default function EstoquePage() {
+  const location = useLocation()
   const [produtos, setProdutos] = useState<ProdutoEstoque[]>([])
   const [movimentacoes, setMovimentacoes] = useState<Record<number, Movimentacao[]>>({})
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const hasRestoredState = useRef(false)
 
   useEffect(() => {
     loadProdutos().catch(console.error)
   }, [])
+
+  useEffect(() => {
+    const state = location.state as { expandedProdutoId?: number; scrollPosition?: number }
+    if (state?.expandedProdutoId && produtos.length > 0 && !hasRestoredState.current) {
+      hasRestoredState.current = true
+      const produtoId = state.expandedProdutoId
+      handleExpand(produtoId)
+      
+      if (state.scrollPosition !== undefined) {
+        setTimeout(() => {
+          window.scrollTo({ top: state.scrollPosition, behavior: 'smooth' })
+        }, 300)
+      }
+    }
+  }, [produtos.length])
 
   const loadProdutos = async () => {
     try {

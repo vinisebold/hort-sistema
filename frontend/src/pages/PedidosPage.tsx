@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Alert, Checkbox, CircularProgress, Menu, MenuItem
 } from '@mui/material'
-import { Add, Visibility, MoreVert, ArrowDownward, ArrowUpward } from '@mui/icons-material'
+import { Add, Visibility, MoreVert, ArrowDownward, ArrowUpward, ArrowBack } from '@mui/icons-material'
 import { pedidosApi, naturezasApi } from '../services/api'
 import NaturezaOverlay from '../components/NaturezaOverlay'
 import { NaturezaOperacao, Pedido } from '../types'
 
 export default function PedidosPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [pedidos, setPedidos] = useState<Pedido[]>([])
   const [nextCursor, setNextCursor] = useState<number | null>(null)
   const [hasNext, setHasNext] = useState(false)
@@ -23,6 +24,12 @@ export default function PedidosPage() {
   const [showOverlay, setShowOverlay] = useState(false)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [cancelConfirm, setCancelConfirm] = useState<Pedido | null>(null)
+  const [highlightedId, setHighlightedId] = useState<number | null>(null)
+  const [showBackButton, setShowBackButton] = useState(false)
+  const [estoqueState, setEstoqueState] = useState<{ expandedProdutoId?: number; scrollPosition?: number } | null>(null)
+  
+  const pedidoRefs = useRef<{ [key: number]: HTMLTableRowElement | null }>({})
+  const hasProcessedNavigation = useRef(false)
   
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedMenuPedido, setSelectedMenuPedido] = useState<Pedido | null>(null)
@@ -40,6 +47,47 @@ export default function PedidosPage() {
   useEffect(() => {
     loadPedidos().catch(console.error)
     loadNaturezas().catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    const state = location.state as { highlightPedidoId?: number; fromEstoque?: boolean; expandedProdutoId?: number; scrollPosition?: number }
+    
+    // Só processa uma vez por navegação
+    if (state?.fromEstoque && !hasProcessedNavigation.current) {
+      hasProcessedNavigation.current = true
+      setShowBackButton(true)
+      setEstoqueState({
+        expandedProdutoId: state.expandedProdutoId,
+        scrollPosition: state.scrollPosition
+      })
+      
+      // Se veio do estoque, processa o highlight
+      if (state.highlightPedidoId && pedidos.length > 0) {
+        const pedidoId = state.highlightPedidoId
+        setHighlightedId(pedidoId)
+        
+        setTimeout(() => {
+          const rowElement = pedidoRefs.current[pedidoId]
+          if (rowElement) {
+            rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        }, 100)
+        
+        setTimeout(() => {
+          setHighlightedId(null)
+        }, 4000)
+      }
+      
+      // Limpa o state apenas uma vez, após processar
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [pedidos, location.state, location.pathname, navigate])
+
+  // Reset quando componente desmonta ou rota muda completamente
+  useEffect(() => {
+    return () => {
+      hasProcessedNavigation.current = false
+    }
   }, [])
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,6 +150,12 @@ export default function PedidosPage() {
   const handleSelectNatureza = (id: number) => {
     setShowOverlay(false)
     navigate(`/pedidos/novo?naturezaId=${id}`)
+  }
+
+  const handleBackToEstoque = () => {
+    navigate('/estoque', { state: estoqueState })
+    setShowBackButton(false)
+    hasProcessedNavigation.current = false
   }
 
   const handleView = async (id: number) => {
@@ -175,7 +229,12 @@ export default function PedidosPage() {
             {pedidos.map((pedido) => (
               <TableRow
                 key={pedido.id}
+                ref={(el) => { pedidoRefs.current[pedido.id] = el }}
                 selected={selectedIds.includes(pedido.id)}
+                sx={{
+                  backgroundColor: highlightedId === pedido.id ? 'rgba(25, 118, 210, 0.15)' : 'transparent',
+                  transition: 'background-color 3s ease-out',
+                }}
               >
                 <TableCell padding="checkbox">
                   <Checkbox
@@ -220,6 +279,22 @@ export default function PedidosPage() {
             Carregar mais
           </Button>
         </Box>
+      )}
+
+      {showBackButton && (
+        <Fab
+          color="primary"
+          aria-label="back to estoque"
+          onClick={handleBackToEstoque}
+          sx={{
+            position: 'fixed',
+            bottom: 32,
+            left: 32,
+            transition: 'transform 0.2s',
+          }}
+        >
+          <ArrowBack />
+        </Fab>
       )}
 
       <Fab
