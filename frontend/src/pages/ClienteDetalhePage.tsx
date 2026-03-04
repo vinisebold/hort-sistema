@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  Box, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Typography, TextField, Button, Chip, IconButton, Snackbar, Alert, CircularProgress,
-  Dialog, DialogTitle, DialogContent, DialogActions
+  Box, Grid, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Typography, TextField, Button, Chip, IconButton, Snackbar, Alert, CircularProgress
 } from '@mui/material'
 import {
-  ArrowBack, CreditCard, AttachMoney, DateRange, CheckCircle
+  ArrowBack, InfoOutlined
 } from '@mui/icons-material'
 import axios from 'axios'
-import { clientesApi, pedidosApi } from '../services/api'
+import { clientesApi } from '../services/api'
 import { ClienteFinanceiroResponse, AbaterDividaResponse, Pedido } from '../types'
 
 interface SnackbarState {
@@ -28,7 +27,6 @@ export default function ClienteDetalhePage() {
   const [valorPago, setValorPago] = useState('')
   const [snackbar, setSnackbar] = useState<SnackbarState>({ open: false, message: '', severity: 'success' })
   const [error, setError] = useState<string | null>(null)
-  const [marcarPagoDialog, setMarcarPagoDialog] = useState<{ open: boolean; pedidoId?: number }>({ open: false })
 
   useEffect(() => {
     if (!id) {
@@ -74,10 +72,9 @@ export default function ClienteDetalhePage() {
     }
   }
 
-  const getStatusColor = (status: string | null): 'default' | 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success' => {
+  const getStatusColor = (status: string | null): 'default' | 'success' | 'warning' => {
     if (status === 'PAGO') return 'success'
     if (status === 'PENDENTE') return 'warning'
-    if (status === 'CANCELADO') return 'error'
     return 'default'
   }
 
@@ -127,42 +124,6 @@ export default function ClienteDetalhePage() {
     }
   }
 
-  const handleMarcarComoPago = async () => {
-    if (!marcarPagoDialog.pedidoId || !id) return
-
-    try {
-      setProcessingPayment(true)
-      await pedidosApi.marcarComoPago(marcarPagoDialog.pedidoId)
-      
-      setSnackbar({
-        open: true,
-        message: 'Pedido marcado como pago com sucesso',
-        severity: 'success'
-      })
-      
-      setMarcarPagoDialog({ open: false })
-      await loadClienteFinanceiro()
-    } catch (error) {
-      console.error('Erro ao marcar como pago:', error)
-      if (axios.isAxiosError(error)) {
-        setSnackbar({
-          open: true,
-          message: error.response?.data?.message || 'Erro ao marcar pedido como pago',
-          severity: 'error'
-        })
-      } else {
-        setSnackbar({
-          open: true,
-          message: 'Erro ao marcar pedido como pago',
-          severity: 'error'
-        })
-      }
-      setMarcarPagoDialog({ open: false })
-    } finally {
-      setProcessingPayment(false)
-    }
-  }
-
   const handleVoltar = () => {
     navigate('/clientes')
   }
@@ -201,249 +162,164 @@ export default function ClienteDetalhePage() {
           <ArrowBack />
         </IconButton>
         <Box>
-          <Typography variant="h5">{cliente?.razaoSocial || 'Cliente'}</Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="h5" sx={{ fontWeight: 300, color: '#333' }}>{cliente?.razaoSocial || 'Cliente'}</Typography>
+          <Typography variant="body2" sx={{ color: '#888' }}>
             {cliente?.documento}
           </Typography>
         </Box>
       </Box>
 
-      {/* Financial Summary Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        {/* Card: Dívida Total */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            sx={{
-              p: 2,
-              background: 'linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)',
-              boxShadow: 1,
-              transition: 'transform 0.2s, box-shadow 0.2s',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: 3
-              }
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2" color="text.secondary">
-                DÍVIDA TOTAL
+      {/* Financial Summary Card */}
+      <Card sx={{ mb: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
+        <CardContent sx={{ p: 4 }}>
+          <Typography variant="h6" sx={{ mb: 3, fontSize: '2rem', fontWeight: 100, color: '#333', letterSpacing: 0.1 }}>
+            Resumo Financeiro
+          </Typography>
+          
+          <Grid container spacing={4}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
+                Dívida Total
               </Typography>
-              <AttachMoney sx={{ fontSize: 20, color: '#c62828' }} />
-            </Box>
-            <Typography variant="h6" sx={{ color: '#c62828', fontWeight: 'bold' }}>
-              {formatCurrency(clienteFinanceiro?.dividaTotal || 0)}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {pendentes} pendente{pendentes !== 1 ? 's' : ''}
-            </Typography>
-          </Paper>
-        </Grid>
+              <Typography variant="h5" sx={{ fontWeight: 300, color: '#333' }}>
+                {formatCurrency(clienteFinanceiro?.dividaTotal || 0)}
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#888' }}>
+                {pendentes} pendente{pendentes !== 1 ? 's' : ''}
+              </Typography>
+            </Grid>
 
-        {/* Card: Este Mês */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            sx={{
-              p: 2,
-              background: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)',
-              boxShadow: 1,
-              transition: 'transform 0.2s, box-shadow 0.2s',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: 3
-              }
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2" color="text.secondary">
-                ESTE MÊS
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
+                Dívida Mês Atual
               </Typography>
-              <DateRange sx={{ fontSize: 20, color: '#f57f17' }} />
-            </Box>
-            <Typography variant="h6" sx={{ color: '#f57f17', fontWeight: 'bold' }}>
-              {formatCurrency(clienteFinanceiro?.dividaMesAtual || 0)}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Dívida atual
-            </Typography>
-          </Paper>
-        </Grid>
+              <Typography variant="h5" sx={{ fontWeight: 300, color: '#333' }}>
+                {formatCurrency(clienteFinanceiro?.dividaMesAtual || 0)}
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#888' }}>
+                Período corrente
+              </Typography>
+            </Grid>
 
-        {/* Card: Mês Anterior */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            sx={{
-              p: 2,
-              background: 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)',
-              boxShadow: 1,
-              transition: 'transform 0.2s, box-shadow 0.2s',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: 3
-              }
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2" color="text.secondary">
-                MÊS ANTERIOR
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
+                Dívida Mês Anterior
               </Typography>
-              <DateRange sx={{ fontSize: 20, color: '#6a1b9a' }} />
-            </Box>
-            <Typography variant="h6" sx={{ color: '#6a1b9a', fontWeight: 'bold' }}>
-              {formatCurrency(clienteFinanceiro?.dividaMesAnterior || 0)}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Período anterior
-            </Typography>
-          </Paper>
-        </Grid>
+              <Typography variant="h5" sx={{ fontWeight: 300, color: '#333' }}>
+                {formatCurrency(clienteFinanceiro?.dividaMesAnterior || 0)}
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#888' }}>
+                Período anterior
+              </Typography>
+            </Grid>
 
-        {/* Card: Crédito Disponível */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            sx={{
-              p: 2,
-              background: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
-              boxShadow: 1,
-              transition: 'transform 0.2s, box-shadow 0.2s',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: 3
-              }
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2" color="text.secondary">
-                CRÉDITO DISPONÍVEL
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
+                Crédito
               </Typography>
-              <CreditCard sx={{ fontSize: 20, color: '#2e7d32' }} />
-            </Box>
-            <Typography variant="h6" sx={{ color: '#2e7d32', fontWeight: 'bold' }}>
-              {formatCurrency(clienteFinanceiro?.saldoCredito || 0)}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Saldo positivo
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
+              <Typography variant="h5" sx={{ fontWeight: 300, color: '#333' }}>
+                {formatCurrency(clienteFinanceiro?.saldoCredito || 0)}
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#888' }}>
+                Saldo disponível
+              </Typography>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
       {/* Payment Section */}
-      <Paper sx={{ p: 3, mb: 3, boxShadow: 1 }}>
-        <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-          💰 REGISTRAR PAGAMENTO
-        </Typography>
-        
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          <TextField
-            label="Valor (R$)"
-            type="number"
-            value={valorPago}
-            onChange={(e) => setValorPago(e.target.value)}
-            disabled={processingPayment}
-            inputProps={{ step: '0.01', min: '0' }}
-            sx={{ minWidth: '150px' }}
-          />
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleAbaterDivida}
-            disabled={processingPayment || !valorPago}
-            sx={{ mt: 1 }}
-          >
-            {processingPayment ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-            ABATER DÍVIDA
-          </Button>
-        </Box>
-        
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
-          ℹ️ Os pagamentos são aplicados automaticamente aos pedidos pendentes seguindo a ordem FIFO (primeiro a entrar, primeiro a sair).
-        </Typography>
-      </Paper>
+      <Card sx={{ mb: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
+        <CardContent sx={{ p: 4 }}>
+          <Typography variant="h6" sx={{ mb: 1, fontSize: '2rem', fontWeight: 100, color: '#333', letterSpacing: 0.1 }}>
+            Registrar Pagamento
+          </Typography>
+          
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, color: '#888' }}>
+            <InfoOutlined sx={{ mr: 1, fontSize: 16 }} />
+            <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+              Os pagamentos são aplicados automaticamente aos pedidos pendentes seguindo a ordem FIFO (primeiro a entrar, primeiro a sair).
+            </Typography>
+          </Box>
+          
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+            <TextField
+              label="Valor Pago"
+              type="number"
+              value={valorPago}
+              onChange={(e) => setValorPago(e.target.value)}
+              disabled={processingPayment}
+              inputProps={{ step: '0.01', min: '0' }}
+              sx={{ minWidth: '200px' }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAbaterDivida}
+              disabled={processingPayment || !valorPago}
+              sx={{ mt: 1 }}
+            >
+              {processingPayment ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+              ABATER DÍVIDA
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
 
       {/* Orders History Table */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>HISTÓRICO DE PEDIDOS</Typography>
-        
-        {clienteFinanceiro?.historicoPedidos && clienteFinanceiro.historicoPedidos.length > 0 ? (
-          <TableContainer component={Paper} sx={{ boxShadow: 1 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                  <TableCell>#ID</TableCell>
-                  <TableCell>Data</TableCell>
-                  <TableCell>Doc. Ref</TableCell>
-                  <TableCell align="right">Valor</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell align="center">Ação</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {clienteFinanceiro.historicoPedidos.map((pedido: Pedido) => (
-                  <TableRow key={pedido.id} hover>
-                    <TableCell>{pedido.id}</TableCell>
-                    <TableCell>{formatDate(pedido.dataEmissao)}</TableCell>
-                    <TableCell>{pedido.documentoReferencia || '-'}</TableCell>
-                    <TableCell align="right">{formatCurrency(pedido.valorTotal)}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={pedido.status || 'N/A'}
-                        color={getStatusColor(pedido.status)}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell align="center">
-                      {pedido.status === 'PENDENTE' ? (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="success"
-                          onClick={() => setMarcarPagoDialog({ open: true, pedidoId: pedido.id })}
-                          disabled={processingPayment}
-                        >
-                          Marcar Pago
-                        </Button>
-                      ) : (
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
-                          <CheckCircle sx={{ fontSize: 18, color: '#2e7d32' }} />
-                          <Typography variant="caption">Quitado</Typography>
-                        </Box>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ) : (
-          <Paper sx={{ p: 3, textAlign: 'center', boxShadow: 1 }}>
-            <Typography color="text.secondary">
-              Nenhum pedido encontrado para este cliente.
-            </Typography>
-          </Paper>
-        )}
-      </Box>
-
-      {/* Dialog: Confirmar Marcar Como Pago */}
-      <Dialog open={marcarPagoDialog.open} onClose={() => setMarcarPagoDialog({ open: false })}>
-        <DialogTitle>Marcar Pedido como Pago?</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Você tem certeza que deseja marcar o pedido #{marcarPagoDialog.pedidoId} como pago?
+      <Card sx={{ mb: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
+        <CardContent sx={{ p: 4 }}>
+          <Typography variant="h6" sx={{ mb: 3, fontSize: '2rem', fontWeight: 100, color: '#333', letterSpacing: 0.1 }}>
+            Histórico de Pedidos
           </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setMarcarPagoDialog({ open: false })}>Cancelar</Button>
-          <Button
-            onClick={handleMarcarComoPago}
-            color="success"
-            variant="contained"
-            disabled={processingPayment}
-          >
-            {processingPayment ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-            Confirmar
-          </Button>
-        </DialogActions>
-      </Dialog>
+          
+          {clienteFinanceiro?.historicoPedidos && clienteFinanceiro.historicoPedidos.length > 0 ? (
+            <TableContainer sx={{ bgcolor: 'transparent', boxShadow: 'none' }}>
+              <Table size="medium">
+                <TableHead>
+                  <TableRow sx={{ '& th': { borderBottom: '1px solid #ddd' } }}>
+                    <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd' }}>ID</TableCell>
+                    <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd' }}>Data</TableCell>
+                    <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd' }}>Doc. Ref</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd' }}>Valor</TableCell>
+                    <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd' }}>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {clienteFinanceiro.historicoPedidos.map((pedido: Pedido) => (
+                    <TableRow 
+                      key={pedido.id} 
+                      sx={{ 
+                        '&:hover': { bgcolor: '#e8eceb' },
+                        '& td': { borderBottom: '1px solid #ddd' }
+                      }}
+                    >
+                      <TableCell sx={{ fontSize: '0.875rem', color: '#555' }}>#{pedido.id}</TableCell>
+                      <TableCell sx={{ fontSize: '0.875rem', color: '#555' }}>{formatDate(pedido.dataEmissao)}</TableCell>
+                      <TableCell sx={{ fontSize: '0.875rem', color: '#555' }}>{pedido.documentoReferencia || '-'}</TableCell>
+                      <TableCell align="right" sx={{ fontSize: '0.875rem', color: '#555' }}>{formatCurrency(pedido.valorTotal)}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={pedido.status || 'N/A'}
+                          color={getStatusColor(pedido.status)}
+                          size="small"
+                          sx={{ fontSize: '0.75rem' }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography sx={{ color: '#888' }}>
+                Nenhum pedido encontrado para este cliente.
+              </Typography>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Snackbar */}
       <Snackbar
