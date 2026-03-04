@@ -7,7 +7,6 @@ interface Produto {
   id: number
   codigo: string
   descricao: string
-  estoqueAtual: number
   unidadeMedida: { id: number; sigla: string }
   isActive: boolean
 }
@@ -138,9 +137,7 @@ export default function ProdutosPage() {
             <TableRow>
               <TableCell>Código</TableCell>
               <TableCell>Descrição</TableCell>
-              <TableCell>Un. de estoque</TableCell>
-              <TableCell align="right">Estoque</TableCell>
-              <TableCell align="center"></TableCell>
+              <TableCell align="center">Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -148,8 +145,6 @@ export default function ProdutosPage() {
               <TableRow key={produto.id}>
                 <TableCell>{produto.codigo}</TableCell>
                 <TableCell>{produto.descricao}</TableCell>
-                <TableCell>{produto.unidadeMedida?.sigla}</TableCell>
-                <TableCell align="right">{produto.estoqueAtual}</TableCell>
                 <TableCell align="center">
                   <IconButton onClick={() => handleOpen(produto)}><Edit /></IconButton>
                   <IconButton onClick={() => handleDelete(produto.id)}><Delete /></IconButton>
