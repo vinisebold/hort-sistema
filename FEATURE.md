@@ -9,7 +9,7 @@
 - Entender a necessidade de "Devolver" ou "Retornar" um pedido, atualmente temos somente a opcao de "Cancelar" um pedido, porem as vezes o cliente pode querer devolver um pedido ou retornar um pedido, entao devemos entender melhor a necessidade disso e caso seja necessario implementar essas funcionalidades.
 - Tirar a opacidade ao cancelar um pedido da tabela, causa confusao mental isso, o pedido fica com a opacidade reduzida e parece que ele esta desabilitado, porem ele nao esta desabilitado, ele esta apenas cancelado, entao devemos tirar essa opacidade para evitar confusao mental.
 - Fazer uma opcao para descancelar um pedido, atualmente temos somente a opcao de cancelar um pedido.
-- UI/UX: Texto de "Nota fiscal" mudar para "Pedido"; Negrito no header de criar um novo produto;
+- FEITO - UI/UX: Texto de "Nota fiscal" mudar para "Pedido"; Negrito no header de criar um novo produto;
 - Unificar todos os cadastro para fazerr um tela igual na  myrp e apenas um botao no drawer;
 - FEITO - Nos produtos cadastrados deve somente mostrar o cadastro do produto NAO tem necessidade de mostra estoque ja que somente esta tela sera para cadastro de produtos, o estoque deve ser mostrado somente na tela de estoque, devemos evitar mostrar informacoes que nao tem necessidade de mostrar para evitar confusao mental e deixar a tela mais limpa e intuitiva.
 - Entender como funciona um cancelamento no estoque, atualmente parece que ele cria uma nova linha e substrai algo nao entendi direito precisamos rever isso; Ser possivel ir para o Pedido em especifico pela tela de estoque nos detalhes da movimentacao para conseguir ver os detalhes do pedido (fazer ir para o local na tabela que ele esta e descatar o pedido em questao ;

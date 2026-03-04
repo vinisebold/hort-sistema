@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import {
     Box,
     Card,
@@ -6,7 +7,17 @@ import {
     Grid2 as Grid,
     Link,
     Paper,
-    Button
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Alert
 } from '@mui/material'
 import {
     Inventory,
@@ -15,11 +26,50 @@ import {
     AddShoppingCart,
     Widgets,
     ArrowForward,
-    AccountBalanceWallet
+    AccountBalanceWallet,
+    Category,
+    Scale
 } from '@mui/icons-material'
+import { produtosApi, clientesApi, unidadesMedidaApi, naturezasApi } from '../services/api'
+
+interface FormState {
+    type: 'produto' | 'cliente' | 'unidade' | 'natureza' | null
+    loading: boolean
+    error: string
+}
+
+interface ProdutoForm {
+    codigo: string
+    descricao: string
+    unidadeMedidaId: string
+}
+
+interface ClienteForm {
+    razaoSocial: string
+    documento: string
+    tipoPessoa: string
+}
+
+interface UnidadeForm {
+    sigla: string
+    descricao: string
+}
+
+interface NaturezaForm {
+    descricao: string
+    tipoMovimento: string
+}
 
 export default function HomePage() {
     const navigate = useNavigate()
+    const [formState, setFormState] = useState<FormState>({ type: null, loading: false, error: '' })
+    const [unidades, setUnidades] = useState<any[]>([])
+    
+    // Form states
+    const [produtoForm, setProdutoForm] = useState<ProdutoForm>({ codigo: '', descricao: '', unidadeMedidaId: '' })
+    const [clienteForm, setClienteForm] = useState<ClienteForm>({ razaoSocial: '', documento: '', tipoPessoa: 'JURIDICA' })
+    const [unidadeForm, setUnidadeForm] = useState<UnidadeForm>({ sigla: '', descricao: '' })
+    const [naturezaForm, setNaturezaForm] = useState<NaturezaForm>({ descricao: '', tipoMovimento: 'SAIDA' })
 
     const acessoRapidoItems = [
         { label: 'Novo Pedido', icon: <AddShoppingCart fontSize="small" />, path: '/pedidos/novo' },
@@ -31,13 +81,116 @@ export default function HomePage() {
     ]
 
     const cadastrosRapidos = [
-        { label: 'Adicionar produto', icon: <Inventory />, path: '/produtos?new=true' },
-        { label: 'Adicionar cliente', icon: <PersonAdd />, path: '/clientes?new=true' },
+        { label: 'Adicionar Produto', icon: <Inventory />, type: 'produto' as const },
+        { label: 'Adicionar Cliente', icon: <PersonAdd />, type: 'cliente' as const },
+        { label: 'Adicionar Unidade', icon: <Scale />, type: 'unidade' as const },
+        { label: 'Adicionar Natureza', icon: <Category />, type: 'natureza' as const },
     ]
+
+    const openModal = async (type: 'produto' | 'cliente' | 'unidade' | 'natureza') => {
+        setFormState({ type, loading: false, error: '' })
+        if (type === 'produto') {
+            try {
+                const response = await unidadesMedidaApi.listar()
+                setUnidades(response.data)
+            } catch (error) {
+                console.error('Erro ao carregar unidades:', error)
+            }
+        }
+    }
+
+    const closeModal = () => {
+        setFormState({ type: null, loading: false, error: '' })
+        setProdutoForm({ codigo: '', descricao: '', unidadeMedidaId: '' })
+        setClienteForm({ razaoSocial: '', documento: '', tipoPessoa: 'JURIDICA' })
+        setUnidadeForm({ sigla: '', descricao: '' })
+        setNaturezaForm({ descricao: '', tipoMovimento: 'SAIDA' })
+    }
+
+    const handleSaveProduto = async () => {
+        if (!produtoForm.codigo || !produtoForm.descricao || !produtoForm.unidadeMedidaId) {
+            setFormState(prev => ({ ...prev, error: 'Preencha todos os campos obrigatórios' }))
+            return
+        }
+
+        setFormState(prev => ({ ...prev, loading: true }))
+        try {
+            await produtosApi.criar({
+                codigo: produtoForm.codigo,
+                descricao: produtoForm.descricao,
+                unidadeMedidaId: Number(produtoForm.unidadeMedidaId),
+            })
+            setFormState(prev => ({ ...prev, loading: false, error: '' }))
+            closeModal()
+            navigate('/produtos')
+        } catch (error: any) {
+            setFormState(prev => ({ ...prev, loading: false, error: error.response?.data?.message || 'Erro ao criar produto' }))
+        }
+    }
+
+    const handleSaveCliente = async () => {
+        if (!clienteForm.razaoSocial || !clienteForm.documento) {
+            setFormState(prev => ({ ...prev, error: 'Preencha todos os campos obrigatórios' }))
+            return
+        }
+
+        setFormState(prev => ({ ...prev, loading: true }))
+        try {
+            await clientesApi.criar({
+                razaoSocial: clienteForm.razaoSocial,
+                documento: clienteForm.documento,
+                tipoPessoa: clienteForm.tipoPessoa,
+            })
+            setFormState(prev => ({ ...prev, loading: false, error: '' }))
+            closeModal()
+            navigate('/clientes')
+        } catch (error: any) {
+            setFormState(prev => ({ ...prev, loading: false, error: error.response?.data?.message || 'Erro ao criar cliente' }))
+        }
+    }
+
+    const handleSaveUnidade = async () => {
+        if (!unidadeForm.sigla || !unidadeForm.descricao) {
+            setFormState(prev => ({ ...prev, error: 'Preencha todos os campos obrigatórios' }))
+            return
+        }
+
+        setFormState(prev => ({ ...prev, loading: true }))
+        try {
+            await unidadesMedidaApi.criar({
+                sigla: unidadeForm.sigla,
+                descricao: unidadeForm.descricao,
+            })
+            setFormState(prev => ({ ...prev, loading: false, error: '' }))
+            closeModal()
+            navigate('/unidades-medida')
+        } catch (error: any) {
+            setFormState(prev => ({ ...prev, loading: false, error: error.response?.data?.message || 'Erro ao criar unidade' }))
+        }
+    }
+
+    const handleSaveNatureza = async () => {
+        if (!naturezaForm.descricao) {
+            setFormState(prev => ({ ...prev, error: 'Preencha o campo obrigatório' }))
+            return
+        }
+
+        setFormState(prev => ({ ...prev, loading: true }))
+        try {
+            await naturezasApi.criar({
+                descricao: naturezaForm.descricao,
+                tipoMovimento: naturezaForm.tipoMovimento,
+            })
+            setFormState(prev => ({ ...prev, loading: false, error: '' }))
+            closeModal()
+            navigate('/naturezas-operacao')
+        } catch (error: any) {
+            setFormState(prev => ({ ...prev, loading: false, error: error.response?.data?.message || 'Erro ao criar natureza' }))
+        }
+    }
 
     return (
         <Box sx={{ maxWidth: 1200, margin: '0 auto' }}>
-
 
             <Grid container spacing={3}>
 
@@ -60,7 +213,7 @@ export default function HomePage() {
                                             display: 'flex',
                                             alignItems: 'center',
                                             gap: 1.5,
-                                            color: '#039be5', // Azul similar ao da imagem
+                                            color: '#039be5',
                                             fontSize: '0.95rem',
                                             '&:hover': { textDecoration: 'underline' }
                                         }}
@@ -88,8 +241,8 @@ export default function HomePage() {
                                     <Button
                                         variant="outlined"
                                         fullWidth
-                                        onClick={() => navigate(item.path)}
-                                        startIcon={<Box component="span" sx={{ color: '#039be5' }}>{item.icon}</Box>} // Ícone azul
+                                        onClick={() => openModal(item.type)}
+                                        startIcon={<Box component="span" sx={{ color: '#039be5' }}>{item.icon}</Box>}
                                         endIcon={<ArrowForward fontSize="small" sx={{ color: '#bdbdbd' }} />}
                                         sx={{
                                             justifyContent: 'flex-start',
@@ -97,8 +250,8 @@ export default function HomePage() {
                                             px: 3,
                                             color: '#424242',
                                             borderColor: '#e0e0e0',
-                                            bgcolor: '#eeeeee', // Fundo cinza claro
-                                            border: 'none', // Remove borda padrão para parecer com card flat
+                                            bgcolor: '#eeeeee',
+                                            border: 'none',
                                             '&:hover': {
                                                 bgcolor: '#e0e0e0',
                                                 border: 'none'
@@ -119,6 +272,156 @@ export default function HomePage() {
 
                 </Grid>
             </Grid>
+
+            {/* DIALOGS DE CADASTRO RÁPIDO */}
+
+            {/* Dialog Produto */}
+            <Dialog open={formState.type === 'produto'} onClose={closeModal} maxWidth="sm" fullWidth>
+                <DialogTitle>Novo Produto</DialogTitle>
+                <DialogContent sx={{ pt: 2 }}>
+                    {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
+                    <TextField
+                        fullWidth
+                        label="Código"
+                        value={produtoForm.codigo}
+                        onChange={(e) => setProdutoForm({ ...produtoForm, codigo: e.target.value })}
+                        margin="normal"
+                        required
+                    />
+                    <TextField
+                        fullWidth
+                        label="Descrição"
+                        value={produtoForm.descricao}
+                        onChange={(e) => setProdutoForm({ ...produtoForm, descricao: e.target.value })}
+                        margin="normal"
+                        required
+                    />
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel>Unidade de Medida</InputLabel>
+                        <Select
+                            value={produtoForm.unidadeMedidaId}
+                            label="Unidade de Medida"
+                            onChange={(e) => setProdutoForm({ ...produtoForm, unidadeMedidaId: e.target.value })}
+                        >
+                            {unidades.map((u) => (
+                                <MenuItem key={u.id} value={u.id}>{u.sigla} - {u.descricao}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeModal}>Cancelar</Button>
+                    <Button onClick={handleSaveProduto} variant="contained" disabled={formState.loading}>
+                        Criar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Dialog Cliente */}
+            <Dialog open={formState.type === 'cliente'} onClose={closeModal} maxWidth="sm" fullWidth>
+                <DialogTitle>Novo Cliente</DialogTitle>
+                <DialogContent sx={{ pt: 2 }}>
+                    {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel>Tipo de Pessoa</InputLabel>
+                        <Select
+                            value={clienteForm.tipoPessoa}
+                            label="Tipo de Pessoa"
+                            onChange={(e) => setClienteForm({ ...clienteForm, tipoPessoa: e.target.value })}
+                        >
+                            <MenuItem value="JURIDICA">Jurídica (CNPJ)</MenuItem>
+                            <MenuItem value="FISICA">Física (CPF)</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        fullWidth
+                        label={clienteForm.tipoPessoa === 'JURIDICA' ? 'Razão Social' : 'Nome'}
+                        value={clienteForm.razaoSocial}
+                        onChange={(e) => setClienteForm({ ...clienteForm, razaoSocial: e.target.value })}
+                        margin="normal"
+                        required
+                    />
+                    <TextField
+                        fullWidth
+                        label={clienteForm.tipoPessoa === 'JURIDICA' ? 'CNPJ' : 'CPF'}
+                        value={clienteForm.documento}
+                        onChange={(e) => setClienteForm({ ...clienteForm, documento: e.target.value })}
+                        margin="normal"
+                        required
+                        placeholder={clienteForm.tipoPessoa === 'JURIDICA' ? '00.000.000/0000-00' : '000.000.000-00'}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeModal}>Cancelar</Button>
+                    <Button onClick={handleSaveCliente} variant="contained" disabled={formState.loading}>
+                        Criar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Dialog Unidade de Medida */}
+            <Dialog open={formState.type === 'unidade'} onClose={closeModal} maxWidth="sm" fullWidth>
+                <DialogTitle>Nova Unidade de Medida</DialogTitle>
+                <DialogContent sx={{ pt: 2 }}>
+                    {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
+                    <TextField
+                        fullWidth
+                        label="Sigla"
+                        value={unidadeForm.sigla}
+                        onChange={(e) => setUnidadeForm({ ...unidadeForm, sigla: e.target.value })}
+                        margin="normal"
+                        required
+                        inputProps={{ maxLength: 10 }}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Descrição"
+                        value={unidadeForm.descricao}
+                        onChange={(e) => setUnidadeForm({ ...unidadeForm, descricao: e.target.value })}
+                        margin="normal"
+                        required
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeModal}>Cancelar</Button>
+                    <Button onClick={handleSaveUnidade} variant="contained" disabled={formState.loading}>
+                        Criar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Dialog Natureza de Operação */}
+            <Dialog open={formState.type === 'natureza'} onClose={closeModal} maxWidth="sm" fullWidth>
+                <DialogTitle>Nova Natureza de Operação</DialogTitle>
+                <DialogContent sx={{ pt: 2 }}>
+                    {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
+                    <TextField
+                        fullWidth
+                        label="Descrição"
+                        value={naturezaForm.descricao}
+                        onChange={(e) => setNaturezaForm({ ...naturezaForm, descricao: e.target.value })}
+                        margin="normal"
+                        required
+                    />
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel>Tipo de Movimento</InputLabel>
+                        <Select
+                            value={naturezaForm.tipoMovimento}
+                            label="Tipo de Movimento"
+                            onChange={(e) => setNaturezaForm({ ...naturezaForm, tipoMovimento: e.target.value })}
+                        >
+                            <MenuItem value="ENTRADA">Entrada</MenuItem>
+                            <MenuItem value="SAIDA">Saída</MenuItem>
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeModal}>Cancelar</Button>
+                    <Button onClick={handleSaveNatureza} variant="contained" disabled={formState.loading}>
+                        Criar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     )
 }
