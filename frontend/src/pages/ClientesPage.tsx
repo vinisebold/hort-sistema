@@ -74,9 +74,11 @@ export default function ClientesPage() {
   const handleOpen = (cliente?: Cliente) => {
     if (cliente) {
       setEditingId(cliente.id)
+      // Formata documento para exibição no formulário
+      const documentoFormatado = exibirDocumento(cliente.documento, cliente.tipoPessoa)
       setForm({
         tipoPessoa: cliente.tipoPessoa,
-        documento: cliente.documento || '',
+        documento: documentoFormatado === '-' ? '' : documentoFormatado,
         razaoSocial: cliente.razaoSocial,
         nomeFantasia: cliente.nomeFantasia || '',
         endereco: cliente.endereco || '',
@@ -103,7 +105,12 @@ export default function ClientesPage() {
 
   const handleSubmit = async () => {
     try {
-      const data = { ...form }
+      // Remove formatação antes de enviar
+      const documentoSemFormatacao = form.documento.replace(/\D/g, '')
+      const data = { 
+        ...form,
+        documento: documentoSemFormatacao || null
+      }
       if (editingId) {
         await clientesApi.atualizar(editingId, data)
       } else {
@@ -127,49 +134,49 @@ export default function ClientesPage() {
     }
   }
 
-  const handleBuscarCnpj = async () => {
-    try {
-      setLoadingCnpj(true)
-      const response = await clientesApi.consultarCnpj(cnpjBusca)
-      setForm({
-        ...form,
-        tipoPessoa: 'JURIDICA',
-        documento: response.data.cnpj,
-        razaoSocial: response.data.razaoSocial || '',
-        nomeFantasia: response.data.nomeFantasia || '',
-        endereco: response.data.endereco || '',
-        contato: response.data.telefone || '',
-      })
-      setOpenCnpj(false)
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Erro ao consultar CNPJ')
-    } finally {
-      setLoadingCnpj(false)
-    }
-  }
+   const handleBuscarCnpj = async () => {
+     try {
+       setLoadingCnpj(true)
+       const response = await clientesApi.consultarCnpj(cnpjBusca)
+       setForm({
+         ...form,
+         tipoPessoa: 'JURIDICA',
+         documento: formatarCnpj(response.data.cnpj),
+         razaoSocial: response.data.razaoSocial || '',
+         nomeFantasia: response.data.nomeFantasia || '',
+         endereco: response.data.endereco || '',
+         contato: response.data.telefone || '',
+       })
+       setOpenCnpj(false)
+     } catch (error: any) {
+       alert(error.response?.data?.message || 'Erro ao consultar CNPJ')
+     } finally {
+       setLoadingCnpj(false)
+     }
+   }
 
-  const handleBuscarCnpjInput = async (documento: string) => {
-    const cnpjOnly = documento.replace(/\D/g, '')
-    if (cnpjOnly.length === 14) {
-      try {
-        setLoadingCnpj(true)
-        const response = await clientesApi.consultarCnpj(cnpjOnly)
-        setForm({
-          ...form,
-          tipoPessoa: 'JURIDICA',
-          documento: response.data.cnpj,
-          razaoSocial: response.data.razaoSocial || '',
-          nomeFantasia: response.data.nomeFantasia || '',
-          endereco: response.data.endereco || '',
-          contato: response.data.telefone || '',
-        })
-      } catch (error: any) {
-        console.log('CNPJ não encontrado ou erro na consulta')
-      } finally {
-        setLoadingCnpj(false)
-      }
-    }
-  }
+   const handleBuscarCnpjInput = async (documento: string) => {
+     const cnpjOnly = documento.replace(/\D/g, '')
+     if (cnpjOnly.length === 14) {
+       try {
+         setLoadingCnpj(true)
+         const response = await clientesApi.consultarCnpj(cnpjOnly)
+         setForm({
+           ...form,
+           tipoPessoa: 'JURIDICA',
+           documento: formatarCnpj(response.data.cnpj),
+           razaoSocial: response.data.razaoSocial || '',
+           nomeFantasia: response.data.nomeFantasia || '',
+           endereco: response.data.endereco || '',
+           contato: response.data.telefone || '',
+         })
+       } catch (error: any) {
+         console.log('CNPJ não encontrado ou erro na consulta')
+       } finally {
+         setLoadingCnpj(false)
+       }
+     }
+   }
 
   const formatarCpf = (cpf: string): string => {
     const apenasNumeros = cpf.replace(/\D/g, '')
@@ -177,6 +184,22 @@ export default function ClientesPage() {
       return apenasNumeros
     }
     return apenasNumeros.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+  }
+
+  const formatarCnpj = (cnpj: string): string => {
+    const apenasNumeros = cnpj.replace(/\D/g, '')
+    if (apenasNumeros.length !== 14) {
+      return apenasNumeros
+    }
+    return apenasNumeros.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
+  }
+
+  const exibirDocumento = (documento: string, tipoPessoa: string): string => {
+    if (!documento) return '-'
+    if (tipoPessoa === 'JURIDICA') {
+      return formatarCnpj(documento)
+    }
+    return formatarCpf(documento)
   }
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,6 +213,29 @@ export default function ClientesPage() {
       setForm({ ...form, documento: valor })
     }
   }
+
+   const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+     const valor = e.target.value
+     const apenasNumeros = valor.replace(/\D/g, '')
+     
+     // Formata em tempo real conforme digita
+     let valorFormatado = apenasNumeros
+     if (apenasNumeros.length >= 14) {
+       valorFormatado = formatarCnpj(apenasNumeros.substring(0, 14))
+       // Dispara busca automaticamente ao completar 14 dígitos
+       handleBuscarCnpjInput(apenasNumeros.substring(0, 14))
+     } else if (apenasNumeros.length > 12) {
+       valorFormatado = apenasNumeros.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/, '$1.$2.$3/$4-$5')
+     } else if (apenasNumeros.length > 8) {
+       valorFormatado = apenasNumeros.replace(/(\d{2})(\d{3})(\d{3})(\d{0,4})/, '$1.$2.$3/$4')
+     } else if (apenasNumeros.length > 5) {
+       valorFormatado = apenasNumeros.replace(/(\d{2})(\d{3})(\d{0,3})/, '$1.$2.$3')
+     } else if (apenasNumeros.length > 2) {
+       valorFormatado = apenasNumeros.replace(/(\d{2})(\d{0,3})/, '$1.$2')
+     }
+     
+     setForm({ ...form, documento: valorFormatado })
+   }
 
   const isCampoDocumentoObrigatorio = form.tipoPessoa === 'JURIDICA'
   const isCampoContatoObrigatorio = form.tipoPessoa === 'JURIDICA'
@@ -212,7 +258,7 @@ export default function ClientesPage() {
               <TableRow key={cliente.id}>
                 <TableCell>{cliente.razaoSocial}</TableCell>
                 <TableCell>{cliente.nomeFantasia || '-'}</TableCell>
-                <TableCell>{cliente.documento || '-'}</TableCell>
+                <TableCell>{exibirDocumento(cliente.documento, cliente.tipoPessoa)}</TableCell>
                 <TableCell>{cliente.contato || '-'}</TableCell>
                 <TableCell align="center">
                   <IconButton onClick={() => handleOpen(cliente)}>
@@ -267,11 +313,12 @@ export default function ClientesPage() {
             fullWidth
             label={form.tipoPessoa === 'JURIDICA' ? 'CNPJ' : 'CPF'}
             value={form.documento}
-            onChange={form.tipoPessoa === 'FISICA' ? handleCpfChange : (e) => setForm({ ...form, documento: e.target.value })}
+            onChange={form.tipoPessoa === 'FISICA' ? handleCpfChange : handleCnpjChange}
             onBlur={(e) => form.tipoPessoa === 'JURIDICA' && handleBuscarCnpjInput(e.target.value)}
             margin="normal"
             disabled={loadingCnpj}
             required={isCampoDocumentoObrigatorio}
+            placeholder={form.tipoPessoa === 'JURIDICA' ? '00.000.000/0000-00' : '000.000.000-00'}
             InputProps={{
               endAdornment:
                 form.tipoPessoa === 'JURIDICA' ? (
@@ -298,23 +345,27 @@ export default function ClientesPage() {
             required
           />
 
-          {/* Campo Nome Fantasia */}
-          <TextField
-            fullWidth
-            label="Nome Fantasia"
-            value={form.nomeFantasia}
-            onChange={(e) => setForm({ ...form, nomeFantasia: e.target.value })}
-            margin="normal"
-          />
+          {/* Campo Nome Fantasia - Apenas para PJ */}
+          {form.tipoPessoa === 'JURIDICA' && (
+            <TextField
+              fullWidth
+              label="Nome Fantasia"
+              value={form.nomeFantasia}
+              onChange={(e) => setForm({ ...form, nomeFantasia: e.target.value })}
+              margin="normal"
+            />
+          )}
 
-          {/* Campo Endereço */}
-          <TextField
-            fullWidth
-            label="Endereço"
-            value={form.endereco}
-            onChange={(e) => setForm({ ...form, endereco: e.target.value })}
-            margin="normal"
-          />
+          {/* Campo Endereço - Apenas para PJ */}
+          {form.tipoPessoa === 'JURIDICA' && (
+            <TextField
+              fullWidth
+              label="Endereço"
+              value={form.endereco}
+              onChange={(e) => setForm({ ...form, endereco: e.target.value })}
+              margin="normal"
+            />
+          )}
 
           {/* Campo Contato */}
           <TextField

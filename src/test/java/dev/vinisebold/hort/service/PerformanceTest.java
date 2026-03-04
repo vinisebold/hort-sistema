@@ -64,7 +64,7 @@ class PerformanceTest {
         c.setRazaoSocial("Cliente " + id);
         c.setNomeFantasia("Fantasia " + id);
         c.setEndereco("Rua " + id);
-        c.setTelefone("(11) 9999-" + String.format("%04d", id % 10000));
+        c.setContato("(11) 9999-" + String.format("%04d", id % 10000));
         c.setIsActive(true);
         c.setCreatedAt(LocalDateTime.now());
         return c;

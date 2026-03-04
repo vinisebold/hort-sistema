@@ -40,6 +40,27 @@ public class ClienteFormatter {
     }
 
     /**
+     * Formata um CNPJ para o padrão 00.000.000/0000-00
+     * @param cnpj CNPJ com ou sem formatação
+     * @return CNPJ formatado ou null se inválido
+     */
+    public static String formatCnpj(String cnpj) {
+        if (cnpj == null || cnpj.trim().isEmpty()) {
+            return null;
+        }
+
+        // Remove caracteres especiais
+        String cleanCnpj = cnpj.replaceAll("\\D", "");
+
+        // Valida comprimento
+        if (cleanCnpj.length() != 14) {
+            return null;
+        }
+
+        return cleanCnpj.replaceAll("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})", "$1.$2.$3/$4-$5");
+    }
+
+    /**
      * Remove formatação de um CNPJ
      * @param cnpj CNPJ formatado
      * @return CNPJ sem formatação

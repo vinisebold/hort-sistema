@@ -60,7 +60,7 @@ class ClienteControllerTest {
         request.setRazaoSocial(razaoSocial);
         request.setNomeFantasia("Hortifruti do Ze");
         request.setEndereco("Rua das Flores, 123");
-        request.setTelefone("11999999999");
+        request.setContato("11999999999");
         return request;
     }
 
@@ -72,7 +72,7 @@ class ClienteControllerTest {
                 .razaoSocial("Jose da Silva")
                 .nomeFantasia("Hortifruti do Ze")
                 .endereco("Rua das Flores, 123")
-                .telefone("11999999999")
+                .contato("11999999999")
                 .isActive(true)
                 .createdAt(LocalDateTime.of(2026, 1, 15, 10, 30))
                 .build();
@@ -237,7 +237,7 @@ class ClienteControllerTest {
                     .razaoSocial("Empresa Atualizada LTDA")
                     .nomeFantasia("Empresa Atualizada")
                     .endereco("Av. Brasil, 456")
-                    .telefone("11888888888")
+                    .contato("11888888888")
                     .isActive(true)
                     .createdAt(LocalDateTime.of(2026, 1, 15, 10, 30))
                     .build();
@@ -248,7 +248,7 @@ class ClienteControllerTest {
             request.setDocumento("12345678000199");
             request.setNomeFantasia("Empresa Atualizada");
             request.setEndereco("Av. Brasil, 456");
-            request.setTelefone("11888888888");
+            request.setContato("11888888888");
 
             mockMvc.perform(put("/api/clientes/{id}", 1)
                             .contentType(MediaType.APPLICATION_JSON)

@@ -51,11 +51,11 @@ export default function NovoPedidoPage() {
   const [loading, setLoading] = useState(false)
   const [activeInput, setActiveInput] = useState<{ index: number, field: string, value: string } | null>(null)
   const [inputClienteValue, setInputClienteValue] = useState('')
-  const [carregandoCliente, setCarregandoCliente] = useState(false)
 
   const [form, setForm] = useState({
     naturezaOperacaoId: '',
     clienteId: null as number | null,
+    clienteNome: '', // Para armazenar nome de cliente ainda não criado
     documentoReferencia: '',
     statusPagamento: 'PAGO',
     itens: [{ produtoId: 0, produtoDescricao: '', quantidade: 0, valorUnitario: 0, valorTotal: 0 }] as ItemPedido[]
@@ -108,13 +108,12 @@ export default function NovoPedidoPage() {
     }
   }
 
-  const buscarOuCriarClientePF = async (nome: string) => {
+  const buscarOuCriarClientePF = async (nome: string): Promise<number | null> => {
     if (!nome || nome.trim().length === 0) {
-      return
+      return null
     }
 
     try {
-      setCarregandoCliente(true)
       const response = await clientesApi.buscarOuCriarPF(nome)
       const novoCliente = response.data
 
@@ -123,24 +122,10 @@ export default function NovoPedidoPage() {
         setClientes(prev => [...prev, novoCliente])
       }
 
-      // Seleciona o cliente
-      setForm(prev => ({ ...prev, clienteId: novoCliente.id }))
-      setInputClienteValue(novoCliente.razaoSocial)
-
-      setSnackbar({
-        open: true,
-        message: `Cliente "${novoCliente.razaoSocial}" criado/selecionado com sucesso!`,
-        severity: 'success'
-      })
-    } catch (error: any) {
+      return novoCliente.id
+    } catch (error) {
       console.error('Erro ao buscar/criar cliente:', error)
-      setSnackbar({
-        open: true,
-        message: error.response?.data?.message || 'Erro ao processar cliente',
-        severity: 'error'
-      })
-    } finally {
-      setCarregandoCliente(false)
+      throw error
     }
   }
 
@@ -151,6 +136,7 @@ export default function NovoPedidoPage() {
       setForm({
         naturezaOperacaoId: String(pedido.naturezaOperacaoId || pedido.naturezaOperacao?.id || ''),
         clienteId: pedido.clienteId,
+        clienteNome: '',
         documentoReferencia: pedido.documentoReferencia || '',
         statusPagamento: pedido.statusPagamento,
         itens: pedido.itens.length > 0 ? pedido.itens : [{ produtoId: 0, produtoDescricao: '', quantidade: 1, valorUnitario: 0, valorTotal: 0 }]
@@ -222,9 +208,15 @@ export default function NovoPedidoPage() {
 
     setLoading(true)
     try {
+      // Se houver um nome de cliente mas não um ID, cria o cliente PF primeiro
+      let clienteId = form.clienteId
+      if (!clienteId && form.clienteNome.trim()) {
+        clienteId = await buscarOuCriarClientePF(form.clienteNome)
+      }
+
       const payload = {
         naturezaOperacaoId: Number(form.naturezaOperacaoId),
-        clienteId: form.clienteId,
+        clienteId: clienteId,
         documentoReferencia: form.documentoReferencia || null,
         statusPagamento: form.statusPagamento,
         itens: form.itens
@@ -300,32 +292,32 @@ export default function NovoPedidoPage() {
                       getOptionLabel={(option) => typeof option === 'string' ? option : option.razaoSocial}
                       value={clientes.find(c => c.id === form.clienteId) || null}
                       inputValue={inputClienteValue}
-                      onInputChange={(_, value) => setInputClienteValue(value || '')}
+                      onInputChange={(_, value) => {
+                        setInputClienteValue(value || '')
+                        // Se não há cliente selecionado, armazena o texto digitado como clienteNome
+                        if (!form.clienteId && value) {
+                          setForm(prev => ({ ...prev, clienteNome: value }))
+                        }
+                      }}
                       onChange={(_, value) => {
                         if (typeof value === 'string') {
-                          // É um texto livre digitado
+                          // É um texto livre digitado - armazena para criar depois
+                          setForm({ ...form, clienteId: null, clienteNome: value })
                           return
                         }
-                        setForm({ ...form, clienteId: value?.id || null })
+                        // É um cliente selecionado da lista
+                        setForm({ ...form, clienteId: value?.id || null, clienteNome: '' })
                         setInputClienteValue(value?.razaoSocial || '')
                       }}
-                      onKeyDown={(e) => {
-                        // Se pressionar Enter e houver texto, tenta buscar/criar cliente
-                        if (e.key === 'Enter' && inputClienteValue.trim() && !form.clienteId) {
-                          e.preventDefault()
-                          buscarOuCriarClientePF(inputClienteValue)
-                        }
-                      }}
                       freeSolo
-                      loading={carregandoCliente}
                       renderInput={(params) => (
                         <TextField 
                           {...params}  
                           label="Cliente" 
-                          placeholder="Selecione ou busque o cliente (Enter para criar)"
+                          placeholder="Selecione ou digite o nome do cliente"
                           fullWidth 
                           autoFocus
-                          helperText={inputClienteValue && !form.clienteId ? "Pressione Enter para criar cliente Pessoa Física" : ""}
+                          helperText={inputClienteValue && !form.clienteId ? "Cliente será criado ao finalizar o pedido" : ""}
                         />
                       )}
                       renderOption={(props, option) => (

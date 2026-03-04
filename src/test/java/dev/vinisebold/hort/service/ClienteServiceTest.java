@@ -45,21 +45,21 @@ class ClienteServiceTest {
     @BeforeEach
     void setUp() {
         defaultRequest = new ClienteRequest();
-        defaultRequest.setTipoPessoa("Jurídica");
-        defaultRequest.setDocumento("12345678000199");
+        defaultRequest.setTipoPessoa("JURIDICA");
+        defaultRequest.setDocumento("15436940000103");
         defaultRequest.setRazaoSocial("Empresa Teste LTDA");
         defaultRequest.setNomeFantasia("Teste");
         defaultRequest.setEndereco("Rua Exemplo, 123");
-        defaultRequest.setTelefone("11999999999");
+        defaultRequest.setContato("11999999999");
 
         defaultCliente = new Cliente();
         defaultCliente.setId(1);
-        defaultCliente.setTipoPessoa("Jurídica");
-        defaultCliente.setDocumento("12345678000199");
+        defaultCliente.setTipoPessoa("JURIDICA");
+        defaultCliente.setDocumento("15436940000103");
         defaultCliente.setRazaoSocial("Empresa Teste LTDA");
         defaultCliente.setNomeFantasia("Teste");
         defaultCliente.setEndereco("Rua Exemplo, 123");
-        defaultCliente.setTelefone("11999999999");
+        defaultCliente.setContato("11999999999");
         defaultCliente.setIsActive(true);
         defaultCliente.setCreatedAt(LocalDateTime.of(2026, 1, 15, 10, 30, 0));
     }
@@ -75,34 +75,34 @@ class ClienteServiceTest {
         @Test
         @DisplayName("Deve criar cliente com sucesso quando documento nao existe")
         void deveCriarClienteComSucesso() {
-            when(clienteRepository.existsByDocumento("12345678000199")).thenReturn(false);
+            when(clienteRepository.existsByDocumento("15436940000103")).thenReturn(false);
             when(clienteRepository.save(any(Cliente.class))).thenReturn(defaultCliente);
 
             ClienteResponse response = clienteService.criar(defaultRequest);
 
             assertThat(response).isNotNull();
             assertThat(response.getId()).isEqualTo(1);
-            assertThat(response.getTipoPessoa()).isEqualTo("Jurídica");
-            assertThat(response.getDocumento()).isEqualTo("12345678000199");
+            assertThat(response.getTipoPessoa()).isEqualTo("JURIDICA");
+            assertThat(response.getDocumento()).isEqualTo("15436940000103");
             assertThat(response.getRazaoSocial()).isEqualTo("Empresa Teste LTDA");
             assertThat(response.getNomeFantasia()).isEqualTo("Teste");
             assertThat(response.getEndereco()).isEqualTo("Rua Exemplo, 123");
-            assertThat(response.getTelefone()).isEqualTo("11999999999");
+            assertThat(response.getContato()).isEqualTo("11999999999");
             assertThat(response.getIsActive()).isTrue();
             assertThat(response.getCreatedAt()).isEqualTo(LocalDateTime.of(2026, 1, 15, 10, 30, 0));
 
             ArgumentCaptor<Cliente> captor = ArgumentCaptor.forClass(Cliente.class);
             verify(clienteRepository).save(captor.capture());
             Cliente saved = captor.getValue();
-            assertThat(saved.getTipoPessoa()).isEqualTo("Jurídica");
-            assertThat(saved.getDocumento()).isEqualTo("12345678000199");
+            assertThat(saved.getTipoPessoa()).isEqualTo("JURIDICA");
+            assertThat(saved.getDocumento()).isEqualTo("15436940000103");
             assertThat(saved.getRazaoSocial()).isEqualTo("Empresa Teste LTDA");
         }
 
         @Test
         @DisplayName("Deve lancar excecao quando documento ja existe")
         void deveLancarExcecaoQuandoDocumentoJaExiste() {
-            when(clienteRepository.existsByDocumento("12345678000199")).thenReturn(true);
+            when(clienteRepository.existsByDocumento("15436940000103")).thenReturn(true);
 
             assertThatThrownBy(() -> clienteService.criar(defaultRequest))
                     .isInstanceOf(IllegalArgumentException.class)
@@ -114,16 +114,17 @@ class ClienteServiceTest {
         @Test
         @DisplayName("Deve permitir criar cliente com documento nulo sem verificar duplicidade")
         void devePermitirDocumentoNulo() {
+            defaultRequest.setTipoPessoa("FISICA");
             defaultRequest.setDocumento(null);
 
             Cliente clienteSemDoc = new Cliente();
             clienteSemDoc.setId(2);
-            clienteSemDoc.setTipoPessoa("Física");
+            clienteSemDoc.setTipoPessoa("FISICA");
             clienteSemDoc.setDocumento(null);
             clienteSemDoc.setRazaoSocial("Empresa Teste LTDA");
             clienteSemDoc.setNomeFantasia("Teste");
             clienteSemDoc.setEndereco("Rua Exemplo, 123");
-            clienteSemDoc.setTelefone("11999999999");
+            clienteSemDoc.setContato("11999999999");
             clienteSemDoc.setIsActive(true);
             clienteSemDoc.setCreatedAt(LocalDateTime.of(2026, 1, 15, 10, 30, 0));
 
@@ -153,12 +154,12 @@ class ClienteServiceTest {
         void deveListarSemCursor() {
             Cliente cliente2 = new Cliente();
             cliente2.setId(2);
-            cliente2.setTipoPessoa("Física");
-            cliente2.setDocumento("98765432100");
+            cliente2.setTipoPessoa("FISICA");
+            cliente2.setDocumento("09916139962");
             cliente2.setRazaoSocial("Pessoa Teste");
             cliente2.setNomeFantasia(null);
             cliente2.setEndereco("Av. Brasil, 456");
-            cliente2.setTelefone("21988888888");
+            cliente2.setContato("21988888888");
             cliente2.setIsActive(true);
             cliente2.setCreatedAt(LocalDateTime.of(2026, 2, 1, 8, 0, 0));
 
@@ -185,12 +186,12 @@ class ClienteServiceTest {
         void deveListarComCursor() {
             Cliente cliente3 = new Cliente();
             cliente3.setId(3);
-            cliente3.setTipoPessoa("Jurídica");
-            cliente3.setDocumento("11222333000144");
+            cliente3.setTipoPessoa("JURIDICA");
+            cliente3.setDocumento("11222333000181");
             cliente3.setRazaoSocial("Outra Empresa");
             cliente3.setNomeFantasia("Outra");
             cliente3.setEndereco("Rua Nova, 789");
-            cliente3.setTelefone("31977777777");
+            cliente3.setContato("31977777777");
             cliente3.setIsActive(true);
             cliente3.setCreatedAt(LocalDateTime.of(2026, 3, 1, 14, 0, 0));
 
@@ -245,12 +246,12 @@ class ClienteServiceTest {
 
             assertThat(response).isNotNull();
             assertThat(response.getId()).isEqualTo(1);
-            assertThat(response.getTipoPessoa()).isEqualTo("Jurídica");
-            assertThat(response.getDocumento()).isEqualTo("12345678000199");
+            assertThat(response.getTipoPessoa()).isEqualTo("JURIDICA");
+            assertThat(response.getDocumento()).isEqualTo("15436940000103");
             assertThat(response.getRazaoSocial()).isEqualTo("Empresa Teste LTDA");
             assertThat(response.getNomeFantasia()).isEqualTo("Teste");
             assertThat(response.getEndereco()).isEqualTo("Rua Exemplo, 123");
-            assertThat(response.getTelefone()).isEqualTo("11999999999");
+            assertThat(response.getContato()).isEqualTo("11999999999");
             assertThat(response.getIsActive()).isTrue();
             assertThat(response.getCreatedAt()).isEqualTo(LocalDateTime.of(2026, 1, 15, 10, 30, 0));
 
@@ -282,40 +283,40 @@ class ClienteServiceTest {
         @DisplayName("Deve atualizar cliente com sucesso")
         void deveAtualizarComSucesso() {
             ClienteRequest updateRequest = new ClienteRequest();
-            updateRequest.setTipoPessoa("Jurídica");
-            updateRequest.setDocumento("99988877000166");
+            updateRequest.setTipoPessoa("JURIDICA");
+            updateRequest.setDocumento("11444777000161");
             updateRequest.setRazaoSocial("Empresa Atualizada LTDA");
             updateRequest.setNomeFantasia("Atualizada");
             updateRequest.setEndereco("Rua Atualizada, 999");
-            updateRequest.setTelefone("11911111111");
+            updateRequest.setContato("11911111111");
 
             Cliente updatedCliente = new Cliente();
             updatedCliente.setId(1);
-            updatedCliente.setTipoPessoa("Jurídica");
-            updatedCliente.setDocumento("99988877000166");
+            updatedCliente.setTipoPessoa("JURIDICA");
+            updatedCliente.setDocumento("11444777000161");
             updatedCliente.setRazaoSocial("Empresa Atualizada LTDA");
             updatedCliente.setNomeFantasia("Atualizada");
             updatedCliente.setEndereco("Rua Atualizada, 999");
-            updatedCliente.setTelefone("11911111111");
+            updatedCliente.setContato("11911111111");
             updatedCliente.setIsActive(true);
             updatedCliente.setCreatedAt(LocalDateTime.of(2026, 1, 15, 10, 30, 0));
 
             when(clienteRepository.findById(1)).thenReturn(Optional.of(defaultCliente));
-            when(clienteRepository.existsByDocumento("99988877000166")).thenReturn(false);
+            when(clienteRepository.existsByDocumento("11444777000161")).thenReturn(false);
             when(clienteRepository.save(any(Cliente.class))).thenReturn(updatedCliente);
 
             ClienteResponse response = clienteService.atualizar(1, updateRequest);
 
             assertThat(response).isNotNull();
             assertThat(response.getId()).isEqualTo(1);
-            assertThat(response.getDocumento()).isEqualTo("99988877000166");
+            assertThat(response.getDocumento()).isEqualTo("11444777000161");
             assertThat(response.getRazaoSocial()).isEqualTo("Empresa Atualizada LTDA");
             assertThat(response.getNomeFantasia()).isEqualTo("Atualizada");
             assertThat(response.getEndereco()).isEqualTo("Rua Atualizada, 999");
-            assertThat(response.getTelefone()).isEqualTo("11911111111");
+            assertThat(response.getContato()).isEqualTo("11911111111");
 
             verify(clienteRepository).findById(1);
-            verify(clienteRepository).existsByDocumento("99988877000166");
+            verify(clienteRepository).existsByDocumento("11444777000161");
             verify(clienteRepository).save(any(Cliente.class));
         }
 
@@ -323,22 +324,22 @@ class ClienteServiceTest {
         @DisplayName("Deve lancar excecao quando documento duplicado em atualizacao")
         void deveLancarExcecaoQuandoDocumentoDuplicado() {
             ClienteRequest updateRequest = new ClienteRequest();
-            updateRequest.setTipoPessoa("Jurídica");
-            updateRequest.setDocumento("55566677000188");
+            updateRequest.setTipoPessoa("JURIDICA");
+            updateRequest.setDocumento("11222333000181");
             updateRequest.setRazaoSocial("Outra Empresa");
             updateRequest.setNomeFantasia(null);
             updateRequest.setEndereco(null);
-            updateRequest.setTelefone(null);
+            updateRequest.setContato(null);
 
             when(clienteRepository.findById(1)).thenReturn(Optional.of(defaultCliente));
-            when(clienteRepository.existsByDocumento("55566677000188")).thenReturn(true);
+            when(clienteRepository.existsByDocumento("11222333000181")).thenReturn(true);
 
             assertThatThrownBy(() -> clienteService.atualizar(1, updateRequest))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Já existe outro cliente com este documento.");
 
             verify(clienteRepository).findById(1);
-            verify(clienteRepository).existsByDocumento("55566677000188");
+            verify(clienteRepository).existsByDocumento("11222333000181");
             verify(clienteRepository, never()).save(any());
         }
 
@@ -346,21 +347,21 @@ class ClienteServiceTest {
         @DisplayName("Deve permitir atualizar mantendo o mesmo documento sem erro de duplicidade")
         void devePermitirMesmoDocumento() {
             ClienteRequest updateRequest = new ClienteRequest();
-            updateRequest.setTipoPessoa("Jurídica");
-            updateRequest.setDocumento("12345678000199"); // mesmo documento do defaultCliente
+            updateRequest.setTipoPessoa("JURIDICA");
+            updateRequest.setDocumento("15436940000103"); // mesmo documento do defaultCliente
             updateRequest.setRazaoSocial("Empresa Teste Renomeada");
             updateRequest.setNomeFantasia("Teste Renomeado");
             updateRequest.setEndereco("Rua Exemplo, 123");
-            updateRequest.setTelefone("11999999999");
+            updateRequest.setContato("11999999999");
 
             Cliente savedCliente = new Cliente();
             savedCliente.setId(1);
-            savedCliente.setTipoPessoa("Jurídica");
-            savedCliente.setDocumento("12345678000199");
+            savedCliente.setTipoPessoa("JURIDICA");
+            savedCliente.setDocumento("15436940000103");
             savedCliente.setRazaoSocial("Empresa Teste Renomeada");
             savedCliente.setNomeFantasia("Teste Renomeado");
             savedCliente.setEndereco("Rua Exemplo, 123");
-            savedCliente.setTelefone("11999999999");
+            savedCliente.setContato("11999999999");
             savedCliente.setIsActive(true);
             savedCliente.setCreatedAt(LocalDateTime.of(2026, 1, 15, 10, 30, 0));
 
@@ -371,7 +372,7 @@ class ClienteServiceTest {
 
             assertThat(response).isNotNull();
             assertThat(response.getRazaoSocial()).isEqualTo("Empresa Teste Renomeada");
-            assertThat(response.getDocumento()).isEqualTo("12345678000199");
+            assertThat(response.getDocumento()).isEqualTo("15436940000103");
 
             // existsByDocumento should NOT be called because document hasn't changed
             verify(clienteRepository, never()).existsByDocumento(any());

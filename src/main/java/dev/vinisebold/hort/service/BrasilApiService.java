@@ -40,9 +40,10 @@ public class BrasilApiService {
 
     private ConsultaCnpjResponse mapToConsultaResponse(CnpjApiResponse apiResponse) {
         String endereco = montarEndereco(apiResponse);
+        String cnpjLimpo = limparCnpj(apiResponse.getCnpj());
 
         return ConsultaCnpjResponse.builder()
-                .cnpj(limparCnpj(apiResponse.getCnpj()))
+                .cnpj(cnpjLimpo)
                 .razaoSocial(apiResponse.getRazaoSocial())
                 .nomeFantasia(apiResponse.getNomeFantasia())
                 .endereco(endereco)

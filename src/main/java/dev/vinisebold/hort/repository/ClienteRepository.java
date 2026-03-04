@@ -23,5 +23,5 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
     boolean existsByDocumento(String documento);
 
     // Busca cliente por nome (razaoSocial) e tipo, case-insensitive
-    Optional<Cliente> findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrueIgnoreCase(String razaoSocial, String tipoPessoa);
+    Optional<Cliente> findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrue(String razaoSocial, String tipoPessoa);
 }

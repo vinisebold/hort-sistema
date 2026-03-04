@@ -30,37 +30,29 @@ public class CnpjValidator {
         }
 
         // Calcula primeiro dígito verificador
+        int[] weights1 = {5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2};
         int sum = 0;
-        int multiplier = 5;
-        for (int i = 0; i < 8; i++) {
-            sum += Character.getNumericValue(cleanCnpj.charAt(i)) * multiplier;
-            multiplier--;
-            if (multiplier == 1) {
-                multiplier = 9;
-            }
+        for (int i = 0; i < 12; i++) {
+            sum += Character.getNumericValue(cleanCnpj.charAt(i)) * weights1[i];
         }
 
-        int firstDigit = 11 - (sum % 11);
-        firstDigit = firstDigit >= 10 ? 0 : firstDigit;
+        int remainder = sum % 11;
+        int firstDigit = remainder < 2 ? 0 : 11 - remainder;
 
-        if (Character.getNumericValue(cleanCnpj.charAt(8)) != firstDigit) {
+        if (Character.getNumericValue(cleanCnpj.charAt(12)) != firstDigit) {
             return false;
         }
 
         // Calcula segundo dígito verificador
+        int[] weights2 = {6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2};
         sum = 0;
-        multiplier = 6;
-        for (int i = 0; i < 9; i++) {
-            sum += Character.getNumericValue(cleanCnpj.charAt(i)) * multiplier;
-            multiplier--;
-            if (multiplier == 1) {
-                multiplier = 9;
-            }
+        for (int i = 0; i < 13; i++) {
+            sum += Character.getNumericValue(cleanCnpj.charAt(i)) * weights2[i];
         }
 
-        int secondDigit = 11 - (sum % 11);
-        secondDigit = secondDigit >= 10 ? 0 : secondDigit;
+        remainder = sum % 11;
+        int secondDigit = remainder < 2 ? 0 : 11 - remainder;
 
-        return Character.getNumericValue(cleanCnpj.charAt(9)) == secondDigit;
+        return Character.getNumericValue(cleanCnpj.charAt(13)) == secondDigit;
     }
 }

@@ -26,7 +26,7 @@ public class ClienteService {
 
     @Transactional
     public ClienteResponse criar(ClienteRequest request) {
-        validarClienteRequest(request);
+        validarClienteRequest(request, null);
 
         if (request.getDocumento() != null) {
             String documentoLimpo = ClienteFormatter.removeCpfFormatting(request.getDocumento());
@@ -74,7 +74,7 @@ public class ClienteService {
     @Transactional
     public ClienteResponse atualizar(Integer id, ClienteRequest request) {
         Cliente cliente = getClienteEntity(id);
-        validarClienteRequest(request);
+        validarClienteRequest(request, id);
 
         // Se mudou o documento, verifica se o novo já existe
         if (request.getDocumento() != null) {
@@ -111,7 +111,7 @@ public class ClienteService {
 
         // Busca cliente PF com o mesmo nome (case-insensitive)
         var clienteExistente = clienteRepository
-                .findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrueIgnoreCase(
+                .findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrue(
                         nome.trim(), "FISICA");
 
         if (clienteExistente.isPresent()) {
@@ -135,8 +135,10 @@ public class ClienteService {
 
     /**
      * Valida o request conforme o tipo de cliente
+     * @param request Dados do cliente a validar
+     * @param clienteId ID do cliente sendo atualizado, ou null se for criação
      */
-    private void validarClienteRequest(ClienteRequest request) {
+    private void validarClienteRequest(ClienteRequest request, Integer clienteId) {
         if (request == null || request.getTipoPessoa() == null) {
             throw new IllegalArgumentException("Tipo de pessoa é obrigatório.");
         }
@@ -144,7 +146,7 @@ public class ClienteService {
         String tipoPessoa = request.getTipoPessoa();
 
         if ("FISICA".equalsIgnoreCase(tipoPessoa)) {
-            validarClientePF(request);
+            validarClientePF(request, clienteId);
         } else if ("JURIDICA".equalsIgnoreCase(tipoPessoa)) {
             validarClientePJ(request);
         } else {
@@ -154,8 +156,10 @@ public class ClienteService {
 
     /**
      * Valida campos específicos de Pessoa Física
+     * @param request Dados do cliente a validar
+     * @param clienteId ID do cliente sendo atualizado, ou null se for criação
      */
-    private void validarClientePF(ClienteRequest request) {
+    private void validarClientePF(ClienteRequest request, Integer clienteId) {
         // Nome é obrigatório
         if (request.getRazaoSocial() == null || request.getRazaoSocial().trim().isEmpty()) {
             throw new IllegalArgumentException("Nome é obrigatório para cliente Pessoa Física.");
@@ -169,12 +173,16 @@ public class ClienteService {
             }
         }
 
-        // Verifica duplicação de nome para PF
-        if (clienteRepository
-                .findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrueIgnoreCase(
-                        request.getRazaoSocial().trim(), "FISICA")
-                .isPresent()) {
-            throw new IllegalArgumentException("Já existe um cliente Pessoa Física com este nome.");
+        // Verifica duplicação de nome para PF (ignora o cliente atual se for update)
+        var clienteExistente = clienteRepository
+                .findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrue(
+                        request.getRazaoSocial().trim(), "FISICA");
+
+        if (clienteExistente.isPresent()) {
+            // Se for update, ignora se for o mesmo cliente
+            if (clienteId == null || !clienteExistente.get().getId().equals(clienteId)) {
+                throw new IllegalArgumentException("Já existe um cliente Pessoa Física com este nome.");
+            }
         }
     }
 
@@ -202,17 +210,15 @@ public class ClienteService {
     private void atualizarDados(Cliente cliente, ClienteRequest request) {
         cliente.setTipoPessoa(request.getTipoPessoa());
 
-        // Formata documento se for PF (CPF)
+        // Armazena documento SEM formatação (apenas dígitos)
         if ("FISICA".equalsIgnoreCase(request.getTipoPessoa()) && request.getDocumento() != null) {
-            String cpfFormatado = ClienteFormatter.formatCpf(request.getDocumento());
-            cliente.setDocumento(cpfFormatado);
+            String cpfSemFormatacao = ClienteFormatter.removeCpfFormatting(request.getDocumento());
+            cliente.setDocumento(cpfSemFormatacao);
+        } else if ("JURIDICA".equalsIgnoreCase(request.getTipoPessoa()) && request.getDocumento() != null) {
+            String cnpjSemFormatacao = ClienteFormatter.removeCnpjFormatting(request.getDocumento());
+            cliente.setDocumento(cnpjSemFormatacao);
         } else {
-            // Para PJ, apenas remove formatação e armazena limpo
-            String documento = request.getDocumento();
-            if (documento != null) {
-                documento = ClienteFormatter.removeCnpjFormatting(documento);
-            }
-            cliente.setDocumento(documento);
+            cliente.setDocumento(null);
         }
 
         cliente.setRazaoSocial(request.getRazaoSocial());
