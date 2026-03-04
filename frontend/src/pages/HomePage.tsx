@@ -197,7 +197,7 @@ export default function HomePage() {
                     <Card elevation={0} sx={{ height: '100%', bgcolor: 'transparent' }}>
                         {/* Acesso Rápido */}
                         <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
-                            <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+                            <Typography variant="h6" gutterBottom sx={{ mb: 2, fontSize: '24px' }}>
                                 Acesso rápido
                             </Typography>
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -212,11 +212,12 @@ export default function HomePage() {
                                             alignItems: 'center',
                                             gap: 1.5,
                                             color: '#039be5',
-                                            fontSize: '0.95rem',
+                                            fontSize: '15px',
+                                            height: '28px',
                                             '&:hover': { textDecoration: 'underline' }
                                         }}
                                     >
-                                        <ArrowForward fontSize="inherit" sx={{ fontSize: 16 }} />
+                                        <ArrowForward fontSize="inherit" sx={{ fontSize: 24, flexShrink: 0 }} />
                                         {item.label}
                                     </Link>
                                 ))}
@@ -230,7 +231,7 @@ export default function HomePage() {
 
                     {/* Cadastros Rápidos Grid */}
                     <Paper elevation={0} sx={{ p: 3 }}>
-                        <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
+                        <Typography variant="h6" gutterBottom sx={{ mb: 3, fontSize: '24px' }}>
                             Cadastros rápidos
                         </Typography>
                         <Grid container spacing={2}>
@@ -240,7 +241,7 @@ export default function HomePage() {
                                         variant="outlined"
                                         fullWidth
                                         onClick={() => openModal(item.type)}
-                                        startIcon={<Box component="span" sx={{ color: '#039be5' }}>{item.icon}</Box>}
+                                        startIcon={<Box component="span" sx={{ color: '#039be5', display: 'flex', alignItems: 'center' }}>{item.icon}</Box>}
                                         endIcon={<ArrowForward fontSize="small" sx={{ color: '#bdbdbd' }} />}
                                         sx={{
                                             justifyContent: 'flex-start',
@@ -250,6 +251,7 @@ export default function HomePage() {
                                             borderColor: '#e0e0e0',
                                             bgcolor: '#eeeeee',
                                             border: 'none',
+                                            fontSize: '15px',
                                             '&:hover': {
                                                 bgcolor: '#e0e0e0',
                                                 border: 'none'

@@ -69,13 +69,17 @@ class PedidoServiceTest {
         naturezaEntrada.setId(1);
         naturezaEntrada.setDescricao("Compra");
         naturezaEntrada.setTipoMovimento(TipoMovimento.ENTRADA);
-        naturezaEntrada.setGeraFinanceiro(true);
+        naturezaEntrada.setExigeCliente(false);  // Entrada doesn't require client
+        naturezaEntrada.setExigeValorUnitario(true);
+        naturezaEntrada.setExigeStatus(false);   // Entrada doesn't require status
 
         naturezaSaida = new NaturezaOperacao();
         naturezaSaida.setId(2);
         naturezaSaida.setDescricao("Venda");
         naturezaSaida.setTipoMovimento(TipoMovimento.SAIDA);
-        naturezaSaida.setGeraFinanceiro(true);
+        naturezaSaida.setExigeCliente(true);     // Saída requires client
+        naturezaSaida.setExigeValorUnitario(true);
+        naturezaSaida.setExigeStatus(true);      // Saída requires status
 
         cliente = new Cliente();
         cliente.setId(1);
@@ -103,7 +107,7 @@ class PedidoServiceTest {
         request.setNaturezaOperacaoId(naturezaId);
         request.setClienteId(clienteId);
         request.setDocumentoReferencia("DOC-001");
-        request.setStatusPagamento("PAGO");
+        request.setStatus("PAGO");
         request.setItens(itens);
         return request;
     }
@@ -124,7 +128,7 @@ class PedidoServiceTest {
         pedido.setCliente(cliente);
         pedido.setDocumentoReferencia("DOC-001");
         pedido.setValorTotal(valorTotal);
-        pedido.setStatusPagamento(status);
+        pedido.setStatus(status);
         pedido.setDataEmissao(LocalDateTime.of(2026, 3, 1, 10, 0));
         return pedido;
     }
@@ -198,7 +202,7 @@ class PedidoServiceTest {
             assertEquals("Compra", response.getNaturezaOperacao());
             assertEquals("Consumidor Final", response.getClienteNome());
             assertThat(response.getValorTotal()).isEqualByComparingTo(new BigDecimal("55.000"));
-            assertEquals("PAGO", response.getStatusPagamento());
+            assertNull(response.getStatus());  // ENTRADA has exigeStatus = false
             assertNotNull(response.getDataEmissao());
             assertEquals(1, response.getItens().size());
 
@@ -343,15 +347,17 @@ class PedidoServiceTest {
         @DisplayName("deve lancar IllegalArgumentException quando PENDENTE sem documentoReferencia")
         void deveLancarExcecaoPendenteSemDocumento() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq));
-            request.setStatusPagamento("PENDENTE");
+            PedidoRequest request = criarPedidoRequest(2, 1, List.of(itemReq));  // Use SAIDA (exigeStatus = true)
+            request.setStatus("PENDENTE");
             request.setDocumentoReferencia(null);
+
+            when(naturezaOperacaoRepository.findById(2)).thenReturn(Optional.of(naturezaSaida));
 
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                     () -> pedidoService.processarPedido(request));
 
-            assertEquals("Documento de referência é obrigatório para pedidos pendentes.", ex.getMessage());
-            verifyNoInteractions(naturezaOperacaoRepository, pedidoRepository, itemPedidoRepository, estoqueService, fifoService);
+            assertEquals("Documento de referência obrigatório para status PENDENTE", ex.getMessage());
+            verifyNoInteractions(pedidoRepository, itemPedidoRepository, estoqueService, fifoService);
         }
 
         @Test
@@ -359,7 +365,7 @@ class PedidoServiceTest {
         void devePermitirPagoSemDocumento() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
             PedidoRequest request = criarPedidoRequest(1, null, List.of(itemReq));
-            request.setStatusPagamento("PAGO");
+            request.setStatus("PAGO");
             request.setDocumentoReferencia(null);
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
@@ -370,7 +376,7 @@ class PedidoServiceTest {
             PedidoResponse response = pedidoService.processarPedido(request);
 
             assertNotNull(response);
-            assertEquals("PAGO", response.getStatusPagamento());
+            assertNull(response.getStatus());  // ENTRADA has exigeStatus = false, so status is forced to null
             assertNull(response.getDocumentoReferencia());
         }
 
@@ -378,19 +384,21 @@ class PedidoServiceTest {
         @DisplayName("deve permitir PENDENTE com documentoReferencia")
         void devePermitirPendenteComDocumento() {
             ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-            PedidoRequest request = criarPedidoRequest(1, null, List.of(itemReq));
-            request.setStatusPagamento("PENDENTE");
+            PedidoRequest request = criarPedidoRequest(2, 1, List.of(itemReq));  // Use SAIDA (exigeStatus = true)
+            request.setStatus("PENDENTE");
             request.setDocumentoReferencia("NF-001");
 
-            when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
+            when(naturezaOperacaoRepository.findById(2)).thenReturn(Optional.of(naturezaSaida));
+            when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente));
             when(produtoRepository.findById(1)).thenReturn(Optional.of(produto));
             configurarPedidoSaveComId();
             configurarItemPedidoSaveComId();
+            when(fifoService.processarVendaFifo(any(ItemPedido.class))).thenReturn(new BigDecimal("5.50"));
 
             PedidoResponse response = pedidoService.processarPedido(request);
 
             assertNotNull(response);
-            assertEquals("PENDENTE", response.getStatusPagamento());
+            assertEquals("PENDENTE", response.getStatus());
             assertEquals("NF-001", response.getDocumentoReferencia());
         }
     }
@@ -493,7 +501,7 @@ class PedidoServiceTest {
                     () -> assertEquals("Fornecedor ABC", response.getClienteNome()),
                     () -> assertEquals("DOC-001", response.getDocumentoReferencia()),
                     () -> assertEquals(new BigDecimal("100.00"), response.getValorTotal()),
-                    () -> assertEquals("PAGO", response.getStatusPagamento()),
+                    () -> assertEquals("PAGO", response.getStatus()),
                     () -> assertNotNull(response.getDataEmissao()),
                     () -> assertEquals(1, response.getItens().size()),
                     () -> assertEquals(1, response.getItens().getFirst().getId()),
@@ -589,7 +597,7 @@ class PedidoServiceTest {
 
             pedidoService.cancelarPedido(1);
 
-            assertEquals("CANCELADO", pedido.getStatusPagamento());
+            assertEquals("CANCELADO", pedido.getStatus());
             verify(fifoService).estornarLoteCompra(item);
             verify(fifoService, never()).estornarVendaFifo(any());
             verify(estoqueService).estornarMovimentacao(produto, naturezaEntrada, pedido, new BigDecimal("10.000"));
@@ -610,7 +618,7 @@ class PedidoServiceTest {
 
             pedidoService.cancelarPedido(1);
 
-            assertEquals("CANCELADO", pedido.getStatusPagamento());
+            assertEquals("CANCELADO", pedido.getStatus());
             verify(fifoService).estornarVendaFifo(item);
             verify(fifoService, never()).estornarLoteCompra(any());
             verify(estoqueService).estornarMovimentacao(produto, naturezaSaida, pedido, new BigDecimal("5.000"));
@@ -638,7 +646,7 @@ class PedidoServiceTest {
 
             pedidoService.cancelarPedido(1);
 
-            assertEquals("CANCELADO", pedido.getStatusPagamento());
+            assertEquals("CANCELADO", pedido.getStatus());
             verify(fifoService).estornarLoteCompra(item1);
             verify(fifoService).estornarLoteCompra(item2);
             verify(estoqueService).estornarMovimentacao(produto, naturezaEntrada, pedido, new BigDecimal("10.000"));

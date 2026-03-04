@@ -14,7 +14,7 @@ public class PedidoResponse {
     private String clienteNome; // Pode ser nulo em vendas de balcão
     private String documentoReferencia;
     private BigDecimal valorTotal;
-    private String statusPagamento;
+    private String status;
     private LocalDateTime dataEmissao;
 
     private List<ItemPedidoResponse> itens;

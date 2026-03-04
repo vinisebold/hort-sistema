@@ -8,30 +8,7 @@ import {
 import { Add, Visibility, MoreVert, ArrowDownward, ArrowUpward } from '@mui/icons-material'
 import { pedidosApi, naturezasApi } from '../services/api'
 import NaturezaOverlay from '../components/NaturezaOverlay'
-
-interface NaturezaOperacao {
-  id: number
-  descricao: string
-}
-
-interface Pedido {
-  id: number
-  naturezaOperacao: string
-  naturezaOperacaoTipo?: string
-  clienteNome: string
-  documentoReferencia: string
-  valorTotal: number
-  statusPagamento: string
-  dataEmissao: string
-  itens?: ItemPedido[]
-}
-
-interface ItemPedido {
-  produtoDescricao?: string
-  quantidade: number
-  valorUnitario: number
-  valorTotal: number
-}
+import { NaturezaOperacao, Pedido } from '../types'
 
 export default function PedidosPage() {
   const navigate = useNavigate()
@@ -155,10 +132,11 @@ export default function PedidosPage() {
     }
   }
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | null) => {
     if (status === 'CANCELADO') return 'error'
     if (status === 'PAGO') return 'success'
-    return 'warning'
+    if (status === 'PENDENTE') return 'warning'
+    return 'default'
   }
 
   const getNaturezaChip = (tipo: string) => {
@@ -210,13 +188,17 @@ export default function PedidosPage() {
                 <TableCell>{pedido.clienteNome}</TableCell>
                 <TableCell align="right" sx={{ pr: 6 }}>R$ {pedido.valorTotal.toFixed(2)}</TableCell>
                 <TableCell sx={{ pl: 6, pr: 1.5 }}>
-                  <Chip
-                    label={pedido.statusPagamento}
-                    color={getStatusColor(pedido.statusPagamento)}
-                    size="small"
-                  />
+                  {pedido.status ? (
+                    <Chip
+                      label={pedido.status}
+                      color={getStatusColor(pedido.status)}
+                      size="small"
+                    />
+                  ) : (
+                    <Chip label="N/A" color="default" size="small" />
+                  )}
                 </TableCell>
-                <TableCell sx={{ pl: 1.5 }}>{getNaturezaChip(pedido.naturezaOperacao)}</TableCell>
+                <TableCell sx={{ pl: 1.5 }}>{getNaturezaChip(typeof pedido.naturezaOperacao === 'string' ? pedido.naturezaOperacao : pedido.naturezaOperacao?.descricao || '')}</TableCell>
                 <TableCell align="center">
                   <IconButton onClick={() => handleView(pedido.id)} title="Visualizar">
                     <Visibility />
@@ -296,7 +278,7 @@ export default function PedidosPage() {
             handleMenuClose()
             if (selectedMenuPedido) setCancelConfirm(selectedMenuPedido)
           }}
-          disabled={selectedMenuPedido?.statusPagamento === 'CANCELADO'}
+          disabled={selectedMenuPedido?.status === 'CANCELADO'}
         >
           Cancelar
         </MenuItem>
@@ -326,7 +308,7 @@ export default function PedidosPage() {
       <Dialog open={openView} onClose={() => setOpenView(false)} maxWidth="md" fullWidth>
         <DialogTitle>
           Pedido {selectedPedido?.id}
-          {selectedPedido?.statusPagamento === 'CANCELADO' && (
+          {selectedPedido?.status === 'CANCELADO' && (
             <Chip label="CANCELADO" color="error" size="small" sx={{ ml: 1 }} />
           )}
         </DialogTitle>
@@ -340,19 +322,21 @@ export default function PedidosPage() {
                 </Box>
                 <Box>
                   <Typography variant="body2" color="text.secondary">Natureza</Typography>
-                  {getNaturezaChip(selectedPedido.naturezaOperacao)}
+                  {getNaturezaChip(typeof selectedPedido.naturezaOperacao === 'string' ? selectedPedido.naturezaOperacao : selectedPedido.naturezaOperacao?.descricao || '')}
                 </Box>
                 <Box>
                   <Typography variant="body2" color="text.secondary">Cliente</Typography>
                   <Typography>{selectedPedido.clienteNome}</Typography>
                 </Box>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">Status</Typography>
-                  <Chip
-                    label={selectedPedido.statusPagamento}
-                    color={getStatusColor(selectedPedido.statusPagamento)}
-                  />
-                </Box>
+                {selectedPedido.status && (
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">Status</Typography>
+                    <Chip
+                      label={selectedPedido.status}
+                      color={getStatusColor(selectedPedido.status)}
+                    />
+                  </Box>
+                )}
               </Box>
 
               <Typography variant="h6" gutterBottom>Itens</Typography>
@@ -384,7 +368,7 @@ export default function PedidosPage() {
           )}
         </DialogContent>
         <DialogActions>
-          {selectedPedido?.statusPagamento !== 'CANCELADO' && (
+          {selectedPedido?.status !== 'CANCELADO' && (
             <Button
               color="error"
               onClick={() => {

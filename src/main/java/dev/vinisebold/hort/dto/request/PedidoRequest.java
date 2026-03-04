@@ -16,8 +16,7 @@ public class PedidoRequest {
 
     private String documentoReferencia; // Obrigatório quando statusPagamento = PENDENTE
 
-    @NotNull(message = "O status de pagamento é obrigatório")
-    private String statusPagamento; // PENDENTE, PAGO
+    private String status; // Validação dinâmica no Service
 
     @NotEmpty(message = "O pedido deve ter pelo menos um item")
     private List<ItemPedidoRequest> itens;

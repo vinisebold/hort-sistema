@@ -31,8 +31,8 @@ public class Pedido {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valorTotal;
 
-    @Column(nullable = false)
-    private String statusPagamento;
+    @Column(nullable = true)
+    private String status;
 
     @CreationTimestamp
     @Column(updatable = false)

@@ -88,7 +88,7 @@ class PerformanceTest {
         p.setNaturezaOperacao(natureza);
         p.setCliente(cliente);
         p.setValorTotal(new BigDecimal("150.00"));
-        p.setStatusPagamento("PAGO");
+        p.setStatus("PAGO");
         p.setDataEmissao(LocalDateTime.now().minusDays(id % 30));
         return p;
     }
@@ -266,7 +266,9 @@ class PerformanceTest {
             naturezaEntrada.setId(1);
             naturezaEntrada.setDescricao("Compra");
             naturezaEntrada.setTipoMovimento(TipoMovimento.ENTRADA);
-            naturezaEntrada.setGeraFinanceiro(true);
+            naturezaEntrada.setExigeCliente(false);
+            naturezaEntrada.setExigeValorUnitario(true);
+            naturezaEntrada.setExigeStatus(false);
 
             when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
 
@@ -282,7 +284,7 @@ class PerformanceTest {
 
             PedidoRequest request = new PedidoRequest();
             request.setNaturezaOperacaoId(1);
-            request.setStatusPagamento("PAGO");
+            request.setStatus("PAGO");
             request.setItens(itensRequest);
 
             // Mock each product lookup
@@ -363,7 +365,9 @@ class PerformanceTest {
             naturezaSaida.setId(2);
             naturezaSaida.setDescricao("Venda");
             naturezaSaida.setTipoMovimento(TipoMovimento.SAIDA);
-            naturezaSaida.setGeraFinanceiro(true);
+            naturezaSaida.setExigeCliente(true);
+            naturezaSaida.setExigeValorUnitario(true);
+            naturezaSaida.setExigeStatus(true);
 
             List<Produto> produtos = gerarProdutos(100);
             List<Cliente> clientes = gerarClientes(50);
@@ -410,7 +414,9 @@ class PerformanceTest {
             naturezaSaida.setId(2);
             naturezaSaida.setDescricao("Venda");
             naturezaSaida.setTipoMovimento(TipoMovimento.SAIDA);
-            naturezaSaida.setGeraFinanceiro(true);
+            naturezaSaida.setExigeCliente(true);
+            naturezaSaida.setExigeValorUnitario(true);
+            naturezaSaida.setExigeStatus(true);
 
             List<Produto> produtos = gerarProdutos(500);
 
@@ -422,7 +428,7 @@ class PerformanceTest {
                 pedido.setNaturezaOperacao(naturezaSaida);
                 pedido.setDataEmissao(LocalDateTime.now().minusDays(i % 30));
                 pedido.setValorTotal(new BigDecimal("50.00"));
-                pedido.setStatusPagamento("PAGO");
+                pedido.setStatus("PAGO");
 
                 Produto produto = produtos.get((i - 1) % 500);
                 itens.add(criarItemPedido(i, pedido, produto,

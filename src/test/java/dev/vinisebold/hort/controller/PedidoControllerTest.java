@@ -60,7 +60,7 @@ class PedidoControllerTest {
         request.setNaturezaOperacaoId(1);
         request.setClienteId(1);
         request.setDocumentoReferencia("PIX-12345");
-        request.setStatusPagamento("PAGO");
+        request.setStatus("PAGO");
         request.setItens(List.of(buildItemPedidoRequest()));
         return request;
     }
@@ -82,7 +82,7 @@ class PedidoControllerTest {
                 .clienteNome("João da Silva")
                 .documentoReferencia("PIX-12345")
                 .valorTotal(new BigDecimal("17.500"))
-                .statusPagamento("PAGO")
+                .status("PAGO")
                 .dataEmissao(LocalDateTime.of(2026, 3, 1, 14, 30))
                 .itens(List.of(itemResponse))
                 .build();
@@ -102,7 +102,7 @@ class PedidoControllerTest {
                 .andExpect(jsonPath("$.naturezaOperacao").value("Venda"))
                 .andExpect(jsonPath("$.clienteNome").value("João da Silva"))
                 .andExpect(jsonPath("$.valorTotal").value(17.500))
-                .andExpect(jsonPath("$.statusPagamento").value("PAGO"))
+                .andExpect(jsonPath("$.status").value("PAGO"))
                 .andExpect(jsonPath("$.itens").isArray())
                 .andExpect(jsonPath("$.itens[0].produtoDescricao").value("Tomate Italiano"));
 
@@ -113,7 +113,7 @@ class PedidoControllerTest {
     @DisplayName("POST /api/pedidos - naturezaOperacaoId nulo e itens vazio devem retornar 400")
     void processarPedido_validacaoFalha_deveRetornar400() throws Exception {
         PedidoRequest request = new PedidoRequest();
-        // naturezaOperacaoId null, formaPagamentoId null, statusPagamento null, itens null
+        // naturezaOperacaoId null, formaPagamentoId null, status null, itens null
 
         mockMvc.perform(post("/api/pedidos")
                         .contentType(MediaType.APPLICATION_JSON)

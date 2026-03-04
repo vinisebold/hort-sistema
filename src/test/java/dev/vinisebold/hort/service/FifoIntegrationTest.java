@@ -162,7 +162,7 @@ class FifoIntegrationTest {
         pedido.setId(pedidoIdSeq.incrementAndGet());
         pedido.setDataEmissao(dataEmissao);
         pedido.setValorTotal(BigDecimal.ZERO);
-        pedido.setStatusPagamento("PENDENTE");
+        pedido.setStatus("PENDENTE");
         return pedido;
     }
 

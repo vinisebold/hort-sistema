@@ -36,10 +36,10 @@ public class DataInitializer implements CommandLineRunner {
         if (naturezaOperacaoRepository.count() == 0) {
             log.info("Inicializando naturezas de operação...");
             
-            naturezaOperacaoRepository.save(createNatureza("Venda de Mercadoria", TipoMovimento.SAIDA, true));
-            naturezaOperacaoRepository.save(createNatureza("Compra de Mercadoria", TipoMovimento.ENTRADA, true));
-            naturezaOperacaoRepository.save(createNatureza("Devolução", TipoMovimento.SAIDA, false));
-            naturezaOperacaoRepository.save(createNatureza("Estorno", TipoMovimento.ENTRADA, false));
+            naturezaOperacaoRepository.save(createNatureza("Venda de Mercadoria", TipoMovimento.SAIDA, true, true, true));
+            naturezaOperacaoRepository.save(createNatureza("Compra de Mercadoria", TipoMovimento.ENTRADA, true, true, false));
+            naturezaOperacaoRepository.save(createNatureza("Quebra de Mercadoria", TipoMovimento.SAIDA, false, false, false));
+            naturezaOperacaoRepository.save(createNatureza("Ajuste de Entrada", TipoMovimento.ENTRADA, false, false, false));
             
             log.info("4 naturezas de operação inseridas.");
         }
@@ -57,11 +57,15 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private NaturezaOperacao createNatureza(String descricao, TipoMovimento tipoMovimento, Boolean geraFinanceiro) {
+    private NaturezaOperacao createNatureza(String descricao, TipoMovimento tipoMovimento,
+                                            Boolean exigeCliente, Boolean exigeValorUnitario,
+                                            Boolean exigeStatus) {
         NaturezaOperacao natureza = new NaturezaOperacao();
         natureza.setDescricao(descricao);
         natureza.setTipoMovimento(tipoMovimento);
-        natureza.setGeraFinanceiro(geraFinanceiro);
+        natureza.setExigeCliente(exigeCliente);
+        natureza.setExigeValorUnitario(exigeValorUnitario);
+        natureza.setExigeStatus(exigeStatus);
         return natureza;
     }
 

@@ -41,12 +41,16 @@ class NaturezaOperacaoServiceTest {
         naturezaOperacao.setId(1);
         naturezaOperacao.setDescricao("Compra");
         naturezaOperacao.setTipoMovimento(TipoMovimento.ENTRADA);
-        naturezaOperacao.setGeraFinanceiro(true);
+        naturezaOperacao.setExigeCliente(true);
+        naturezaOperacao.setExigeValorUnitario(true);
+        naturezaOperacao.setExigeStatus(true);
 
         request = new NaturezaOperacaoRequest();
         request.setDescricao("Compra");
         request.setTipoMovimento(TipoMovimento.ENTRADA);
-        request.setGeraFinanceiro(true);
+        request.setExigeCliente(true);
+        request.setExigeValorUnitario(true);
+        request.setExigeStatus(true);
     }
 
     @Nested
@@ -65,7 +69,9 @@ class NaturezaOperacaoServiceTest {
             assertThat(response.getId()).isEqualTo(1);
             assertThat(response.getDescricao()).isEqualTo("Compra");
             assertThat(response.getTipoMovimento()).isEqualTo(TipoMovimento.ENTRADA);
-            assertThat(response.getGeraFinanceiro()).isTrue();
+            assertThat(response.getExigeCliente()).isTrue();
+            assertThat(response.getExigeValorUnitario()).isTrue();
+            assertThat(response.getExigeStatus()).isTrue();
 
             verify(repository).existsByDescricao("Compra");
             verify(repository).save(any(NaturezaOperacao.class));
@@ -96,7 +102,9 @@ class NaturezaOperacaoServiceTest {
             no2.setId(2);
             no2.setDescricao("Venda");
             no2.setTipoMovimento(TipoMovimento.SAIDA);
-            no2.setGeraFinanceiro(true);
+            no2.setExigeCliente(true);
+            no2.setExigeValorUnitario(true);
+            no2.setExigeStatus(true);
 
             when(repository.findAll()).thenReturn(List.of(naturezaOperacao, no2));
 
@@ -139,7 +147,9 @@ class NaturezaOperacaoServiceTest {
             assertThat(response.getId()).isEqualTo(1);
             assertThat(response.getDescricao()).isEqualTo("Compra");
             assertThat(response.getTipoMovimento()).isEqualTo(TipoMovimento.ENTRADA);
-            assertThat(response.getGeraFinanceiro()).isTrue();
+            assertThat(response.getExigeCliente()).isTrue();
+            assertThat(response.getExigeValorUnitario()).isTrue();
+            assertThat(response.getExigeStatus()).isTrue();
 
             verify(repository).findById(1);
         }
@@ -167,13 +177,17 @@ class NaturezaOperacaoServiceTest {
             NaturezaOperacaoRequest updateRequest = new NaturezaOperacaoRequest();
             updateRequest.setDescricao("Devolução");
             updateRequest.setTipoMovimento(TipoMovimento.SAIDA);
-            updateRequest.setGeraFinanceiro(false);
+            updateRequest.setExigeCliente(false);
+            updateRequest.setExigeValorUnitario(false);
+            updateRequest.setExigeStatus(false);
 
             NaturezaOperacao noAtualizada = new NaturezaOperacao();
             noAtualizada.setId(1);
             noAtualizada.setDescricao("Devolução");
             noAtualizada.setTipoMovimento(TipoMovimento.SAIDA);
-            noAtualizada.setGeraFinanceiro(false);
+            noAtualizada.setExigeCliente(false);
+            noAtualizada.setExigeValorUnitario(false);
+            noAtualizada.setExigeStatus(false);
 
             when(repository.findById(1)).thenReturn(Optional.of(naturezaOperacao));
             when(repository.existsByDescricao("Devolução")).thenReturn(false);
@@ -184,7 +198,9 @@ class NaturezaOperacaoServiceTest {
             assertThat(response).isNotNull();
             assertThat(response.getDescricao()).isEqualTo("Devolução");
             assertThat(response.getTipoMovimento()).isEqualTo(TipoMovimento.SAIDA);
-            assertThat(response.getGeraFinanceiro()).isFalse();
+            assertThat(response.getExigeCliente()).isFalse();
+            assertThat(response.getExigeValorUnitario()).isFalse();
+            assertThat(response.getExigeStatus()).isFalse();
 
             verify(repository).findById(1);
             verify(repository).existsByDescricao("Devolução");
@@ -197,7 +213,9 @@ class NaturezaOperacaoServiceTest {
             NaturezaOperacaoRequest updateRequest = new NaturezaOperacaoRequest();
             updateRequest.setDescricao("Venda");
             updateRequest.setTipoMovimento(TipoMovimento.SAIDA);
-            updateRequest.setGeraFinanceiro(true);
+            updateRequest.setExigeCliente(true);
+            updateRequest.setExigeValorUnitario(true);
+            updateRequest.setExigeStatus(true);
 
             when(repository.findById(1)).thenReturn(Optional.of(naturezaOperacao));
             when(repository.existsByDescricao("Venda")).thenReturn(true);
@@ -217,13 +235,17 @@ class NaturezaOperacaoServiceTest {
             NaturezaOperacaoRequest updateRequest = new NaturezaOperacaoRequest();
             updateRequest.setDescricao("Compra");
             updateRequest.setTipoMovimento(TipoMovimento.ENTRADA);
-            updateRequest.setGeraFinanceiro(false);
+            updateRequest.setExigeCliente(true);
+            updateRequest.setExigeValorUnitario(true);
+            updateRequest.setExigeStatus(false);
 
             NaturezaOperacao noAtualizada = new NaturezaOperacao();
             noAtualizada.setId(1);
             noAtualizada.setDescricao("Compra");
             noAtualizada.setTipoMovimento(TipoMovimento.ENTRADA);
-            noAtualizada.setGeraFinanceiro(false);
+            noAtualizada.setExigeCliente(true);
+            noAtualizada.setExigeValorUnitario(true);
+            noAtualizada.setExigeStatus(false);
 
             when(repository.findById(1)).thenReturn(Optional.of(naturezaOperacao));
             when(repository.save(any(NaturezaOperacao.class))).thenReturn(noAtualizada);
@@ -232,7 +254,9 @@ class NaturezaOperacaoServiceTest {
 
             assertThat(response).isNotNull();
             assertThat(response.getDescricao()).isEqualTo("Compra");
-            assertThat(response.getGeraFinanceiro()).isFalse();
+            assertThat(response.getExigeCliente()).isTrue();
+            assertThat(response.getExigeValorUnitario()).isTrue();
+            assertThat(response.getExigeStatus()).isFalse();
 
             verify(repository).findById(1);
             verify(repository, never()).existsByDescricao(any());

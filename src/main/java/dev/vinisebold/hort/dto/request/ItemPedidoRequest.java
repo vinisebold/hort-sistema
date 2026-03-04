@@ -16,7 +16,7 @@ public class ItemPedidoRequest {
     @DecimalMin(value = "0.001", message = "A quantidade deve ser maior que zero")
     private BigDecimal quantidade;
 
-    @NotNull(message = "O valor unitário é obrigatório")
+    // Validação dinâmica baseada em NaturezaOperacao.exigeValorUnitario
     @DecimalMin(value = "0.00", message = "O valor unitário não pode ser negativo")
     private BigDecimal valorUnitario;
 }

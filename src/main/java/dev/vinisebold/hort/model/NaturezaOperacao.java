@@ -22,5 +22,11 @@ public class NaturezaOperacao {
     private TipoMovimento tipoMovimento;
 
     @Column(nullable = false)
-    private Boolean geraFinanceiro = true;
+    private Boolean exigeCliente = false;
+
+    @Column(nullable = false)
+    private Boolean exigeValorUnitario = true;
+
+    @Column(nullable = false)
+    private Boolean exigeStatus = false;
 }

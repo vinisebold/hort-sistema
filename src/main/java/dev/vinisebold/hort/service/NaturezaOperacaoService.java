@@ -23,7 +23,9 @@ public class NaturezaOperacaoService {
         NaturezaOperacao no = new NaturezaOperacao();
         no.setDescricao(request.getDescricao());
         no.setTipoMovimento(request.getTipoMovimento());
-        no.setGeraFinanceiro(request.getGeraFinanceiro());
+        no.setExigeCliente(request.getExigeCliente());
+        no.setExigeValorUnitario(request.getExigeValorUnitario());
+        no.setExigeStatus(request.getExigeStatus());
         return mapToResponse(repository.save(no));
     }
 
@@ -45,13 +47,19 @@ public class NaturezaOperacaoService {
         }
         no.setDescricao(request.getDescricao());
         no.setTipoMovimento(request.getTipoMovimento());
-        no.setGeraFinanceiro(request.getGeraFinanceiro());
+        no.setExigeCliente(request.getExigeCliente());
+        no.setExigeValorUnitario(request.getExigeValorUnitario());
+        no.setExigeStatus(request.getExigeStatus());
         return mapToResponse(repository.save(no));
     }
 
     public NaturezaOperacaoResponse mapToResponse(NaturezaOperacao no) {
         return NaturezaOperacaoResponse.builder()
                 .id(no.getId()).descricao(no.getDescricao())
-                .tipoMovimento(no.getTipoMovimento()).geraFinanceiro(no.getGeraFinanceiro()).build();
+                .tipoMovimento(no.getTipoMovimento())
+                .exigeCliente(no.getExigeCliente())
+                .exigeValorUnitario(no.getExigeValorUnitario())
+                .exigeStatus(no.getExigeStatus())
+                .build();
     }
 }

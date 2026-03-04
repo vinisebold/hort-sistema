@@ -74,13 +74,17 @@ class EstoqueServiceTest {
         naturezaEntrada.setId(1);
         naturezaEntrada.setDescricao("Compra");
         naturezaEntrada.setTipoMovimento(TipoMovimento.ENTRADA);
-        naturezaEntrada.setGeraFinanceiro(true);
+        naturezaEntrada.setExigeCliente(false);
+        naturezaEntrada.setExigeValorUnitario(true);
+        naturezaEntrada.setExigeStatus(false);
 
         naturezaSaida = new NaturezaOperacao();
         naturezaSaida.setId(2);
         naturezaSaida.setDescricao("Venda");
         naturezaSaida.setTipoMovimento(TipoMovimento.SAIDA);
-        naturezaSaida.setGeraFinanceiro(true);
+        naturezaSaida.setExigeCliente(true);
+        naturezaSaida.setExigeValorUnitario(true);
+        naturezaSaida.setExigeStatus(true);
 
         Cliente cliente = new Cliente();
         cliente.setId(1);
@@ -95,7 +99,7 @@ class EstoqueServiceTest {
         pedido.setNaturezaOperacao(naturezaEntrada);
         pedido.setCliente(cliente);
         pedido.setValorTotal(new BigDecimal("500.00"));
-        pedido.setStatusPagamento("PAGO");
+        pedido.setStatus("PAGO");
         pedido.setDataEmissao(LocalDateTime.of(2026, 3, 1, 10, 0));
     }
 
@@ -602,7 +606,7 @@ class EstoqueServiceTest {
             assertThat(resultado.getPedido().getNaturezaOperacao()).isEqualTo("Compra");
             assertThat(resultado.getPedido().getClienteNome()).isEqualTo("Empresa Teste Ltda");
             assertThat(resultado.getPedido().getValorTotal()).isEqualByComparingTo(new BigDecimal("500.00"));
-            assertThat(resultado.getPedido().getStatusPagamento()).isEqualTo("PAGO");
+            assertThat(resultado.getPedido().getStatus()).isEqualTo("PAGO");
             assertThat(resultado.getPedido().getDataEmissao()).isEqualTo(LocalDateTime.of(2026, 3, 1, 10, 0));
 
             // Verify itens
@@ -654,7 +658,7 @@ class EstoqueServiceTest {
             pedidoSemCliente.setNaturezaOperacao(naturezaEntrada);
             pedidoSemCliente.setCliente(null);
             pedidoSemCliente.setValorTotal(new BigDecimal("300.00"));
-            pedidoSemCliente.setStatusPagamento("PENDENTE");
+            pedidoSemCliente.setStatus("PENDENTE");
             pedidoSemCliente.setDataEmissao(LocalDateTime.of(2026, 3, 1, 12, 0));
 
             MovimentacaoEstoque movimentacao = new MovimentacaoEstoque();
@@ -674,7 +678,7 @@ class EstoqueServiceTest {
             assertThat(resultado.getPedido()).isNotNull();
             assertThat(resultado.getPedido().getClienteNome()).isNull();
             assertThat(resultado.getPedido().getId()).isEqualTo(2);
-            assertThat(resultado.getPedido().getStatusPagamento()).isEqualTo("PENDENTE");
+            assertThat(resultado.getPedido().getStatus()).isEqualTo("PENDENTE");
         }
 
         @Test

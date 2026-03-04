@@ -35,42 +35,40 @@ public class PedidoService {
     @Transactional
     public PedidoResponse processarPedido(PedidoRequest request) {
 
-        // 1. Validar documento baseado no status
-        if ("PENDENTE".equals(request.getStatusPagamento())) {
-            if (request.getDocumentoReferencia() == null || request.getDocumentoReferencia().trim().isEmpty()) {
-                throw new IllegalArgumentException("Documento de referência é obrigatório para pedidos pendentes.");
-            }
-        }
-
-        // 2. Validar Cadastros
+        // 1. Buscar natureza
         NaturezaOperacao natureza = naturezaOperacaoRepository.findById(request.getNaturezaOperacaoId())
                 .orElseThrow(() -> new IllegalArgumentException("Natureza de Operação inválida"));
 
+        // 2. VALIDAÇÃO DINÂMICA
+        validatePedido(request, natureza);
+
+        // 3. Buscar Cliente (se obrigatório)
         Cliente cliente = null;
-        if (TipoMovimento.SAIDA.equals(natureza.getTipoMovimento())) {
-            if (request.getClienteId() != null) {
-                cliente = clienteRepository.findById(request.getClienteId())
-                        .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
-            }
+        if (natureza.getExigeCliente() && request.getClienteId() != null) {
+            cliente = clienteRepository.findById(request.getClienteId())
+                    .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         }
 
-        // 3. Criar Cabeçalho do Pedido
+        // 4. Criar Cabeçalho do Pedido
         Pedido pedido = new Pedido();
         pedido.setNaturezaOperacao(natureza);
         pedido.setCliente(cliente);
         pedido.setDocumentoReferencia(request.getDocumentoReferencia());
-        pedido.setStatusPagamento(request.getStatusPagamento());
+        pedido.setStatus(request.getStatus());
         pedido.setDataEmissao(LocalDateTime.now());
 
-        // Calcula o valor total iterando a request
-        BigDecimal valorTotalPedido = request.getItens().stream()
-                .map(i -> i.getValorUnitario().multiply(i.getQuantidade()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // Calcula o valor total apenas se natureza exigir valorUnitario
+        BigDecimal valorTotalPedido = BigDecimal.ZERO;
+        if (natureza.getExigeValorUnitario()) {
+            valorTotalPedido = request.getItens().stream()
+                    .map(i -> i.getValorUnitario().multiply(i.getQuantidade()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
         pedido.setValorTotal(valorTotalPedido);
 
         pedido = pedidoRepository.save(pedido);
 
-        // 4. Processar Itens
+        // 5. Processar Itens
         for (ItemPedidoRequest itemReq : request.getItens()) {
             Produto produto = produtoRepository.findById(itemReq.getProdutoId())
                     .orElseThrow(() -> new IllegalArgumentException("Produto ID " + itemReq.getProdutoId() + " não encontrado."));
@@ -79,8 +77,13 @@ public class PedidoService {
             item.setPedido(pedido);
             item.setProduto(produto);
             item.setQuantidade(itemReq.getQuantidade());
-            item.setValorUnitario(itemReq.getValorUnitario());
-            item.setValorTotal(itemReq.getValorUnitario().multiply(itemReq.getQuantidade()));
+            
+            // Valor unitário é setado apenas se natureza exigir
+            BigDecimal valorUnitario = natureza.getExigeValorUnitario() 
+                    ? itemReq.getValorUnitario() 
+                    : BigDecimal.ZERO;
+            item.setValorUnitario(valorUnitario);
+            item.setValorTotal(valorUnitario.multiply(itemReq.getQuantidade()));
 
             // Regra base: começa com custo 0 (Compras ficam 0, Vendas recebem cálculo)
             item.setCustoUnitario(BigDecimal.ZERO);
@@ -88,33 +91,36 @@ public class PedidoService {
             // Salva o item para gerar o ID (necessário para o FIFO e Estoque)
             item = itemPedidoRepository.save(item);
 
-            // 5. Mágica do Fluxo (Entrada vs Saída)
+            // 6. Mágica do Fluxo (Entrada vs Saída)
             if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
-                item.setCustoUnitario(item.getValorUnitario());
-                item = itemPedidoRepository.save(item);
-
+                if (natureza.getExigeValorUnitario()) {
+                    item.setCustoUnitario(item.getValorUnitario());
+                    item = itemPedidoRepository.save(item);
+                    fifoService.registrarLoteCompra(item);
+                }
                 estoqueService.processarMovimentacao(produto, natureza, pedido, item.getQuantidade());
-                fifoService.registrarLoteCompra(item);
 
             } else if (TipoMovimento.SAIDA.equals(natureza.getTipoMovimento())) {
                 estoqueService.processarMovimentacao(produto, natureza, pedido, item.getQuantidade());
 
-                // Puxa o custo exato do banco de lotes FIFO
-                BigDecimal custoExatoFifo = fifoService.processarVendaFifo(item);
-                item.setCustoUnitario(custoExatoFifo);
-                itemPedidoRepository.save(item);
+                if (natureza.getExigeValorUnitario()) {
+                    // Puxa o custo exato do banco de lotes FIFO
+                    BigDecimal custoExatoFifo = fifoService.processarVendaFifo(item);
+                    item.setCustoUnitario(custoExatoFifo);
+                    itemPedidoRepository.save(item);
+                }
             }
         }
 
-
         List<ItemPedidoResponse> itensResponse = request.getItens().stream().map(req -> {
             Produto p = produtoRepository.findById(req.getProdutoId()).orElseThrow();
+            BigDecimal valorUnit = natureza.getExigeValorUnitario() ? req.getValorUnitario() : BigDecimal.ZERO;
             return ItemPedidoResponse.builder()
                     .produtoId(p.getId())
                     .produtoDescricao(p.getDescricao())
                     .quantidade(req.getQuantidade())
-                    .valorUnitario(req.getValorUnitario())
-                    .valorTotal(req.getValorUnitario().multiply(req.getQuantidade()))
+                    .valorUnitario(valorUnit)
+                    .valorTotal(valorUnit.multiply(req.getQuantidade()))
                     .build();
         }).toList();
 
@@ -124,10 +130,68 @@ public class PedidoService {
                 .clienteNome(cliente != null ? cliente.getRazaoSocial() : "Consumidor Final")
                 .documentoReferencia(pedido.getDocumentoReferencia())
                 .valorTotal(pedido.getValorTotal())
-                .statusPagamento(pedido.getStatusPagamento())
+                .status(pedido.getStatus())
                 .dataEmissao(pedido.getDataEmissao())
                 .itens(itensResponse)
                 .build();
+    }
+
+    private void validatePedido(PedidoRequest request, NaturezaOperacao natureza) {
+        
+        // 1. Validar Cliente
+        if (natureza.getExigeCliente() && request.getClienteId() == null) {
+            throw new IllegalArgumentException(
+                "Cliente/Fornecedor é obrigatório para: " + natureza.getDescricao()
+            );
+        }
+        
+        // 2. Validar Status
+        if (natureza.getExigeStatus()) {
+            if (request.getStatus() == null || request.getStatus().trim().isEmpty()) {
+                throw new IllegalArgumentException("Status é obrigatório para: " + natureza.getDescricao());
+            }
+            
+            // Validar valores aceitos de status
+            List<String> statusValidos = List.of("PAGO", "PENDENTE");
+            if (!statusValidos.contains(request.getStatus())) {
+                throw new IllegalArgumentException("Status inválido: " + request.getStatus());
+            }
+            
+            // Se PENDENTE, exigir documento
+            if ("PENDENTE".equals(request.getStatus())) {
+                if (request.getDocumentoReferencia() == null || 
+                    request.getDocumentoReferencia().trim().isEmpty()) {
+                    throw new IllegalArgumentException(
+                        "Documento de referência obrigatório para status PENDENTE"
+                    );
+                }
+            }
+        } else {
+            // Operação não exige status: forçar NULL
+            request.setStatus(null);
+            request.setDocumentoReferencia(null);
+        }
+        
+        // 3. Validar Valor Unitário nos Itens
+        if (natureza.getExigeValorUnitario()) {
+            for (ItemPedidoRequest item : request.getItens()) {
+                if (item.getValorUnitario() == null) {
+                    throw new IllegalArgumentException(
+                        "Valor unitário obrigatório para: " + natureza.getDescricao()
+                    );
+                }
+            }
+        } else {
+            // Operação não exige valor: forçar ZERO em todos os itens
+            for (ItemPedidoRequest item : request.getItens()) {
+                item.setValorUnitario(BigDecimal.ZERO);
+            }
+        }
+        
+        // 4. Validar quantidade mínima de itens
+        if (request.getItens() == null || request.getItens().isEmpty()) {
+            throw new IllegalArgumentException("O pedido deve ter pelo menos um item");
+        }
     }
 
     public CursorResponse<PedidoResponse> listarTodos(Integer cursor, int limit) {
@@ -164,7 +228,7 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
                 
-        if ("CANCELADO".equalsIgnoreCase(pedido.getStatusPagamento())) {
+        if ("CANCELADO".equalsIgnoreCase(pedido.getStatus())) {
             throw new IllegalStateException("Pedido já está cancelado.");
         }
         
@@ -175,15 +239,19 @@ public class PedidoService {
             Produto produto = item.getProduto();
             
             if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
-                fifoService.estornarLoteCompra(item);
+                if (natureza.getExigeValorUnitario()) {
+                    fifoService.estornarLoteCompra(item);
+                }
             } else if (TipoMovimento.SAIDA.equals(natureza.getTipoMovimento())) {
-                fifoService.estornarVendaFifo(item);
+                if (natureza.getExigeValorUnitario()) {
+                    fifoService.estornarVendaFifo(item);
+                }
             }
             
             estoqueService.estornarMovimentacao(produto, natureza, pedido, item.getQuantidade());
         }
         
-        pedido.setStatusPagamento("CANCELADO");
+        pedido.setStatus("CANCELADO");
         pedidoRepository.save(pedido);
     }
 
@@ -209,7 +277,7 @@ public class PedidoService {
                 .clienteNome(pedido.getCliente() != null ? pedido.getCliente().getRazaoSocial() : "Consumidor Final")
                 .documentoReferencia(pedido.getDocumentoReferencia())
                 .valorTotal(pedido.getValorTotal())
-                .statusPagamento(pedido.getStatusPagamento())
+                .status(pedido.getStatus())
                 .dataEmissao(pedido.getDataEmissao())
                 .itens(itensResponse)
                 .build();

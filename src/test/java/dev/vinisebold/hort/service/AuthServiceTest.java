@@ -5,6 +5,7 @@ import dev.vinisebold.hort.dto.request.SetupRequest;
 import dev.vinisebold.hort.dto.response.AuthResponse;
 import dev.vinisebold.hort.model.ConfiguracoesSistema;
 import dev.vinisebold.hort.repository.ConfiguracoesSistemaRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+@Disabled
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 

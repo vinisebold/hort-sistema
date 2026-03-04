@@ -131,7 +131,7 @@ class EstoqueControllerTest {
                 .naturezaOperacao("Compra")
                 .clienteNome("Fornecedor ABC")
                 .valorTotal(new BigDecimal("200.00"))
-                .statusPagamento("PAGO")
+                .status("PAGO")
                 .dataEmissao(LocalDateTime.of(2026, 3, 1, 9, 0))
                 .build();
 

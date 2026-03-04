@@ -13,6 +13,12 @@ public class NaturezaOperacaoRequest {
     @NotNull(message = "O tipo de movimento (ENTRADA ou SAIDA) é obrigatório")
     private TipoMovimento tipoMovimento;
 
-    @NotNull(message = "Defina se gera financeiro")
-    private Boolean geraFinanceiro;
+    @NotNull(message = "Campo 'exigeCliente' é obrigatório")
+    private Boolean exigeCliente;
+
+    @NotNull(message = "Campo 'exigeValorUnitario' é obrigatório")
+    private Boolean exigeValorUnitario;
+
+    @NotNull(message = "Campo 'exigeStatus' é obrigatório")
+    private Boolean exigeStatus;
 }

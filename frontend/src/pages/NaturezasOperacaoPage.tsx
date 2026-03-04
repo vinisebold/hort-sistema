@@ -4,15 +4,9 @@ import {
   Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
   Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Chip, Snackbar, Alert, Fab
 } from '@mui/material'
-import { Add, Edit, TrendingUp, TrendingDown } from '@mui/icons-material'
+import { Add, Edit, TrendingUp, TrendingDown, CheckCircle, Cancel } from '@mui/icons-material'
 import { naturezasApi } from '../services/api'
-
-interface NaturezaOperacao {
-  id: number
-  descricao: string
-  tipoMovimento: string
-  geraFinanceiro: boolean
-}
+import { NaturezaOperacao } from '../types'
 
 export default function NaturezasOperacaoPage() {
   const [naturezas, setNaturezas] = useState<NaturezaOperacao[]>([])
@@ -22,8 +16,10 @@ export default function NaturezasOperacaoPage() {
   
   const [form, setForm] = useState({
     descricao: '',
-    tipoMovimento: 'SAIDA',
-    geraFinanceiro: true
+    tipoMovimento: 'SAIDA' as 'ENTRADA' | 'SAIDA',
+    exigeCliente: true,
+    exigeValorUnitario: true,
+    exigeStatus: true
   })
 
   useEffect(() => {
@@ -45,14 +41,18 @@ export default function NaturezasOperacaoPage() {
       setForm({
         descricao: natureza.descricao,
         tipoMovimento: natureza.tipoMovimento,
-        geraFinanceiro: natureza.geraFinanceiro
+        exigeCliente: natureza.exigeCliente,
+        exigeValorUnitario: natureza.exigeValorUnitario,
+        exigeStatus: natureza.exigeStatus
       })
     } else {
       setEditingId(null)
       setForm({
         descricao: '',
         tipoMovimento: 'SAIDA',
-        geraFinanceiro: true
+        exigeCliente: true,
+        exigeValorUnitario: true,
+        exigeStatus: true
       })
     }
     setOpen(true)
@@ -100,7 +100,9 @@ export default function NaturezasOperacaoPage() {
               <TableCell>ID</TableCell>
               <TableCell>Descrição</TableCell>
               <TableCell>Tipo de Movimento</TableCell>
-              <TableCell align="center">Gera Financeiro</TableCell>
+              <TableCell align="center">Exige Cliente</TableCell>
+              <TableCell align="center">Exige Valor Unit.</TableCell>
+              <TableCell align="center">Exige Status</TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
           </TableHead>
@@ -111,11 +113,25 @@ export default function NaturezasOperacaoPage() {
                 <TableCell>{natureza.descricao}</TableCell>
                 <TableCell>{getTipoChip(natureza.tipoMovimento)}</TableCell>
                 <TableCell align="center">
-                  <Chip 
-                    label={natureza.geraFinanceiro ? 'Sim' : 'Não'} 
-                    color={natureza.geraFinanceiro ? 'success' : 'default'}
-                    size="small"
-                  />
+                  {natureza.exigeCliente ? (
+                    <CheckCircle color="success" />
+                  ) : (
+                    <Cancel color="disabled" />
+                  )}
+                </TableCell>
+                <TableCell align="center">
+                  {natureza.exigeValorUnitario ? (
+                    <CheckCircle color="success" />
+                  ) : (
+                    <Cancel color="disabled" />
+                  )}
+                </TableCell>
+                <TableCell align="center">
+                  {natureza.exigeStatus ? (
+                    <CheckCircle color="success" />
+                  ) : (
+                    <Cancel color="disabled" />
+                  )}
                 </TableCell>
                 <TableCell align="center">
                   <IconButton onClick={() => handleOpen(natureza)}><Edit /></IconButton>
@@ -147,21 +163,41 @@ export default function NaturezasOperacaoPage() {
             <Select
               value={form.tipoMovimento}
               label="Tipo de Movimento"
-              onChange={(e) => setForm({ ...form, tipoMovimento: e.target.value })}
+              onChange={(e) => setForm({ ...form, tipoMovimento: e.target.value as 'ENTRADA' | 'SAIDA' })}
             >
               <MenuItem value="ENTRADA">📥 Entrada</MenuItem>
               <MenuItem value="SAIDA">📤 Saída</MenuItem>
             </Select>
           </FormControl>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={form.geraFinanceiro}
-                onChange={(e) => setForm({ ...form, geraFinanceiro: e.target.checked })}
-              />
-            }
-            label="Gera Financeiro"
-          />
+          <Box sx={{ mt: 2 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={form.exigeCliente}
+                  onChange={(e) => setForm({ ...form, exigeCliente: e.target.checked })}
+                />
+              }
+              label="Exige Cliente"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={form.exigeValorUnitario}
+                  onChange={(e) => setForm({ ...form, exigeValorUnitario: e.target.checked })}
+                />
+              }
+              label="Exige Valor Unitário"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={form.exigeStatus}
+                  onChange={(e) => setForm({ ...form, exigeStatus: e.target.checked })}
+                />
+              }
+              label="Exige Status"
+            />
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>

@@ -10,5 +10,7 @@ public class NaturezaOperacaoResponse {
     private Integer id;
     private String descricao;
     private TipoMovimento tipoMovimento;
-    private Boolean geraFinanceiro;
+    private Boolean exigeCliente;
+    private Boolean exigeValorUnitario;
+    private Boolean exigeStatus;
 }

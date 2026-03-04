@@ -123,7 +123,7 @@ public class EstoqueService {
                     .naturezaOperacao(pedido.getNaturezaOperacao().getDescricao())
                     .clienteNome(pedido.getCliente() != null ? pedido.getCliente().getRazaoSocial() : null)
                     .valorTotal(pedido.getValorTotal())
-                    .statusPagamento(pedido.getStatusPagamento())
+                    .status(pedido.getStatus())
                     .dataEmissao(pedido.getDataEmissao())
                     .build();
 

@@ -45,12 +45,15 @@ class NaturezaOperacaoControllerTest {
     // ---------------------------------------------------------------------------
 
     private NaturezaOperacaoResponse criarResponse(Integer id, String descricao,
-                                                    TipoMovimento tipoMovimento, Boolean geraFinanceiro) {
+                                                    TipoMovimento tipoMovimento, Boolean exigeCliente,
+                                                    Boolean exigeValorUnitario, Boolean exigeStatus) {
         return NaturezaOperacaoResponse.builder()
                 .id(id)
                 .descricao(descricao)
                 .tipoMovimento(tipoMovimento)
-                .geraFinanceiro(geraFinanceiro)
+                .exigeCliente(exigeCliente)
+                .exigeValorUnitario(exigeValorUnitario)
+                .exigeStatus(exigeStatus)
                 .build();
     }
 
@@ -65,7 +68,7 @@ class NaturezaOperacaoControllerTest {
         @Test
         @DisplayName("Deve retornar 201 ao criar natureza de operacao com sucesso")
         void deveRetornar201AoCriarComSucesso() throws Exception {
-            NaturezaOperacaoResponse response = criarResponse(1, "Compra", TipoMovimento.ENTRADA, true);
+            NaturezaOperacaoResponse response = criarResponse(1, "Compra", TipoMovimento.ENTRADA, true, true, true);
 
             when(service.criar(any(NaturezaOperacaoRequest.class))).thenReturn(response);
 
@@ -73,7 +76,9 @@ class NaturezaOperacaoControllerTest {
                     {
                         "descricao": "Compra",
                         "tipoMovimento": "ENTRADA",
-                        "geraFinanceiro": true
+                        "exigeCliente": true,
+                        "exigeValorUnitario": true,
+                        "exigeStatus": true
                     }
                     """;
 
@@ -84,7 +89,9 @@ class NaturezaOperacaoControllerTest {
                     .andExpect(jsonPath("$.id").value(1))
                     .andExpect(jsonPath("$.descricao").value("Compra"))
                     .andExpect(jsonPath("$.tipoMovimento").value("ENTRADA"))
-                    .andExpect(jsonPath("$.geraFinanceiro").value(true));
+                    .andExpect(jsonPath("$.exigeCliente").value(true))
+                    .andExpect(jsonPath("$.exigeValorUnitario").value(true))
+                    .andExpect(jsonPath("$.exigeStatus").value(true));
         }
 
         @Test
@@ -94,7 +101,9 @@ class NaturezaOperacaoControllerTest {
                     {
                         "descricao": "",
                         "tipoMovimento": "ENTRADA",
-                        "geraFinanceiro": true
+                        "exigeCliente": true,
+                        "exigeValorUnitario": true,
+                        "exigeStatus": true
                     }
                     """;
 
@@ -107,13 +116,15 @@ class NaturezaOperacaoControllerTest {
         }
 
         @Test
-        @DisplayName("Deve retornar 400 quando geraFinanceiro for nulo")
-        void deveRetornar400QuandoGeraFinanceiroNulo() throws Exception {
+        @DisplayName("Deve retornar 400 quando exigeCliente for nulo")
+        void deveRetornar400QuandoExigeClienteNulo() throws Exception {
             String requestJson = """
                     {
                         "descricao": "Compra",
                         "tipoMovimento": "ENTRADA",
-                        "geraFinanceiro": null
+                        "exigeCliente": null,
+                        "exigeValorUnitario": true,
+                        "exigeStatus": true
                     }
                     """;
 
@@ -137,8 +148,8 @@ class NaturezaOperacaoControllerTest {
         @Test
         @DisplayName("Deve retornar 200 com lista de naturezas de operacao")
         void deveRetornar200ComLista() throws Exception {
-            NaturezaOperacaoResponse no1 = criarResponse(1, "Compra", TipoMovimento.ENTRADA, true);
-            NaturezaOperacaoResponse no2 = criarResponse(2, "Venda", TipoMovimento.SAIDA, true);
+            NaturezaOperacaoResponse no1 = criarResponse(1, "Compra", TipoMovimento.ENTRADA, true, true, true);
+            NaturezaOperacaoResponse no2 = criarResponse(2, "Venda", TipoMovimento.SAIDA, true, true, true);
 
             when(service.listarTodos()).thenReturn(List.of(no1, no2));
 
@@ -165,7 +176,7 @@ class NaturezaOperacaoControllerTest {
         @Test
         @DisplayName("Deve retornar 200 ao buscar natureza de operacao por id")
         void deveRetornar200AoBuscarPorId() throws Exception {
-            NaturezaOperacaoResponse response = criarResponse(1, "Compra", TipoMovimento.ENTRADA, true);
+            NaturezaOperacaoResponse response = criarResponse(1, "Compra", TipoMovimento.ENTRADA, true, true, true);
 
             when(service.buscarPorId(1)).thenReturn(response);
 
@@ -174,7 +185,9 @@ class NaturezaOperacaoControllerTest {
                     .andExpect(jsonPath("$.id").value(1))
                     .andExpect(jsonPath("$.descricao").value("Compra"))
                     .andExpect(jsonPath("$.tipoMovimento").value("ENTRADA"))
-                    .andExpect(jsonPath("$.geraFinanceiro").value(true));
+                    .andExpect(jsonPath("$.exigeCliente").value(true))
+                    .andExpect(jsonPath("$.exigeValorUnitario").value(true))
+                    .andExpect(jsonPath("$.exigeStatus").value(true));
         }
 
         @Test
@@ -202,7 +215,7 @@ class NaturezaOperacaoControllerTest {
         @Test
         @DisplayName("Deve retornar 200 ao atualizar natureza de operacao com sucesso")
         void deveRetornar200AoAtualizarComSucesso() throws Exception {
-            NaturezaOperacaoResponse response = criarResponse(1, "Venda Direta", TipoMovimento.SAIDA, false);
+            NaturezaOperacaoResponse response = criarResponse(1, "Venda Direta", TipoMovimento.SAIDA, true, true, false);
 
             when(service.atualizar(eq(1), any(NaturezaOperacaoRequest.class))).thenReturn(response);
 
@@ -210,7 +223,9 @@ class NaturezaOperacaoControllerTest {
                     {
                         "descricao": "Venda Direta",
                         "tipoMovimento": "SAIDA",
-                        "geraFinanceiro": false
+                        "exigeCliente": true,
+                        "exigeValorUnitario": true,
+                        "exigeStatus": false
                     }
                     """;
 
@@ -221,7 +236,9 @@ class NaturezaOperacaoControllerTest {
                     .andExpect(jsonPath("$.id").value(1))
                     .andExpect(jsonPath("$.descricao").value("Venda Direta"))
                     .andExpect(jsonPath("$.tipoMovimento").value("SAIDA"))
-                    .andExpect(jsonPath("$.geraFinanceiro").value(false));
+                    .andExpect(jsonPath("$.exigeCliente").value(true))
+                    .andExpect(jsonPath("$.exigeValorUnitario").value(true))
+                    .andExpect(jsonPath("$.exigeStatus").value(false));
         }
     }
 }

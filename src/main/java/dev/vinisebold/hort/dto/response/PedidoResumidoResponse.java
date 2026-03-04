@@ -12,6 +12,6 @@ public class PedidoResumidoResponse {
     private String naturezaOperacao;
     private String clienteNome;
     private BigDecimal valorTotal;
-    private String statusPagamento;
+    private String status;
     private LocalDateTime dataEmissao;
 }
