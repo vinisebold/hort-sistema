@@ -2,8 +2,8 @@ import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Alert, Checkbox, CircularProgress, Menu, MenuItem
+  IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, Alert, Checkbox, CircularProgress, Menu, MenuItem, Card, CardContent
 } from '@mui/material'
 import { Add, Visibility, MoreVert, ArrowDownward, ArrowUpward, ArrowBack } from '@mui/icons-material'
 import { pedidosApi, naturezasApi } from '../services/api'
@@ -205,72 +205,106 @@ export default function PedidosPage() {
 
   return (
     <Box>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  indeterminate={selectedIds.length > 0 && selectedIds.length < pedidos.length}
-                  checked={pedidos.length > 0 && selectedIds.length === pedidos.length}
-                  onChange={handleSelectAll}
-                />
-              </TableCell>
-              <TableCell>Série/Número</TableCell>
-              <TableCell>Data</TableCell>
-              <TableCell>Cliente</TableCell>
-              <TableCell align="right" sx={{ pr: 6 }}>Valor (R$)</TableCell>
-              <TableCell sx={{ pl: 6, pr: 1.5 }}>Status</TableCell>
-              <TableCell sx={{ pl: 1.5 }}>Tipo/Origem</TableCell>
-              <TableCell align="center"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {pedidos.map((pedido) => (
-              <TableRow
-                key={pedido.id}
-                ref={(el) => { pedidoRefs.current[pedido.id] = el }}
-                selected={selectedIds.includes(pedido.id)}
-                sx={{
-                  backgroundColor: highlightedId === pedido.id ? 'rgba(25, 118, 210, 0.15)' : 'transparent',
-                  transition: 'background-color 3s ease-out',
-                }}
-              >
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={selectedIds.includes(pedido.id)}
-                    onChange={() => handleSelectOne(pedido.id)}
-                  />
-                </TableCell>
-                <TableCell>{pedido.id}</TableCell>
-                <TableCell>{new Date(pedido.dataEmissao).toLocaleDateString('pt-BR')}</TableCell>
-                <TableCell>{pedido.clienteNome}</TableCell>
-                <TableCell align="right" sx={{ pr: 6 }}>R$ {pedido.valorTotal.toFixed(2)}</TableCell>
-                <TableCell sx={{ pl: 6, pr: 1.5 }}>
-                  {pedido.status ? (
-                    <Chip
-                      label={pedido.status}
-                      color={getStatusColor(pedido.status)}
-                      size="small"
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 300, color: '#333', mb: 1 }}>
+          Pedidos
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#888' }}>
+          Gerencie pedidos de vendas e compras
+        </Typography>
+      </Box>
+
+      <Card sx={{ boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
+        <CardContent sx={{ p: 0 }}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell padding="checkbox" sx={{ bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }}>
+                    <Checkbox
+                      indeterminate={selectedIds.length > 0 && selectedIds.length < pedidos.length}
+                      checked={pedidos.length > 0 && selectedIds.length === pedidos.length}
+                      onChange={handleSelectAll}
                     />
-                  ) : (
-                    <Chip label="N/A" color="default" size="small" />
-                  )}
-                </TableCell>
-                <TableCell sx={{ pl: 1.5 }}>{getNaturezaChip(typeof pedido.naturezaOperacao === 'string' ? pedido.naturezaOperacao : pedido.naturezaOperacao?.descricao || '')}</TableCell>
-                <TableCell align="center">
-                  <IconButton onClick={() => handleView(pedido.id)} title="Visualizar">
-                    <Visibility />
-                  </IconButton>
-                  <IconButton onClick={(e) => handleMenuOpen(e, pedido)} title="Mais opções">
-                    <MoreVert />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }}>
+                    Cliente
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }}>
+                    Tipo/Origem
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }}>
+                    Valor
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }}>
+                    Status
+                  </TableCell>
+                  <TableCell align="center" sx={{ bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }}></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {pedidos.map((pedido) => (
+                  <TableRow
+                    key={pedido.id}
+                    ref={(el) => { pedidoRefs.current[pedido.id] = el }}
+                    selected={selectedIds.includes(pedido.id)}
+                    sx={{
+                      backgroundColor: highlightedId === pedido.id ? 'rgba(25, 118, 210, 0.15)' : 'transparent',
+                      transition: 'background-color 3s ease-out',
+                      '&:hover': { bgcolor: '#f8f9fa' },
+                      '&.Mui-selected': { bgcolor: '#e3f2fd' },
+                      '&.Mui-selected:hover': { bgcolor: '#bbdefb' }
+                    }}
+                  >
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedIds.includes(pedido.id)}
+                        onChange={() => handleSelectOne(pedido.id)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box>
+                        <Typography variant="body1" sx={{ fontWeight: 500, color: '#333', mb: 0.5 }}>
+                          {pedido.clienteNome}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#888' }}>
+                          Pedido #{pedido.id} • {new Date(pedido.dataEmissao).toLocaleDateString('pt-BR')}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem', color: '#555' }}>
+                      {getNaturezaChip(typeof pedido.naturezaOperacao === 'string' ? pedido.naturezaOperacao : pedido.naturezaOperacao?.descricao || '')}
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontSize: '0.95rem', fontWeight: 500, color: '#333' }}>
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(pedido.valorTotal)}
+                    </TableCell>
+                    <TableCell>
+                      {pedido.status ? (
+                        <Chip
+                          label={pedido.status}
+                          color={getStatusColor(pedido.status)}
+                          size="small"
+                          sx={{ fontSize: '0.75rem' }}
+                        />
+                      ) : (
+                        <Chip label="N/A" color="default" size="small" sx={{ fontSize: '0.75rem' }} />
+                      )}
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton onClick={() => handleView(pedido.id)} title="Visualizar" size="small">
+                        <Visibility />
+                      </IconButton>
+                      <IconButton onClick={(e) => handleMenuOpen(e, pedido)} title="Mais opções" size="small">
+                        <MoreVert />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
 
       {hasNext && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
@@ -381,68 +415,120 @@ export default function PedidosPage() {
 
       {/* Dialog Visualizar Pedido */}
       <Dialog open={openView} onClose={() => setOpenView(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
-          Pedido {selectedPedido?.id}
-          {selectedPedido?.status === 'CANCELADO' && (
-            <Chip label="CANCELADO" color="error" size="small" sx={{ ml: 1 }} />
-          )}
+        <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 300, color: '#333' }}>
+              Pedido #{selectedPedido?.id}
+            </Typography>
+            {selectedPedido?.status === 'CANCELADO' && (
+              <Chip label="CANCELADO" color="error" size="small" />
+            )}
+          </Box>
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ pt: 3 }}>
           {selectedPedido && (
             <Box>
-              <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
+              <Box sx={{ display: 'flex', gap: 4, mb: 4, flexWrap: 'wrap' }}>
                 <Box>
-                  <Typography variant="body2" color="text.secondary">Data</Typography>
-                  <Typography>{new Date(selectedPedido.dataEmissao).toLocaleString('pt-BR')}</Typography>
+                  <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
+                    Cliente
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 500, color: '#333' }}>
+                    {selectedPedido.clienteNome}
+                  </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="text.secondary">Natureza</Typography>
-                  {getNaturezaChip(typeof selectedPedido.naturezaOperacao === 'string' ? selectedPedido.naturezaOperacao : selectedPedido.naturezaOperacao?.descricao || '')}
+                  <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
+                    Data
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: '#555' }}>
+                    {new Date(selectedPedido.dataEmissao).toLocaleString('pt-BR')}
+                  </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="text.secondary">Cliente</Typography>
-                  <Typography>{selectedPedido.clienteNome}</Typography>
+                  <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
+                    Natureza
+                  </Typography>
+                  <Box sx={{ mt: 0.5 }}>
+                    {getNaturezaChip(typeof selectedPedido.naturezaOperacao === 'string' ? selectedPedido.naturezaOperacao : selectedPedido.naturezaOperacao?.descricao || '')}
+                  </Box>
                 </Box>
                 {selectedPedido.status && (
                   <Box>
-                    <Typography variant="body2" color="text.secondary">Status</Typography>
-                    <Chip
-                      label={selectedPedido.status}
-                      color={getStatusColor(selectedPedido.status)}
-                    />
+                    <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
+                      Status
+                    </Typography>
+                    <Box sx={{ mt: 0.5 }}>
+                      <Chip
+                        label={selectedPedido.status}
+                        color={getStatusColor(selectedPedido.status)}
+                        size="small"
+                        sx={{ fontSize: '0.75rem' }}
+                      />
+                    </Box>
                   </Box>
                 )}
               </Box>
 
-              <Typography variant="h6" gutterBottom>Itens</Typography>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Produto</TableCell>
-                    <TableCell align="right">Qtd</TableCell>
-                    <TableCell align="right">Valor Unit.</TableCell>
-                    <TableCell align="right">Total</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {selectedPedido.itens?.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{item.produtoDescricao}</TableCell>
-                      <TableCell align="right">{item.quantidade}</TableCell>
-                      <TableCell align="right">R$ {item.valorUnitario.toFixed(2)}</TableCell>
-                      <TableCell align="right">R$ {item.valorTotal.toFixed(2)}</TableCell>
+              <Typography variant="h6" sx={{ mb: 2, fontSize: '1rem', fontWeight: 500, color: '#333' }}>
+                Itens do Pedido
+              </Typography>
+              <TableContainer sx={{ bgcolor: '#fafafa', borderRadius: 1, mb: 2 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd' }}>
+                        Produto
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd' }}>
+                        Qtd
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd' }}>
+                        Valor Unit.
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd' }}>
+                        Total
+                      </TableCell>
                     </TableRow>
-                  ))}
-                  <TableRow>
-                    <TableCell colSpan={3} align="right"><strong>TOTAL:</strong></TableCell>
-                    <TableCell align="right"><strong>R$ {selectedPedido.valorTotal.toFixed(2)}</strong></TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    {selectedPedido.itens?.map((item, index) => (
+                      <TableRow 
+                        key={index}
+                        sx={{ 
+                          '&:hover': { bgcolor: 'rgba(0,0,0,0.02)' },
+                          '& td': { borderBottom: '1px solid #eee' }
+                        }}
+                      >
+                        <TableCell sx={{ fontSize: '0.875rem', color: '#555' }}>
+                          {item.produtoDescricao}
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontSize: '0.875rem', color: '#555' }}>
+                          {item.quantidade}
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontSize: '0.875rem', color: '#555' }}>
+                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valorUnitario)}
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontSize: '0.875rem', color: '#555' }}>
+                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valorTotal)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow sx={{ bgcolor: 'white' }}>
+                      <TableCell colSpan={3} align="right" sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#333', borderBottom: 'none', pt: 2 }}>
+                        TOTAL:
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600, fontSize: '0.95rem', color: '#333', borderBottom: 'none', pt: 2 }}>
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedPedido.valorTotal)}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ borderTop: '1px solid #eee', pt: 2 }}>
           {selectedPedido?.status !== 'CANCELADO' && (
             <Button
               color="error"
@@ -454,7 +540,7 @@ export default function PedidosPage() {
               Cancelar Pedido
             </Button>
           )}
-          <Button onClick={() => setOpenView(false)}>Fechar</Button>
+          <Button onClick={() => setOpenView(false)} variant="contained">Fechar</Button>
         </DialogActions>
       </Dialog>
 
