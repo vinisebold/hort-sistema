@@ -3,10 +3,10 @@ import { useState } from 'react'
 import {
     Box,
     Card,
+    CardContent,
     Typography,
     Grid2 as Grid,
     Link,
-    Paper,
     Button,
     Dialog,
     DialogTitle,
@@ -14,7 +14,6 @@ import {
     DialogActions,
     TextField,
     FormControl,
-    InputLabel,
     Select,
     MenuItem,
     Alert
@@ -189,15 +188,28 @@ export default function HomePage() {
 
     return (
         <Box sx={{ maxWidth: 1200, margin: '0 auto' }}>
+            {/* Header */}
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h4" sx={{ fontWeight: 300, color: '#333', mb: 1 }}>
+                    Página Inicial
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#888' }}>
+                    Acesse rapidamente as principais funcionalidades do sistema e crie novos cadastros
+                </Typography>
+            </Box>
 
             <Grid container spacing={3}>
 
                 {/* COLUNA ESQUERDA - Acesso Rápido e Ajuda */}
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <Card elevation={0} sx={{ height: '100%', bgcolor: 'transparent' }}>
-                        {/* Acesso Rápido */}
-                        <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
-                            <Typography variant="h6" gutterBottom sx={{ mb: 2, fontSize: '24px' }}>
+                    {/* Acesso Rápido */}
+                    <Card elevation={0} sx={{ 
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.05)', 
+                        borderRadius: 2,
+                        mb: 3 
+                    }}>
+                        <CardContent>
+                            <Typography variant="h6" gutterBottom sx={{ mb: 2, fontSize: '1.125rem', fontWeight: 500, color: '#333' }}>
                                 Acesso rápido
                             </Typography>
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -222,7 +234,7 @@ export default function HomePage() {
                                     </Link>
                                 ))}
                             </Box>
-                        </Paper>
+                        </CardContent>
                     </Card>
                 </Grid>
 
@@ -230,45 +242,50 @@ export default function HomePage() {
                 <Grid size={{ xs: 12, md: 8 }}>
 
                     {/* Cadastros Rápidos Grid */}
-                    <Paper elevation={0} sx={{ p: 3 }}>
-                        <Typography variant="h6" gutterBottom sx={{ mb: 3, fontSize: '24px' }}>
-                            Cadastros rápidos
-                        </Typography>
-                        <Grid container spacing={2}>
-                            {cadastrosRapidos.map((item) => (
-                                <Grid size={{ xs: 12, sm: 6 }} key={item.label}>
-                                    <Button
-                                        variant="outlined"
-                                        fullWidth
-                                        onClick={() => openModal(item.type)}
-                                        startIcon={<Box component="span" sx={{ color: '#039be5', display: 'flex', alignItems: 'center' }}>{item.icon}</Box>}
-                                        endIcon={<ArrowForward fontSize="small" sx={{ color: '#bdbdbd' }} />}
-                                        sx={{
-                                            justifyContent: 'flex-start',
-                                            py: 2,
-                                            px: 3,
-                                            color: '#424242',
-                                            borderColor: '#e0e0e0',
-                                            bgcolor: '#eeeeee',
-                                            border: 'none',
-                                            fontSize: '15px',
-                                            '&:hover': {
-                                                bgcolor: '#e0e0e0',
-                                                border: 'none'
-                                            },
-                                            '& .MuiButton-endIcon': {
-                                                marginLeft: 'auto'
-                                            },
-                                            textTransform: 'none',
-                                            fontWeight: 400
-                                        }}
-                                    >
-                                        {item.label}
-                                    </Button>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Paper>
+                    <Card elevation={0} sx={{ 
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.05)', 
+                        borderRadius: 2 
+                    }}>
+                        <CardContent>
+                            <Typography variant="h6" gutterBottom sx={{ mb: 3, fontSize: '1.125rem', fontWeight: 500, color: '#333' }}>
+                                Cadastros rápidos
+                            </Typography>
+                            <Grid container spacing={2}>
+                                {cadastrosRapidos.map((item) => (
+                                    <Grid size={{ xs: 12, sm: 6 }} key={item.label}>
+                                        <Button
+                                            variant="outlined"
+                                            fullWidth
+                                            onClick={() => openModal(item.type)}
+                                            startIcon={<Box component="span" sx={{ color: '#039be5', display: 'flex', alignItems: 'center' }}>{item.icon}</Box>}
+                                            endIcon={<ArrowForward fontSize="small" sx={{ color: '#bdbdbd' }} />}
+                                            sx={{
+                                                justifyContent: 'flex-start',
+                                                py: 2,
+                                                px: 3,
+                                                color: '#424242',
+                                                borderColor: '#e0e0e0',
+                                                bgcolor: '#eeeeee',
+                                                border: 'none',
+                                                fontSize: '15px',
+                                                '&:hover': {
+                                                    bgcolor: '#e0e0e0',
+                                                    border: 'none'
+                                                },
+                                                '& .MuiButton-endIcon': {
+                                                    marginLeft: 'auto'
+                                                },
+                                                textTransform: 'none',
+                                                fontWeight: 400
+                                            }}
+                                        >
+                                            {item.label}
+                                        </Button>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </CardContent>
+                    </Card>
 
                 </Grid>
             </Grid>
@@ -277,32 +294,45 @@ export default function HomePage() {
 
             {/* Dialog Produto */}
             <Dialog open={formState.type === 'produto'} onClose={closeModal} maxWidth="sm" fullWidth>
-                <DialogTitle>Novo Produto</DialogTitle>
-                <DialogContent sx={{ pt: 2 }}>
+                <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>Novo Produto</DialogTitle>
+                <DialogContent sx={{ pt: 3 }}>
                     {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
-                    <TextField
-                        fullWidth
-                        label="Descrição"
-                        value={produtoForm.descricao}
-                        onChange={(e) => setProdutoForm({ ...produtoForm, descricao: e.target.value })}
-                        margin="normal"
-                        required
-                    />
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel>Unidade de Medida</InputLabel>
-                        <Select
-                            value={produtoForm.unidadeMedidaId}
-                            label="Unidade de Medida"
-                            onChange={(e) => setProdutoForm({ ...produtoForm, unidadeMedidaId: e.target.value })}
-                        >
-                            {unidades.map((u) => (
-                                <MenuItem key={u.id} value={u.id}>{u.sigla} - {u.descricao}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
+                            Descrição *
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            value={produtoForm.descricao}
+                            onChange={(e) => setProdutoForm({ ...produtoForm, descricao: e.target.value })}
+                            placeholder="Ex: Tomate Salada"
+                        />
+                    </Box>
+
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
+                            Unidade de Medida *
+                        </Typography>
+                        <FormControl fullWidth size="small">
+                            <Select
+                                value={produtoForm.unidadeMedidaId}
+                                onChange={(e) => setProdutoForm({ ...produtoForm, unidadeMedidaId: e.target.value })}
+                                displayEmpty
+                            >
+                                <MenuItem value="" disabled>
+                                    Selecione uma unidade
+                                </MenuItem>
+                                {unidades.map((u) => (
+                                    <MenuItem key={u.id} value={u.id}>{u.sigla} - {u.descricao}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={closeModal}>Cancelar</Button>
+                <DialogActions sx={{ borderTop: '1px solid #eee', p: 2 }}>
+                    <Button onClick={closeModal} sx={{ color: '#666' }}>Cancelar</Button>
                     <Button onClick={handleSaveProduto} variant="contained" disabled={formState.loading}>
                         Criar
                     </Button>
@@ -311,40 +341,53 @@ export default function HomePage() {
 
             {/* Dialog Cliente */}
             <Dialog open={formState.type === 'cliente'} onClose={closeModal} maxWidth="sm" fullWidth>
-                <DialogTitle>Novo Cliente</DialogTitle>
-                <DialogContent sx={{ pt: 2 }}>
+                <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>Novo Cliente</DialogTitle>
+                <DialogContent sx={{ pt: 3 }}>
                     {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel>Tipo de Pessoa</InputLabel>
-                        <Select
-                            value={clienteForm.tipoPessoa}
-                            label="Tipo de Pessoa"
-                            onChange={(e) => setClienteForm({ ...clienteForm, tipoPessoa: e.target.value })}
-                        >
-                            <MenuItem value="JURIDICA">Jurídica (CNPJ)</MenuItem>
-                            <MenuItem value="FISICA">Física (CPF)</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <TextField
-                        fullWidth
-                        label={clienteForm.tipoPessoa === 'JURIDICA' ? 'Razão Social' : 'Nome'}
-                        value={clienteForm.razaoSocial}
-                        onChange={(e) => setClienteForm({ ...clienteForm, razaoSocial: e.target.value })}
-                        margin="normal"
-                        required
-                    />
-                    <TextField
-                        fullWidth
-                        label={clienteForm.tipoPessoa === 'JURIDICA' ? 'CNPJ' : 'CPF'}
-                        value={clienteForm.documento}
-                        onChange={(e) => setClienteForm({ ...clienteForm, documento: e.target.value })}
-                        margin="normal"
-                        required
-                        placeholder={clienteForm.tipoPessoa === 'JURIDICA' ? '00.000.000/0000-00' : '000.000.000-00'}
-                    />
+                    
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
+                            Tipo de Pessoa *
+                        </Typography>
+                        <FormControl fullWidth size="small">
+                            <Select
+                                value={clienteForm.tipoPessoa}
+                                onChange={(e) => setClienteForm({ ...clienteForm, tipoPessoa: e.target.value })}
+                            >
+                                <MenuItem value="JURIDICA">Jurídica (CNPJ)</MenuItem>
+                                <MenuItem value="FISICA">Física (CPF)</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
+                            {clienteForm.tipoPessoa === 'JURIDICA' ? 'Razão Social *' : 'Nome *'}
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            value={clienteForm.razaoSocial}
+                            onChange={(e) => setClienteForm({ ...clienteForm, razaoSocial: e.target.value })}
+                            placeholder={clienteForm.tipoPessoa === 'JURIDICA' ? 'Ex: Empresa LTDA' : 'Ex: João da Silva'}
+                        />
+                    </Box>
+
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
+                            {clienteForm.tipoPessoa === 'JURIDICA' ? 'CNPJ *' : 'CPF *'}
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            value={clienteForm.documento}
+                            onChange={(e) => setClienteForm({ ...clienteForm, documento: e.target.value })}
+                            placeholder={clienteForm.tipoPessoa === 'JURIDICA' ? '00.000.000/0000-00' : '000.000.000-00'}
+                        />
+                    </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={closeModal}>Cancelar</Button>
+                <DialogActions sx={{ borderTop: '1px solid #eee', p: 2 }}>
+                    <Button onClick={closeModal} sx={{ color: '#666' }}>Cancelar</Button>
                     <Button onClick={handleSaveCliente} variant="contained" disabled={formState.loading}>
                         Criar
                     </Button>
@@ -353,29 +396,39 @@ export default function HomePage() {
 
             {/* Dialog Unidade de Medida */}
             <Dialog open={formState.type === 'unidade'} onClose={closeModal} maxWidth="sm" fullWidth>
-                <DialogTitle>Nova Unidade de Medida</DialogTitle>
-                <DialogContent sx={{ pt: 2 }}>
+                <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>Nova Unidade de Medida</DialogTitle>
+                <DialogContent sx={{ pt: 3 }}>
                     {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
-                    <TextField
-                        fullWidth
-                        label="Sigla"
-                        value={unidadeForm.sigla}
-                        onChange={(e) => setUnidadeForm({ ...unidadeForm, sigla: e.target.value })}
-                        margin="normal"
-                        required
-                        inputProps={{ maxLength: 10 }}
-                    />
-                    <TextField
-                        fullWidth
-                        label="Descrição"
-                        value={unidadeForm.descricao}
-                        onChange={(e) => setUnidadeForm({ ...unidadeForm, descricao: e.target.value })}
-                        margin="normal"
-                        required
-                    />
+                    
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
+                            Sigla *
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            value={unidadeForm.sigla}
+                            onChange={(e) => setUnidadeForm({ ...unidadeForm, sigla: e.target.value })}
+                            inputProps={{ maxLength: 10 }}
+                            placeholder="Ex: UN, KG, CX"
+                        />
+                    </Box>
+
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
+                            Descrição *
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            value={unidadeForm.descricao}
+                            onChange={(e) => setUnidadeForm({ ...unidadeForm, descricao: e.target.value })}
+                            placeholder="Ex: Unidade, Quilograma, Caixa"
+                        />
+                    </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={closeModal}>Cancelar</Button>
+                <DialogActions sx={{ borderTop: '1px solid #eee', p: 2 }}>
+                    <Button onClick={closeModal} sx={{ color: '#666' }}>Cancelar</Button>
                     <Button onClick={handleSaveUnidade} variant="contained" disabled={formState.loading}>
                         Criar
                     </Button>
@@ -384,31 +437,40 @@ export default function HomePage() {
 
             {/* Dialog Natureza de Operação */}
             <Dialog open={formState.type === 'natureza'} onClose={closeModal} maxWidth="sm" fullWidth>
-                <DialogTitle>Nova Natureza de Operação</DialogTitle>
-                <DialogContent sx={{ pt: 2 }}>
+                <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>Nova Natureza de Operação</DialogTitle>
+                <DialogContent sx={{ pt: 3 }}>
                     {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
-                    <TextField
-                        fullWidth
-                        label="Descrição"
-                        value={naturezaForm.descricao}
-                        onChange={(e) => setNaturezaForm({ ...naturezaForm, descricao: e.target.value })}
-                        margin="normal"
-                        required
-                    />
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel>Tipo de Movimento</InputLabel>
-                        <Select
-                            value={naturezaForm.tipoMovimento}
-                            label="Tipo de Movimento"
-                            onChange={(e) => setNaturezaForm({ ...naturezaForm, tipoMovimento: e.target.value })}
-                        >
-                            <MenuItem value="ENTRADA">Entrada</MenuItem>
-                            <MenuItem value="SAIDA">Saída</MenuItem>
-                        </Select>
-                    </FormControl>
+                    
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
+                            Descrição *
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            value={naturezaForm.descricao}
+                            onChange={(e) => setNaturezaForm({ ...naturezaForm, descricao: e.target.value })}
+                            placeholder="Ex: Venda, Compra, Devolução"
+                        />
+                    </Box>
+
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
+                            Tipo de Movimento *
+                        </Typography>
+                        <FormControl fullWidth size="small">
+                            <Select
+                                value={naturezaForm.tipoMovimento}
+                                onChange={(e) => setNaturezaForm({ ...naturezaForm, tipoMovimento: e.target.value })}
+                            >
+                                <MenuItem value="ENTRADA">Entrada</MenuItem>
+                                <MenuItem value="SAIDA">Saída</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={closeModal}>Cancelar</Button>
+                <DialogActions sx={{ borderTop: '1px solid #eee', p: 2 }}>
+                    <Button onClick={closeModal} sx={{ color: '#666' }}>Cancelar</Button>
                     <Button onClick={handleSaveNatureza} variant="contained" disabled={formState.loading}>
                         Criar
                     </Button>
