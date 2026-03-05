@@ -50,13 +50,11 @@ export default function NovoUnidadeMedidaPage() {
     try {
       if (isEditing) {
         await unidadesMedidaApi.atualizar(Number(id), form)
-        setSnackbar({ open: true, message: 'Unidade de medida atualizada!', severity: 'success' })
       } else {
         await unidadesMedidaApi.criar(form)
-        setSnackbar({ open: true, message: 'Unidade de medida criada!', severity: 'success' })
       }
 
-      setTimeout(() => navigate('/unidades-medida'), 1500)
+      navigate('/unidades-medida')
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar', severity: 'error' })
     } finally {

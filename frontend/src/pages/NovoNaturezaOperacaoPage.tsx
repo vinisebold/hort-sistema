@@ -58,13 +58,11 @@ export default function NovoNaturezaOperacaoPage() {
     try {
       if (isEditing) {
         await naturezasApi.atualizar(Number(id), form)
-        setSnackbar({ open: true, message: 'Natureza de operação atualizada!', severity: 'success' })
       } else {
         await naturezasApi.criar(form)
-        setSnackbar({ open: true, message: 'Natureza de operação criada!', severity: 'success' })
       }
 
-      setTimeout(() => navigate('/naturezas-operacao'), 1500)
+      navigate('/naturezas-operacao')
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar', severity: 'error' })
     } finally {

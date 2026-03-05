@@ -72,13 +72,11 @@ export default function NovoProdutoPage() {
 
       if (isEditing) {
         await produtosApi.atualizar(Number(id), data)
-        setSnackbar({ open: true, message: 'Produto atualizado com sucesso!', severity: 'success' })
       } else {
         await produtosApi.criar(data)
-        setSnackbar({ open: true, message: 'Produto criado com sucesso!', severity: 'success' })
       }
 
-      setTimeout(() => navigate('/produtos'), 1500)
+      navigate('/produtos')
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar produto', severity: 'error' })
     } finally {

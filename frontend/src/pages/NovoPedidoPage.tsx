@@ -225,13 +225,11 @@ export default function NovoPedidoPage() {
 
       if (isEditing) {
         await pedidosApi.atualizar(Number(id), payload)
-        setSnackbar({ open: true, message: 'Pedido atualizado com sucesso!', severity: 'success' })
       } else {
         await pedidosApi.criar(payload)
-        setSnackbar({ open: true, message: 'Pedido criado com sucesso!', severity: 'success' })
       }
 
-      setTimeout(() => navigate('/pedidos'), 1000)
+      navigate('/pedidos')
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar pedido', severity: 'error' })
     } finally {

@@ -155,13 +155,11 @@ export default function NovoClientePage() {
 
       if (isEditing) {
         await clientesApi.atualizar(Number(id), data)
-        setSnackbar({ open: true, message: 'Cliente atualizado com sucesso!', severity: 'success' })
       } else {
         await clientesApi.criar(data)
-        setSnackbar({ open: true, message: 'Cliente criado com sucesso!', severity: 'success' })
       }
-      
-      setTimeout(() => navigate('/clientes'), 1500)
+
+      navigate('/clientes')
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar cliente', severity: 'error' })
     } finally {
