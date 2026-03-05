@@ -2,8 +2,11 @@ package dev.vinisebold.hort.service;
 
 import dev.vinisebold.hort.dto.request.LoginRequest;
 import dev.vinisebold.hort.dto.request.RegisterRequest;
+import dev.vinisebold.hort.dto.request.SetupRequest;
 import dev.vinisebold.hort.dto.response.AuthResponse;
+import dev.vinisebold.hort.model.ConfiguracoesSistema;
 import dev.vinisebold.hort.model.Usuario;
+import dev.vinisebold.hort.repository.ConfiguracoesSistemaRepository;
 import dev.vinisebold.hort.repository.UsuarioRepository;
 import dev.vinisebold.hort.validator.CnpjValidator;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
+    private final ConfiguracoesSistemaRepository configuracoesSistemaRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final BrasilApiService brasilApiService;
@@ -64,26 +68,61 @@ public class AuthService {
                 .build();
     }
 
-    public AuthResponse login(LoginRequest request) {
-        // Buscar usuário pelo email
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Email ou senha incorretos."));
-
-        // Validar senha
-        if (!passwordEncoder.matches(request.getSenha(), usuario.getSenhaHash())) {
-            throw new IllegalArgumentException("Email ou senha incorretos.");
-        }
-
-        String token = jwtService.generateToken();
-        return AuthResponse.builder()
-                .token(token)
-                .usuarioId(usuario.getId())
-                .email(usuario.getEmail())
-                .cnpj(usuario.getCnpj())
-                .nomeFantasia(usuario.getNomeFantasia())
-                .razaoSocial(usuario.getRazaoSocial())
-                .primeiroAcesso(false)
-                .build();
-    }
-}
+     public AuthResponse login(LoginRequest request) {
+         // Buscar usuário pelo email
+         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
+                 .orElseThrow(() -> new IllegalArgumentException("Email ou senha incorretos."));
+ 
+         // Validar senha
+         if (!passwordEncoder.matches(request.getSenha(), usuario.getSenhaHash())) {
+             throw new IllegalArgumentException("Email ou senha incorretos.");
+         }
+ 
+         String token = jwtService.generateToken();
+         return AuthResponse.builder()
+                 .token(token)
+                 .usuarioId(usuario.getId())
+                 .email(usuario.getEmail())
+                 .cnpj(usuario.getCnpj())
+                 .nomeFantasia(usuario.getNomeFantasia())
+                 .razaoSocial(usuario.getRazaoSocial())
+                 .primeiroAcesso(false)
+                 .build();
+     }
+ 
+     public boolean verificarPrimeiroAcesso() {
+         return configuracoesSistemaRepository.findAll().isEmpty();
+     }
+ 
+     @Transactional
+     public AuthResponse setup(SetupRequest request) {
+         // Verificar se já existe configuração
+         if (!verificarPrimeiroAcesso()) {
+             throw new IllegalStateException("O sistema já foi configurado.");
+         }
+ 
+         // Criar nova configuração
+         ConfiguracoesSistema config = new ConfiguracoesSistema();
+         config.setSenhaMasterHash(passwordEncoder.encode(request.getSenha()));
+         config.setNomeNegocio(request.getNomeNegocio());
+         configuracoesSistemaRepository.save(config);
+ 
+         // Gerar token
+         String token = jwtService.generateToken();
+         return AuthResponse.builder()
+                 .token(token)
+                 .primeiroAcesso(false)
+                 .build();
+     }
+ 
+     public boolean verificarSeSenhaCorreta(String senha) {
+         var configs = configuracoesSistemaRepository.findAll();
+         if (configs.isEmpty()) {
+             return false;
+         }
+ 
+         ConfiguracoesSistema config = configs.get(0);
+         return passwordEncoder.matches(senha, config.getSenhaMasterHash());
+     }
+ }
 

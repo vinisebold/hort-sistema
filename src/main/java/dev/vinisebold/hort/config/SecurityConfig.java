@@ -1,6 +1,5 @@
 package dev.vinisebold.hort.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,11 +14,16 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CorsConfigurationSource corsConfigurationSource;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                         CorsConfigurationSource corsConfigurationSource) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.corsConfigurationSource = corsConfigurationSource;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,6 +33,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/clientes/consulta-cnpj/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
