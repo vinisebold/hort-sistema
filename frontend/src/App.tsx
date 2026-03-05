@@ -20,13 +20,15 @@ import UnidadesMedidaPage from './pages/UnidadesMedidaPage'
 import NovoUnidadeMedidaPage from './pages/NovoUnidadeMedidaPage'
 import ContaPage from './pages/ContaPage'
 import { AuthProvider } from './contexts/AuthContext'
+import { ToastProvider } from './contexts/ToastContext'
 
 function App() {
   return (
-    <AuthProvider>
-      <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
-        <Routes>
-          {/* Rotas públicas */}
+    <ToastProvider>
+      <AuthProvider>
+        <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+          <Routes>
+            {/* Rotas públicas */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
@@ -60,6 +62,7 @@ function App() {
         </Routes>
       </Box>
     </AuthProvider>
+    </ToastProvider>
   )
 }
 

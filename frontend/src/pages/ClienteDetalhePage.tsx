@@ -2,22 +2,18 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Box, Grid, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Typography, TextField, Button, Chip, IconButton, Snackbar, Alert, CircularProgress
+  Typography, TextField, Button, Chip, IconButton, Alert, CircularProgress
 } from '@mui/material'
 import {
   ArrowBack, InfoOutlined
 } from '@mui/icons-material'
 import axios from 'axios'
 import { clientesApi } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 import { ClienteFinanceiroResponse, AbaterDividaResponse, Pedido } from '../types'
 
-interface SnackbarState {
-  open: boolean
-  message: string
-  severity: 'success' | 'error' | 'info' | 'warning'
-}
-
 export default function ClienteDetalhePage() {
+  const { showToast } = useToast()
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   
@@ -25,7 +21,6 @@ export default function ClienteDetalhePage() {
   const [processingPayment, setProcessingPayment] = useState(false)
   const [clienteFinanceiro, setClienteFinanceiro] = useState<ClienteFinanceiroResponse | null>(null)
   const [valorPago, setValorPago] = useState('')
-  const [snackbar, setSnackbar] = useState<SnackbarState>({ open: false, message: '', severity: 'success' })
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -80,11 +75,7 @@ export default function ClienteDetalhePage() {
 
   const handleAbaterDivida = async () => {
     if (!valorPago || parseFloat(valorPago) <= 0 || !id) {
-      setSnackbar({
-        open: true,
-        message: 'Informe um valor válido para abater',
-        severity: 'warning'
-      })
+      showToast('Informe um valor válido para abater', 'warning')
       return
     }
 
@@ -96,28 +87,16 @@ export default function ClienteDetalhePage() {
       
       const data = response.data as AbaterDividaResponse
       
-      setSnackbar({
-        open: true,
-        message: `Pagamento registrado! ${data.pedidosQuitados.length} pedido(s) quitado(s).`,
-        severity: 'success'
-      })
+      showToast(`Pagamento registrado! ${data.pedidosQuitados.length} pedido(s) quitado(s).`, 'success')
       
       setValorPago('')
       await loadClienteFinanceiro()
     } catch (error) {
       console.error('Erro ao abater dívida:', error)
       if (axios.isAxiosError(error)) {
-        setSnackbar({
-          open: true,
-          message: error.response?.data?.message || 'Erro ao processar pagamento',
-          severity: 'error'
-        })
+        showToast(error.response?.data?.message || 'Erro ao processar pagamento', 'error')
       } else {
-        setSnackbar({
-          open: true,
-          message: 'Erro ao processar pagamento',
-          severity: 'error'
-        })
+        showToast('Erro ao processar pagamento', 'error')
       }
     } finally {
       setProcessingPayment(false)
@@ -320,15 +299,6 @@ export default function ClienteDetalhePage() {
           )}
         </CardContent>
       </Card>
-
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
     </Box>
   )
 }

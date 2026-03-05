@@ -2,19 +2,20 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Box, Typography, Button, TextField, Card, CardContent,
-  Alert, Snackbar, CircularProgress, Fab, Grid, ToggleButton, ToggleButtonGroup,
+  CircularProgress, Fab, Grid, ToggleButton, ToggleButtonGroup,
   FormControlLabel, Checkbox
 } from '@mui/material'
 import { ArrowBack, Check } from '@mui/icons-material'
 import { naturezasApi } from '../services/api'
 import { NaturezaOperacao } from '../types'
+import { useToast } from '../contexts/ToastContext'
 
 export default function NovoNaturezaOperacaoPage() {
   const navigate = useNavigate()
   const { id } = useParams()
   const isEditing = Boolean(id)
+  const { showToast } = useToast()
 
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [loading, setLoading] = useState(false)
 
   const [form, setForm] = useState({
@@ -44,13 +45,13 @@ export default function NovoNaturezaOperacaoPage() {
       })
     } catch (error) {
       console.error('Erro ao carregar natureza:', error)
-      setSnackbar({ open: true, message: 'Erro ao carregar natureza de operação', severity: 'error' })
+      showToast('Erro ao carregar natureza de operação', 'error')
     }
   }
 
   const handleSubmit = async () => {
     if (!form.descricao.trim()) {
-      setSnackbar({ open: true, message: 'A descrição é obrigatória', severity: 'error' })
+      showToast('A descrição é obrigatória', 'error')
       return
     }
 
@@ -58,13 +59,15 @@ export default function NovoNaturezaOperacaoPage() {
     try {
       if (isEditing) {
         await naturezasApi.atualizar(Number(id), form)
+        showToast('Natureza de operação atualizada!', 'success')
       } else {
         await naturezasApi.criar(form)
+        showToast('Natureza de operação criada!', 'success')
       }
 
       navigate('/naturezas-operacao')
     } catch (error: any) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar', severity: 'error' })
+      showToast(error.response?.data?.message || 'Erro ao salvar', 'error')
     } finally {
       setLoading(false)
     }
@@ -197,14 +200,6 @@ export default function NovoNaturezaOperacaoPage() {
       >
         {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : <Check />}
       </Fab>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
     </Box>
   )
 }

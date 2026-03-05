@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Box, Typography, Button, TextField, Card, CardContent,
-  Alert, Snackbar, CircularProgress, Fab, Grid
+  CircularProgress, Fab, Grid
 } from '@mui/material'
 import { ArrowBack, Check } from '@mui/icons-material'
 import { unidadesMedidaApi } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 
 export default function NovoUnidadeMedidaPage() {
   const navigate = useNavigate()
   const { id } = useParams()
   const isEditing = Boolean(id)
+  const { showToast } = useToast()
 
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [loading, setLoading] = useState(false)
 
   const [form, setForm] = useState({
@@ -36,13 +37,13 @@ export default function NovoUnidadeMedidaPage() {
       })
     } catch (error) {
       console.error('Erro ao carregar unidade:', error)
-      setSnackbar({ open: true, message: 'Erro ao carregar unidade de medida', severity: 'error' })
+      showToast('Erro ao carregar unidade de medida', 'error')
     }
   }
 
   const handleSubmit = async () => {
     if (!form.sigla.trim()) {
-      setSnackbar({ open: true, message: 'A sigla é obrigatória', severity: 'error' })
+      showToast('A sigla é obrigatória', 'error')
       return
     }
 
@@ -50,13 +51,15 @@ export default function NovoUnidadeMedidaPage() {
     try {
       if (isEditing) {
         await unidadesMedidaApi.atualizar(Number(id), form)
+        showToast('Unidade de medida atualizada!', 'success')
       } else {
         await unidadesMedidaApi.criar(form)
+        showToast('Unidade de medida criada!', 'success')
       }
 
       navigate('/unidades-medida')
     } catch (error: any) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar', severity: 'error' })
+      showToast(error.response?.data?.message || 'Erro ao salvar', 'error')
     } finally {
       setLoading(false)
     }
@@ -132,14 +135,6 @@ export default function NovoUnidadeMedidaPage() {
       >
         {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : <Check />}
       </Fab>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
     </Box>
   )
 }

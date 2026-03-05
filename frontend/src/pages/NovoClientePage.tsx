@@ -2,17 +2,18 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Box, Typography, Button, TextField, Card, CardContent,
-  Alert, Snackbar, InputAdornment, IconButton, CircularProgress, Fab, ToggleButton, ToggleButtonGroup, Grid
+  InputAdornment, IconButton, CircularProgress, Fab, ToggleButton, ToggleButtonGroup, Grid
 } from '@mui/material'
 import { ArrowBack, Search, Check } from '@mui/icons-material'
 import { clientesApi } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 
 export default function NovoClientePage() {
   const navigate = useNavigate()
   const { id } = useParams()
   const isEditing = Boolean(id)
+  const { showToast } = useToast()
 
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [loading, setLoading] = useState(false)
   const [loadingCnpj, setLoadingCnpj] = useState(false)
 
@@ -46,7 +47,7 @@ export default function NovoClientePage() {
       })
     } catch (error) {
       console.error('Erro ao carregar cliente:', error)
-      setSnackbar({ open: true, message: 'Erro ao carregar cliente', severity: 'error' })
+      showToast('Erro ao carregar cliente', 'error')
     }
   }
 
@@ -131,17 +132,17 @@ export default function NovoClientePage() {
 
   const handleSubmit = async () => {
     if (!form.razaoSocial) {
-      setSnackbar({ open: true, message: 'Preencha o campo Nome/Razão Social', severity: 'error' })
+      showToast('Preencha o campo Nome/Razão Social', 'error')
       return
     }
 
     if (form.tipoPessoa === 'JURIDICA' && !form.documento) {
-      setSnackbar({ open: true, message: 'CNPJ é obrigatório para Pessoa Jurídica', severity: 'error' })
+      showToast('CNPJ é obrigatório para Pessoa Jurídica', 'error')
       return
     }
 
     if (form.tipoPessoa === 'JURIDICA' && !form.contato) {
-      setSnackbar({ open: true, message: 'Contato é obrigatório para Pessoa Jurídica', severity: 'error' })
+      showToast('Contato é obrigatório para Pessoa Jurídica', 'error')
       return
     }
 
@@ -155,13 +156,15 @@ export default function NovoClientePage() {
 
       if (isEditing) {
         await clientesApi.atualizar(Number(id), data)
+        showToast('Cliente atualizado com sucesso!', 'success')
       } else {
         await clientesApi.criar(data)
+        showToast('Cliente criado com sucesso!', 'success')
       }
 
       navigate('/clientes')
     } catch (error: any) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar cliente', severity: 'error' })
+      showToast(error.response?.data?.message || 'Erro ao salvar cliente', 'error')
     } finally {
       setLoading(false)
     }
@@ -340,18 +343,6 @@ export default function NovoClientePage() {
       >
         {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : <Check />}
       </Fab>
-
-      {/* Snackbar de feedback */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }

@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Box, Typography, Button, TextField, Card, CardContent,
-  Alert, Snackbar, CircularProgress, Fab, Grid, FormControl, Select, MenuItem
+  CircularProgress, Fab, Grid, FormControl, Select, MenuItem
 } from '@mui/material'
 import { ArrowBack, Check } from '@mui/icons-material'
 import { produtosApi, unidadesMedidaApi } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 
 interface UnidadeMedida {
   id: number
@@ -17,8 +18,8 @@ export default function NovoProdutoPage() {
   const navigate = useNavigate()
   const { id } = useParams()
   const isEditing = Boolean(id)
+  const { showToast } = useToast()
 
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [loading, setLoading] = useState(false)
   const [unidades, setUnidades] = useState<UnidadeMedida[]>([])
 
@@ -53,13 +54,13 @@ export default function NovoProdutoPage() {
       })
     } catch (error) {
       console.error('Erro ao carregar produto:', error)
-      setSnackbar({ open: true, message: 'Erro ao carregar produto', severity: 'error' })
+      showToast('Erro ao carregar produto', 'error')
     }
   }
 
   const handleSubmit = async () => {
     if (!form.descricao || !form.unidadeMedidaId) {
-      setSnackbar({ open: true, message: 'Preencha todos os campos obrigatórios', severity: 'error' })
+      showToast('Preencha todos os campos obrigatórios', 'error')
       return
     }
 
@@ -72,13 +73,15 @@ export default function NovoProdutoPage() {
 
       if (isEditing) {
         await produtosApi.atualizar(Number(id), data)
+        showToast('Produto atualizado com sucesso!', 'success')
       } else {
         await produtosApi.criar(data)
+        showToast('Produto criado com sucesso!', 'success')
       }
 
       navigate('/produtos')
     } catch (error: any) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar produto', severity: 'error' })
+      showToast(error.response?.data?.message || 'Erro ao salvar produto', 'error')
     } finally {
       setLoading(false)
     }
@@ -163,16 +166,6 @@ export default function NovoProdutoPage() {
       >
         {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : <Check />}
       </Fab>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }

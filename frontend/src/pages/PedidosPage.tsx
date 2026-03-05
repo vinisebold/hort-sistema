@@ -2,11 +2,12 @@ import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  IconButton, Chip, Snackbar, Fab, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Alert, Checkbox, CircularProgress, Menu, MenuItem, Card, CardContent
+  IconButton, Chip, Fab, Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, Checkbox, CircularProgress, Menu, MenuItem, Card, CardContent
 } from '@mui/material'
 import { Add, Visibility, MoreVert, ArrowDownward, ArrowUpward, ArrowBack } from '@mui/icons-material'
 import { pedidosApi, naturezasApi } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 import NaturezaOverlay from '../components/NaturezaOverlay'
 import { NaturezaOperacao, Pedido } from '../types'
 
@@ -19,7 +20,7 @@ export default function PedidosPage() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [openView, setOpenView] = useState(false)
   const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null)
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
+  const { showToast } = useToast()
   const [naturezas, setNaturezas] = useState<NaturezaOperacao[]>([])
   const [showOverlay, setShowOverlay] = useState(false)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
@@ -174,15 +175,11 @@ export default function PedidosPage() {
       await pedidosApi.cancelar(cancelConfirm.id)
       setCancelConfirm(null)
       setOpenView(false)
-      setSnackbar({ open: true, message: 'Pedido cancelado com sucesso.', severity: 'success' })
+      showToast('Pedido cancelado com sucesso.', 'success')
       await loadPedidos()
     } catch (error: any) {
       setCancelConfirm(null)
-      setSnackbar({
-        open: true,
-        message: error.response?.data?.message || 'Erro ao cancelar pedido.',
-        severity: 'error'
-      })
+      showToast(error.response?.data?.message || 'Erro ao cancelar pedido.', 'error')
     }
   }
 
@@ -543,14 +540,6 @@ export default function PedidosPage() {
           <Button onClick={() => setOpenView(false)} variant="contained">Fechar</Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
     </Box>
   )
 }

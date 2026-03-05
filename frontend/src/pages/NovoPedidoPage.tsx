@@ -3,13 +3,15 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   IconButton, TextField, Card, CardContent,
-  Autocomplete, Alert, Snackbar, Grid, Fab, ToggleButton, ToggleButtonGroup, InputAdornment, Collapse
+  Autocomplete, Grid, Fab, ToggleButton, ToggleButtonGroup, InputAdornment, Collapse
 } from '@mui/material'
 import { ArrowBack, Close, InfoOutlined, Edit, Search, Check } from '@mui/icons-material'
 import { pedidosApi, produtosApi, clientesApi, naturezasApi } from '../services/api'
+import { useToast } from '../contexts/ToastContext'
 import { NaturezaOperacao, Produto, Cliente, ItemPedido } from '../types'
 
 export default function NovoPedidoPage() {
+  const { showToast } = useToast()
   const navigate = useNavigate()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
@@ -19,7 +21,6 @@ export default function NovoPedidoPage() {
   const [produtos, setProdutos] = useState<Produto[]>([])
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [naturezas, setNaturezas] = useState<NaturezaOperacao[]>([])
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [loading, setLoading] = useState(false)
   const [activeInput, setActiveInput] = useState<{ index: number, field: string, value: string } | null>(null)
   const [inputClienteValue, setInputClienteValue] = useState('')
@@ -115,7 +116,7 @@ export default function NovoPedidoPage() {
       })
     } catch (error) {
       console.error('Erro ao carregar pedido:', error)
-      setSnackbar({ open: true, message: 'Erro ao carregar pedido', severity: 'error' })
+      showToast('Erro ao carregar pedido', 'error')
     }
   }
 
@@ -169,19 +170,19 @@ export default function NovoPedidoPage() {
 
   const handleSubmit = async () => {
     if (!form.naturezaOperacaoId || form.itens.length === 0) {
-      setSnackbar({ open: true, message: 'Preencha todos os campos obrigatórios', severity: 'error' })
+      showToast('Preencha todos os campos obrigatórios', 'error')
       return
     }
 
     // Validate based on natureza configuration
     if (selectedNatureza) {
       if (selectedNatureza.exigeCliente && !form.clienteId && !form.clienteNome.trim()) {
-        setSnackbar({ open: true, message: 'Cliente é obrigatório para esta natureza de operação', severity: 'error' })
+        showToast('Cliente é obrigatório para esta natureza de operação', 'error')
         return
       }
 
       if (selectedNatureza.exigeStatus && form.status === 'PENDENTE' && !form.documentoReferencia?.trim()) {
-        setSnackbar({ open: true, message: 'Documento de referência é obrigatório para pedidos pendentes', severity: 'error' })
+        showToast('Documento de referência é obrigatório para pedidos pendentes', 'error')
         return
       }
     }
@@ -218,7 +219,7 @@ export default function NovoPedidoPage() {
       }
 
       if (payload.itens.length === 0) {
-        setSnackbar({ open: true, message: 'Adicione pelo menos um produto válido', severity: 'error' })
+        showToast('Adicione pelo menos um produto válido', 'error')
         setLoading(false)
         return
       }
@@ -231,7 +232,7 @@ export default function NovoPedidoPage() {
 
       navigate('/pedidos')
     } catch (error: any) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar pedido', severity: 'error' })
+      showToast(error.response?.data?.message || 'Erro ao salvar pedido', 'error')
     } finally {
       setLoading(false)
     }
@@ -820,15 +821,6 @@ export default function NovoPedidoPage() {
         <Check />
       </Fab>
 
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }
