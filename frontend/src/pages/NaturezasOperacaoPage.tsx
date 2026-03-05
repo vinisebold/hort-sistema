@@ -1,26 +1,16 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
-  Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  Select, MenuItem, FormControl, FormControlLabel, Checkbox, Chip, Snackbar, Alert, Fab, Card, CardContent, Typography
+  Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  IconButton, Chip, Fab, Card, CardContent, Typography
 } from '@mui/material'
 import { Add, Edit, TrendingUp, TrendingDown } from '@mui/icons-material'
 import { naturezasApi } from '../services/api'
 import { NaturezaOperacao } from '../types'
 
 export default function NaturezasOperacaoPage() {
+  const navigate = useNavigate()
   const [naturezas, setNaturezas] = useState<NaturezaOperacao[]>([])
-  const [open, setOpen] = useState(false)
-  const [editingId, setEditingId] = useState<number | null>(null)
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
-  
-  const [form, setForm] = useState({
-    descricao: '',
-    tipoMovimento: 'SAIDA' as 'ENTRADA' | 'SAIDA',
-    exigeCliente: true,
-    exigeValorUnitario: true,
-    exigeStatus: true
-  })
 
   useEffect(() => {
     loadNaturezas().catch(console.error)
@@ -35,54 +25,6 @@ export default function NaturezasOperacaoPage() {
     }
   }
 
-  const handleOpen = (natureza?: NaturezaOperacao) => {
-    if (natureza) {
-      setEditingId(natureza.id)
-      setForm({
-        descricao: natureza.descricao,
-        tipoMovimento: natureza.tipoMovimento,
-        exigeCliente: natureza.exigeCliente,
-        exigeValorUnitario: natureza.exigeValorUnitario,
-        exigeStatus: natureza.exigeStatus
-      })
-    } else {
-      setEditingId(null)
-      setForm({
-        descricao: '',
-        tipoMovimento: 'SAIDA',
-        exigeCliente: true,
-        exigeValorUnitario: true,
-        exigeStatus: true
-      })
-    }
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-    setEditingId(null)
-  }
-
-  const handleSubmit = async () => {
-    if (!form.descricao.trim()) {
-      setSnackbar({ open: true, message: 'A descrição é obrigatória', severity: 'error' })
-      return
-    }
-
-    try {
-      if (editingId) {
-        await naturezasApi.atualizar(editingId, form)
-        setSnackbar({ open: true, message: 'Natureza de operação atualizada!', severity: 'success' })
-      } else {
-        await naturezasApi.criar(form)
-        setSnackbar({ open: true, message: 'Natureza de operação criada!', severity: 'success' })
-      }
-      handleClose()
-      await loadNaturezas()
-    } catch (error: any) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar', severity: 'error' })
-    }
-  }
 
   const getTipoChip = (tipo: string) => {
     if (tipo === 'ENTRADA') {
@@ -188,7 +130,7 @@ export default function NaturezasOperacaoPage() {
                       </Box>
                     </TableCell>
                     <TableCell align="center">
-                      <IconButton onClick={() => handleOpen(natureza)} size="small" title="Editar">
+                      <IconButton onClick={() => navigate(`/naturezas-operacao/${natureza.id}/editar`)} size="small" title="Editar">
                         <Edit />
                       </IconButton>
                     </TableCell>
@@ -200,100 +142,9 @@ export default function NaturezasOperacaoPage() {
         </CardContent>
       </Card>
 
-      <Fab color="primary" aria-label="add" onClick={() => handleOpen()} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
+      <Fab color="primary" aria-label="add" onClick={() => navigate('/naturezas-operacao/novo')} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
         <Add />
       </Fab>
-
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 300, color: '#333' }}>
-            {editingId ? 'Editar Natureza de Operação' : 'Nova Natureza de Operação'}
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
-              Descrição *
-            </Typography>
-            <TextField
-              fullWidth
-              value={form.descricao}
-              onChange={(e) => setForm({ ...form, descricao: e.target.value })}
-              required
-              placeholder="Ex: Venda, Compra, Devolução"
-              size="small"
-            />
-          </Box>
-
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
-              Tipo de Movimento *
-            </Typography>
-            <FormControl fullWidth size="small">
-              <Select
-                value={form.tipoMovimento}
-                onChange={(e) => setForm({ ...form, tipoMovimento: e.target.value as 'ENTRADA' | 'SAIDA' })}
-              >
-                <MenuItem value="ENTRADA">📥 Entrada</MenuItem>
-                <MenuItem value="SAIDA">📤 Saída</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-
-          <Box>
-            <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
-              Campos Obrigatórios
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#888', display: 'block', mb: 1.5, fontStyle: 'italic' }}>
-              Marque os campos que serão obrigatórios ao criar pedidos com esta natureza
-            </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={form.exigeCliente}
-                    onChange={(e) => setForm({ ...form, exigeCliente: e.target.checked })}
-                    size="small"
-                  />
-                }
-                label={<Typography variant="body2">Exigir Cliente</Typography>}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={form.exigeValorUnitario}
-                    onChange={(e) => setForm({ ...form, exigeValorUnitario: e.target.checked })}
-                    size="small"
-                  />
-                }
-                label={<Typography variant="body2">Exigir Valor Unitário</Typography>}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={form.exigeStatus}
-                    onChange={(e) => setForm({ ...form, exigeStatus: e.target.checked })}
-                    size="small"
-                  />
-                }
-                label={<Typography variant="body2">Exigir Status de Pagamento</Typography>}
-              />
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ borderTop: '1px solid #eee', pt: 2 }}>
-          <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleSubmit} variant="contained">Salvar</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
     </Box>
   )
 }
