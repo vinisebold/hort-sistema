@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, Fab, CircularProgress, Card, CardContent, Typography, Chip } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Fab, CircularProgress, Card, CardContent, Typography, Chip } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import { produtosApi, unidadesMedidaApi } from '../services/api'
 
@@ -11,21 +12,12 @@ interface Produto {
   isActive: boolean
 }
 
-interface UnidadeMedida {
-  id: number
-  sigla: string
-  descricao: string
-}
-
 export default function ProdutosPage() {
+  const navigate = useNavigate()
   const [produtos, setProdutos] = useState<Produto[]>([])
   const [nextCursor, setNextCursor] = useState<number | null>(null)
   const [hasNext, setHasNext] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [unidades, setUnidades] = useState<UnidadeMedida[]>([])
-  const [open, setOpen] = useState(false)
-  const [editingId, setEditingId] = useState<number | null>(null)
-   const [form, setForm] = useState({ descricao: '', unidadeMedidaId: '' })
 
   useEffect(() => {
     loadProdutos().catch(console.error)
@@ -69,52 +61,11 @@ export default function ProdutosPage() {
 
   const loadUnidades = async () => {
     try {
-      const response = await unidadesMedidaApi.listar()
-      setUnidades(response.data)
+      await unidadesMedidaApi.listar()
     } catch (error) {
       console.error('Erro ao carregar unidades:', error)
     }
   }
-
-   const handleOpen = (produto?: Produto) => {
-     if (produto) {
-       setEditingId(produto.id)
-       setForm({
-         descricao: produto.descricao,
-         unidadeMedidaId: String(produto.unidadeMedida.id),
-       })
-     } else {
-       setEditingId(null)
-       setForm({ descricao: '', unidadeMedidaId: '' })
-     }
-     setOpen(true)
-   }
-
-   const handleClose = () => {
-     setOpen(false)
-     setEditingId(null)
-     setForm({ descricao: '', unidadeMedidaId: '' })
-   }
-
-   const handleSubmit = async () => {
-     try {
-       const data = {
-         descricao: form.descricao,
-         unidadeMedidaId: Number(form.unidadeMedidaId),
-       }
-       
-       if (editingId) {
-         await produtosApi.atualizar(editingId, data)
-       } else {
-         await produtosApi.criar(data)
-       }
-       
-       handleClose()
-       await loadProdutos()
-     } catch (error: any) {
-       alert(error.response?.data?.message || 'Erro ao salvar produto')
-     }
-   }
 
   const handleDelete = async (id: number) => {
     if (confirm('Tem certeza que deseja excluir este produto?')) {
@@ -183,7 +134,7 @@ export default function ProdutosPage() {
                       />
                     </TableCell>
                     <TableCell align="center">
-                      <IconButton onClick={() => handleOpen(produto)} size="small" title="Editar">
+                      <IconButton onClick={() => navigate(`/produtos/${produto.id}/editar`)} size="small" title="Editar">
                         <Edit />
                       </IconButton>
                       <IconButton onClick={() => handleDelete(produto.id)} size="small" title="Excluir">
@@ -207,54 +158,9 @@ export default function ProdutosPage() {
         </Box>
       )}
 
-      <Fab color="primary" aria-label="add" onClick={() => handleOpen()} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
+      <Fab color="primary" aria-label="add" onClick={() => navigate('/produtos/novo')} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
         <Add />
       </Fab>
-
-       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-         <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>
-           <Typography variant="h6" sx={{ fontWeight: 300, color: '#333' }}>
-             {editingId ? 'Editar Produto' : 'Novo Produto'}
-           </Typography>
-         </DialogTitle>
-         <DialogContent sx={{ pt: 3 }}>
-           <Box sx={{ mb: 2 }}>
-             <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
-               Descrição *
-             </Typography>
-             <TextField
-               fullWidth
-               value={form.descricao}
-               onChange={(e) => setForm({ ...form, descricao: e.target.value })}
-               placeholder="Ex: Tomate, Alface, Cenoura"
-               size="small"
-               required
-             />
-           </Box>
-           <Box>
-             <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
-               Unidade de Medida *
-             </Typography>
-             <FormControl fullWidth size="small">
-               <Select
-                 value={form.unidadeMedidaId}
-                 onChange={(e) => setForm({ ...form, unidadeMedidaId: e.target.value })}
-                 required
-               >
-                 {unidades.map((u) => (
-                   <MenuItem key={u.id} value={u.id}>
-                     {u.sigla} - {u.descricao}
-                   </MenuItem>
-                 ))}
-               </Select>
-             </FormControl>
-           </Box>
-         </DialogContent>
-         <DialogActions sx={{ borderTop: '1px solid #eee', pt: 2 }}>
-           <Button onClick={handleClose}>Cancelar</Button>
-           <Button onClick={handleSubmit} variant="contained">Salvar</Button>
-         </DialogActions>
-       </Dialog>
     </Box>
   )
 }

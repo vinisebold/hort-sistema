@@ -7,7 +7,9 @@ import DashboardPage from './pages/DashboardPage'
 import Layout from './components/Layout'
 import PrivateRoute from './components/PrivateRoute'
 import ProdutosPage from './pages/ProdutosPage'
+import NovoProdutoPage from './pages/NovoProdutoPage'
 import ClientesPage from './pages/ClientesPage'
+import NovoClientePage from './pages/NovoClientePage'
 import ClienteDetalhePage from './pages/ClienteDetalhePage'
 import PedidosPage from './pages/PedidosPage'
 import NovoPedidoPage from './pages/NovoPedidoPage'
@@ -32,7 +34,11 @@ function App() {
             <Route path="inicio" element={<HomePage />} />
             <Route path="financeiro" element={<DashboardPage />} />
             <Route path="produtos" element={<ProdutosPage />} />
+            <Route path="produtos/novo" element={<NovoProdutoPage />} />
+            <Route path="produtos/:id/editar" element={<NovoProdutoPage />} />
             <Route path="clientes" element={<ClientesPage />} />
+            <Route path="clientes/novo" element={<NovoClientePage />} />
+            <Route path="clientes/:id/editar" element={<NovoClientePage />} />
             <Route path="clientes/:id" element={<ClienteDetalhePage />} />
             <Route path="pedidos" element={<PedidosPage />} />
             <Route path="pedidos/novo" element={<NovoPedidoPage />} />
