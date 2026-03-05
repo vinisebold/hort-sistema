@@ -349,7 +349,18 @@ export default function Layout() {
             >
                 <Box sx={{ height: 64 }} />
                 <Box sx={{ maxWidth: 1800, mx: 'auto' }}>
-                    <Outlet />
+                    <Box
+                        key={location.pathname}
+                        sx={{
+                            animation: 'page-fade 200ms ease-out',
+                            '@keyframes page-fade': {
+                                from: { opacity: 0 },
+                                to: { opacity: 1 }
+                            }
+                        }}
+                    >
+                        <Outlet />
+                    </Box>
                 </Box>
             </Box>
         </Box>
