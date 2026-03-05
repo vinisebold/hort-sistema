@@ -140,30 +140,45 @@ export default function NaturezasOperacaoPage() {
                       {getTipoChip(natureza.tipoMovimento)}
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
                         {natureza.exigeCliente && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#2e7d32' }} />
-                            <Typography variant="body2" sx={{ fontSize: '0.813rem', color: '#555' }}>
-                              Cliente
-                            </Typography>
-                          </Box>
+                          <Chip 
+                            label="Cliente" 
+                            size="small" 
+                            sx={{ 
+                              fontSize: '0.75rem',
+                              bgcolor: '#e0e0e0',
+                              color: '#555',
+                              border: 'none',
+                              '& .MuiChip-label': { px: 1.5 }
+                            }} 
+                          />
                         )}
                         {natureza.exigeValorUnitario && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#2e7d32' }} />
-                            <Typography variant="body2" sx={{ fontSize: '0.813rem', color: '#555' }}>
-                              Valor Unitário
-                            </Typography>
-                          </Box>
+                          <Chip 
+                            label="Valor Unitário" 
+                            size="small" 
+                            sx={{ 
+                              fontSize: '0.75rem',
+                              bgcolor: '#e0e0e0',
+                              color: '#555',
+                              border: 'none',
+                              '& .MuiChip-label': { px: 1.5 }
+                            }} 
+                          />
                         )}
                         {natureza.exigeStatus && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#2e7d32' }} />
-                            <Typography variant="body2" sx={{ fontSize: '0.813rem', color: '#555' }}>
-                              Status Pagamento
-                            </Typography>
-                          </Box>
+                          <Chip 
+                            label="Status Pagamento" 
+                            size="small" 
+                            sx={{ 
+                              fontSize: '0.75rem',
+                              bgcolor: '#e0e0e0',
+                              color: '#555',
+                              border: 'none',
+                              '& .MuiChip-label': { px: 1.5 }
+                            }} 
+                          />
                         )}
                         {!natureza.exigeCliente && !natureza.exigeValorUnitario && !natureza.exigeStatus && (
                           <Typography variant="body2" sx={{ fontSize: '0.813rem', color: '#aaa', fontStyle: 'italic' }}>
