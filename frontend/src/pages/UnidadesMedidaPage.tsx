@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
-  Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  Chip, Snackbar, Alert, Fab, Card, CardContent, Typography
+  Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  IconButton, Chip, Fab, Card, CardContent, Typography
 } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import { unidadesMedidaApi } from '../services/api'
@@ -15,15 +15,8 @@ interface UnidadeMedida {
 }
 
 export default function UnidadesMedidaPage() {
+  const navigate = useNavigate()
   const [unidades, setUnidades] = useState<UnidadeMedida[]>([])
-  const [open, setOpen] = useState(false)
-  const [editingId, setEditingId] = useState<number | null>(null)
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
-  
-  const [form, setForm] = useState({
-    sigla: '',
-    descricao: ''
-  })
 
   useEffect(() => {
     loadUnidades().catch(console.error)
@@ -38,57 +31,15 @@ export default function UnidadesMedidaPage() {
     }
   }
 
-  const handleOpen = (unidade?: UnidadeMedida) => {
-    if (unidade) {
-      setEditingId(unidade.id)
-      setForm({
-        sigla: unidade.sigla,
-        descricao: unidade.descricao || ''
-      })
-    } else {
-      setEditingId(null)
-      setForm({
-        sigla: '',
-        descricao: ''
-      })
-    }
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-    setEditingId(null)
-  }
-
-  const handleSubmit = async () => {
-    if (!form.sigla.trim()) {
-      setSnackbar({ open: true, message: 'A sigla é obrigatória', severity: 'error' })
-      return
-    }
-
-    try {
-      if (editingId) {
-        await unidadesMedidaApi.atualizar(editingId, form)
-        setSnackbar({ open: true, message: 'Unidade de medida atualizada!', severity: 'success' })
-      } else {
-        await unidadesMedidaApi.criar(form)
-        setSnackbar({ open: true, message: 'Unidade de medida criada!', severity: 'success' })
-      }
-      handleClose()
-      await loadUnidades()
-    } catch (error: any) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao salvar', severity: 'error' })
-    }
-  }
 
   const handleDelete = async (id: number) => {
     if (confirm('Tem certeza que deseja excluir esta unidade de medida?')) {
       try {
         await unidadesMedidaApi.deletar(id)
-        setSnackbar({ open: true, message: 'Unidade de medida excluída!', severity: 'success' })
+        alert('Unidade de medida excluída!')
         await loadUnidades()
       } catch (error: any) {
-        setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao excluir', severity: 'error' })
+        alert(error.response?.data?.message || 'Erro ao excluir')
       }
     }
   }
@@ -144,7 +95,7 @@ export default function UnidadesMedidaPage() {
                       />
                     </TableCell>
                     <TableCell align="center">
-                      <IconButton onClick={() => handleOpen(unidade)} size="small" title="Editar">
+                      <IconButton onClick={() => navigate(`/unidades-medida/${unidade.id}/editar`)} size="small" title="Editar">
                         <Edit />
                       </IconButton>
                       <IconButton onClick={() => handleDelete(unidade.id)} size="small" title="Excluir">
@@ -159,57 +110,9 @@ export default function UnidadesMedidaPage() {
         </CardContent>
       </Card>
 
-      <Fab color="primary" aria-label="add" onClick={() => handleOpen()} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
+      <Fab color="primary" aria-label="add" onClick={() => navigate('/unidades-medida/novo')} sx={{ position: 'fixed', bottom: 32, right: 32 }}>
         <Add />
       </Fab>
-
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 300, color: '#333' }}>
-            {editingId ? 'Editar Unidade de Medida' : 'Nova Unidade de Medida'}
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
-              Sigla *
-            </Typography>
-            <TextField
-              fullWidth
-              value={form.sigla}
-              onChange={(e) => setForm({ ...form, sigla: e.target.value.toUpperCase() })}
-              required
-              placeholder="Ex: KG, UN, CX"
-              inputProps={{ maxLength: 10 }}
-              size="small"
-            />
-          </Box>
-          <Box>
-            <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
-              Descrição
-            </Typography>
-            <TextField
-              fullWidth
-              value={form.descricao}
-              onChange={(e) => setForm({ ...form, descricao: e.target.value })}
-              placeholder="Ex: Quilograma, Unidade, Caixa"
-              size="small"
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ borderTop: '1px solid #eee', pt: 2 }}>
-          <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleSubmit} variant="contained">Salvar</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
     </Box>
   )
 }

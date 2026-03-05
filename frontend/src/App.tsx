@@ -17,6 +17,7 @@ import EstoquePage from './pages/EstoquePage'
 import NaturezasOperacaoPage from './pages/NaturezasOperacaoPage'
 import NovoNaturezaOperacaoPage from './pages/NovoNaturezaOperacaoPage'
 import UnidadesMedidaPage from './pages/UnidadesMedidaPage'
+import NovoUnidadeMedidaPage from './pages/NovoUnidadeMedidaPage'
 import ContaPage from './pages/ContaPage'
 import { AuthProvider } from './contexts/AuthContext'
 
@@ -49,6 +50,8 @@ function App() {
             <Route path="naturezas-operacao/novo" element={<NovoNaturezaOperacaoPage />} />
             <Route path="naturezas-operacao/:id/editar" element={<NovoNaturezaOperacaoPage />} />
             <Route path="unidades-medida" element={<UnidadesMedidaPage />} />
+            <Route path="unidades-medida/novo" element={<NovoUnidadeMedidaPage />} />
+            <Route path="unidades-medida/:id/editar" element={<NovoUnidadeMedidaPage />} />
             <Route path="conta" element={<ContaPage />} />
           </Route>
           
