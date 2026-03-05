@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel, Fab, InputAdornment, CircularProgress } from '@mui/material'
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, Fab, InputAdornment, CircularProgress, Card, CardContent, Typography, Chip } from '@mui/material'
 import { Add, Edit, Delete, Search, Visibility } from '@mui/icons-material'
 import { clientesApi } from '../services/api'
 
@@ -248,40 +248,96 @@ export default function ClientesPage() {
 
   return (
     <Box>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Nome/Razão Social</TableCell>
-              <TableCell>Nome Fantasia</TableCell>
-              <TableCell>Documento</TableCell>
-              <TableCell>Contato</TableCell>
-              <TableCell align="center"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {clientes.map((cliente) => (
-              <TableRow key={cliente.id}>
-                <TableCell>{cliente.razaoSocial}</TableCell>
-                <TableCell>{cliente.nomeFantasia || '-'}</TableCell>
-                <TableCell>{exibirDocumento(cliente.documento, cliente.tipoPessoa)}</TableCell>
-                <TableCell>{cliente.contato || '-'}</TableCell>
-                <TableCell align="center">
-                  <IconButton onClick={() => handleVerDetalhes(cliente.id)} title="Ver detalhes e gerenciar dívida">
-                    <Visibility />
-                  </IconButton>
-                  <IconButton onClick={() => handleOpen(cliente)}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton onClick={() => handleDelete(cliente.id)}>
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 300, color: '#333', mb: 1 }}>
+          Clientes
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#888' }}>
+          Gerencie seus clientes e acompanhe o histórico financeiro
+        </Typography>
+      </Box>
+
+      <Card sx={{ boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
+        <CardContent sx={{ p: 0 }}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }}>
+                    Cliente
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', bgcolor: '#fafafa', borderBottom: '2px solid #ddd', width: 200 }}>
+                    Tipo
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', bgcolor: '#fafafa', borderBottom: '2px solid #ddd', width: 180 }}>
+                    Contato
+                  </TableCell>
+                  <TableCell align="center" sx={{ bgcolor: '#fafafa', borderBottom: '2px solid #ddd', width: 150 }}></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {clientes.map((cliente) => (
+                  <TableRow 
+                    key={cliente.id}
+                    sx={{ '&:hover': { bgcolor: '#f8f9fa' } }}
+                  >
+                    <TableCell>
+                      <Box>
+                        <Typography variant="body1" sx={{ fontWeight: 500, color: '#333', mb: 0.5 }}>
+                          {cliente.razaoSocial}
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                          {cliente.nomeFantasia && (
+                            <Typography variant="caption" sx={{ color: '#888' }}>
+                              {cliente.nomeFantasia}
+                            </Typography>
+                          )}
+                          {cliente.nomeFantasia && cliente.documento && (
+                            <Typography variant="caption" sx={{ color: '#ddd' }}>•</Typography>
+                          )}
+                          {cliente.documento && (
+                            <Typography variant="caption" sx={{ color: '#888' }}>
+                              {exibirDocumento(cliente.documento, cliente.tipoPessoa)}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={cliente.tipoPessoa === 'JURIDICA' ? 'Pessoa Jurídica' : 'Pessoa Física'} 
+                        size="small" 
+                        sx={{ 
+                          fontSize: '0.75rem',
+                          bgcolor: cliente.tipoPessoa === 'JURIDICA' ? '#e3f2fd' : '#f3e5f5',
+                          color: cliente.tipoPessoa === 'JURIDICA' ? '#1565c0' : '#6a1b9a',
+                          border: 'none'
+                        }} 
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#555' }}>
+                        {cliente.contato || '-'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton onClick={() => handleVerDetalhes(cliente.id)} title="Ver detalhes e gerenciar dívida" size="small">
+                        <Visibility />
+                      </IconButton>
+                      <IconButton onClick={() => handleOpen(cliente)} title="Editar" size="small">
+                        <Edit />
+                      </IconButton>
+                      <IconButton onClick={() => handleDelete(cliente.id)} title="Excluir" size="small">
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
 
       {hasNext && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
@@ -303,90 +359,117 @@ export default function ClientesPage() {
 
       {/* Dialog Cliente */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingId ? 'Editar Cliente' : 'Novo Cliente'}</DialogTitle>
-        <DialogContent>
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Tipo de Pessoa</InputLabel>
-            <Select
-              value={form.tipoPessoa}
-              label="Tipo de Pessoa"
-              onChange={(e) => setForm({ ...form, tipoPessoa: e.target.value })}
-            >
-              <MenuItem value="FISICA">Pessoa Física</MenuItem>
-              <MenuItem value="JURIDICA">Pessoa Jurídica</MenuItem>
-            </Select>
-          </FormControl>
+        <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 300, color: '#333' }}>
+            {editingId ? 'Editar Cliente' : 'Novo Cliente'}
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
+              Tipo de Pessoa *
+            </Typography>
+            <FormControl fullWidth size="small">
+              <Select
+                value={form.tipoPessoa}
+                onChange={(e) => setForm({ ...form, tipoPessoa: e.target.value })}
+              >
+                <MenuItem value="FISICA">Pessoa Física</MenuItem>
+                <MenuItem value="JURIDICA">Pessoa Jurídica</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
 
           {/* Campo Documento (CPF/CNPJ) */}
-          <TextField
-            fullWidth
-            label={form.tipoPessoa === 'JURIDICA' ? 'CNPJ' : 'CPF'}
-            value={form.documento}
-            onChange={form.tipoPessoa === 'FISICA' ? handleCpfChange : handleCnpjChange}
-            onBlur={(e) => form.tipoPessoa === 'JURIDICA' && handleBuscarCnpjInput(e.target.value)}
-            margin="normal"
-            disabled={loadingCnpj}
-            required={isCampoDocumentoObrigatorio}
-            placeholder={form.tipoPessoa === 'JURIDICA' ? '00.000.000/0000-00' : '000.000.000-00'}
-            InputProps={{
-              endAdornment:
-                form.tipoPessoa === 'JURIDICA' ? (
-                  <InputAdornment position="end">
-                    {loadingCnpj ? (
-                      <CircularProgress size={24} />
-                    ) : (
-                      <IconButton onClick={() => handleBuscarCnpjInput(form.documento)}>
-                        <Search />
-                      </IconButton>
-                    )}
-                  </InputAdornment>
-                ) : null,
-            }}
-          />
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
+              {form.tipoPessoa === 'JURIDICA' ? 'CNPJ' : 'CPF'} {isCampoDocumentoObrigatorio && '*'}
+            </Typography>
+            <TextField
+              fullWidth
+              value={form.documento}
+              onChange={form.tipoPessoa === 'FISICA' ? handleCpfChange : handleCnpjChange}
+              onBlur={(e) => form.tipoPessoa === 'JURIDICA' && handleBuscarCnpjInput(e.target.value)}
+              disabled={loadingCnpj}
+              required={isCampoDocumentoObrigatorio}
+              placeholder={form.tipoPessoa === 'JURIDICA' ? '00.000.000/0000-00' : '000.000.000-00'}
+              size="small"
+              InputProps={{
+                endAdornment:
+                  form.tipoPessoa === 'JURIDICA' ? (
+                    <InputAdornment position="end">
+                      {loadingCnpj ? (
+                        <CircularProgress size={24} />
+                      ) : (
+                        <IconButton onClick={() => handleBuscarCnpjInput(form.documento)}>
+                          <Search />
+                        </IconButton>
+                      )}
+                    </InputAdornment>
+                  ) : null,
+              }}
+            />
+          </Box>
 
           {/* Campo Nome/Razão Social */}
-          <TextField
-            fullWidth
-            label={form.tipoPessoa === 'JURIDICA' ? 'Razão Social' : 'Nome'}
-            value={form.razaoSocial}
-            onChange={(e) => setForm({ ...form, razaoSocial: e.target.value })}
-            margin="normal"
-            required
-          />
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
+              {form.tipoPessoa === 'JURIDICA' ? 'Razão Social' : 'Nome'} *
+            </Typography>
+            <TextField
+              fullWidth
+              value={form.razaoSocial}
+              onChange={(e) => setForm({ ...form, razaoSocial: e.target.value })}
+              required
+              size="small"
+            />
+          </Box>
 
           {/* Campo Nome Fantasia - Apenas para PJ */}
           {form.tipoPessoa === 'JURIDICA' && (
-            <TextField
-              fullWidth
-              label="Nome Fantasia"
-              value={form.nomeFantasia}
-              onChange={(e) => setForm({ ...form, nomeFantasia: e.target.value })}
-              margin="normal"
-            />
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
+                Nome Fantasia
+              </Typography>
+              <TextField
+                fullWidth
+                value={form.nomeFantasia}
+                onChange={(e) => setForm({ ...form, nomeFantasia: e.target.value })}
+                size="small"
+              />
+            </Box>
           )}
 
           {/* Campo Endereço - Apenas para PJ */}
           {form.tipoPessoa === 'JURIDICA' && (
-            <TextField
-              fullWidth
-              label="Endereço"
-              value={form.endereco}
-              onChange={(e) => setForm({ ...form, endereco: e.target.value })}
-              margin="normal"
-            />
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
+                Endereço
+              </Typography>
+              <TextField
+                fullWidth
+                value={form.endereco}
+                onChange={(e) => setForm({ ...form, endereco: e.target.value })}
+                size="small"
+              />
+            </Box>
           )}
 
           {/* Campo Contato */}
-          <TextField
-            fullWidth
-            label="Contato"
-            value={form.contato}
-            onChange={(e) => setForm({ ...form, contato: e.target.value })}
-            margin="normal"
-            required={isCampoContatoObrigatorio}
-          />
+          <Box>
+            <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
+              Contato {isCampoContatoObrigatorio && '*'}
+            </Typography>
+            <TextField
+              fullWidth
+              value={form.contato}
+              onChange={(e) => setForm({ ...form, contato: e.target.value })}
+              required={isCampoContatoObrigatorio}
+              size="small"
+            />
+          </Box>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ borderTop: '1px solid #eee', pt: 2 }}>
           <Button onClick={handleClose}>Cancelar</Button>
           <Button onClick={handleSubmit} variant="contained">
             Salvar
