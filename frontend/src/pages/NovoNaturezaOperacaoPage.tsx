@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   Box, Typography, Button, TextField, Card, CardContent,
   CircularProgress, Fab, Grid, ToggleButton, ToggleButtonGroup,
-  FormControlLabel, Checkbox
+  FormControl, InputLabel, Select, MenuItem
 } from '@mui/material'
 import { ArrowBack, Check } from '@mui/icons-material'
 import { naturezasApi } from '../services/api'
@@ -21,9 +21,9 @@ export default function NovoNaturezaOperacaoPage() {
   const [form, setForm] = useState({
     descricao: '',
     tipoMovimento: 'SAIDA' as 'ENTRADA' | 'SAIDA',
-    exigeCliente: true,
-    exigeValorUnitario: true,
-    exigeStatus: true
+    propriedadeCliente: 'OBRIGATORIO' as 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO',
+    propriedadeValorUnitario: 'OBRIGATORIO' as 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO',
+    propriedadeStatus: 'OBRIGATORIO' as 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO'
   })
 
   useEffect(() => {
@@ -39,9 +39,9 @@ export default function NovoNaturezaOperacaoPage() {
       setForm({
         descricao: natureza.descricao,
         tipoMovimento: natureza.tipoMovimento,
-        exigeCliente: natureza.exigeCliente,
-        exigeValorUnitario: natureza.exigeValorUnitario,
-        exigeStatus: natureza.exigeStatus
+        propriedadeCliente: natureza.propriedadeCliente,
+        propriedadeValorUnitario: natureza.propriedadeValorUnitario,
+        propriedadeStatus: natureza.propriedadeStatus
       })
     } catch (error) {
       console.error('Erro ao carregar natureza:', error)
@@ -131,43 +131,55 @@ export default function NovoNaturezaOperacaoPage() {
 
           <Box>
             <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, mb: 1, display: 'block', ml: 0.5 }}>
-              CAMPOS OBRIGATORIOS
+              PROPRIEDADES DOS CAMPOS
             </Typography>
             <Typography variant="caption" sx={{ color: '#888', display: 'block', mb: 1.5, fontStyle: 'italic', ml: 0.5 }}>
-              Marque os campos que serão obrigatórios ao criar pedidos com esta natureza
+              Defina cada campo como Desativado, Opcional ou Obrigatório
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={form.exigeCliente}
-                    onChange={(e) => setForm({ ...form, exigeCliente: e.target.checked })}
-                    size="small"
-                  />
-                }
-                label={<Typography variant="body2">Exigir Cliente</Typography>}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={form.exigeValorUnitario}
-                    onChange={(e) => setForm({ ...form, exigeValorUnitario: e.target.checked })}
-                    size="small"
-                  />
-                }
-                label={<Typography variant="body2">Exigir Valor Unitário</Typography>}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={form.exigeStatus}
-                    onChange={(e) => setForm({ ...form, exigeStatus: e.target.checked })}
-                    size="small"
-                  />
-                }
-                label={<Typography variant="body2">Exigir Status de Pagamento</Typography>}
-              />
-            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Cliente</InputLabel>
+                  <Select
+                    label="Cliente"
+                    value={form.propriedadeCliente}
+                    onChange={(e) => setForm({ ...form, propriedadeCliente: e.target.value as 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO' })}
+                  >
+                    <MenuItem value="DESATIVADO">Desativado</MenuItem>
+                    <MenuItem value="OPCIONAL">Opcional</MenuItem>
+                    <MenuItem value="OBRIGATORIO">Obrigatório</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Valor Unitário</InputLabel>
+                  <Select
+                    label="Valor Unitário"
+                    value={form.propriedadeValorUnitario}
+                    onChange={(e) => setForm({ ...form, propriedadeValorUnitario: e.target.value as 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO' })}
+                  >
+                    <MenuItem value="DESATIVADO">Desativado</MenuItem>
+                    <MenuItem value="OPCIONAL">Opcional</MenuItem>
+                    <MenuItem value="OBRIGATORIO">Obrigatório</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Status Pagamento</InputLabel>
+                  <Select
+                    label="Status Pagamento"
+                    value={form.propriedadeStatus}
+                    onChange={(e) => setForm({ ...form, propriedadeStatus: e.target.value as 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO' })}
+                  >
+                    <MenuItem value="DESATIVADO">Desativado</MenuItem>
+                    <MenuItem value="OPCIONAL">Opcional</MenuItem>
+                    <MenuItem value="OBRIGATORIO">Obrigatório</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
           </Box>
         </CardContent>
       </Card>

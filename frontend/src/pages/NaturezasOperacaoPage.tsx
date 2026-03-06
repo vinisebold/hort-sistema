@@ -33,6 +33,18 @@ export default function NaturezasOperacaoPage() {
     return <Chip icon={<TrendingDown />} label="Saída" color="warning" size="small" sx={{ fontSize: '0.75rem' }} />
   }
 
+  const getPropriedadeLabel = (campo: string, propriedade: 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO') => {
+    if (propriedade === 'OBRIGATORIO') return `${campo}: Obrigatório`
+    if (propriedade === 'OPCIONAL') return `${campo}: Opcional`
+    return `${campo}: Desativado`
+  }
+
+  const getPropriedadeColor = (propriedade: 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO') => {
+    if (propriedade === 'OBRIGATORIO') return { bgcolor: '#e8f5e9', color: '#2e7d32' }
+    if (propriedade === 'OPCIONAL') return { bgcolor: '#fff8e1', color: '#ef6c00' }
+    return { bgcolor: '#eceff1', color: '#607d8b' }
+  }
+
   return (
     <Box>
       <Box sx={{ mb: 3 }}>
@@ -81,52 +93,23 @@ export default function NaturezasOperacaoPage() {
                     <TableCell>
                       {getTipoChip(natureza.tipoMovimento)}
                     </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
-                        {natureza.exigeCliente && (
-                          <Chip 
-                            label="Cliente" 
-                            size="small" 
-                            sx={{ 
-                              fontSize: '0.75rem',
-                              bgcolor: '#e0e0e0',
-                              color: '#555',
-                              border: 'none',
-                              '& .MuiChip-label': { px: 1.5 }
-                            }} 
-                          />
-                        )}
-                        {natureza.exigeValorUnitario && (
-                          <Chip 
-                            label="Valor Unitário" 
-                            size="small" 
-                            sx={{ 
-                              fontSize: '0.75rem',
-                              bgcolor: '#e0e0e0',
-                              color: '#555',
-                              border: 'none',
-                              '& .MuiChip-label': { px: 1.5 }
-                            }} 
-                          />
-                        )}
-                        {natureza.exigeStatus && (
-                          <Chip 
-                            label="Status Pagamento" 
-                            size="small" 
-                            sx={{ 
-                              fontSize: '0.75rem',
-                              bgcolor: '#e0e0e0',
-                              color: '#555',
-                              border: 'none',
-                              '& .MuiChip-label': { px: 1.5 }
-                            }} 
-                          />
-                        )}
-                        {!natureza.exigeCliente && !natureza.exigeValorUnitario && !natureza.exigeStatus && (
-                          <Typography variant="body2" sx={{ fontSize: '0.813rem', color: '#aaa', fontStyle: 'italic' }}>
-                            Nenhum campo obrigatório
-                          </Typography>
-                        )}
+                      <TableCell>
+                       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
+                        <Chip
+                          label={getPropriedadeLabel('Cliente', natureza.propriedadeCliente)}
+                          size="small"
+                          sx={{ fontSize: '0.75rem', border: 'none', '& .MuiChip-label': { px: 1.5 }, ...getPropriedadeColor(natureza.propriedadeCliente) }}
+                        />
+                        <Chip
+                          label={getPropriedadeLabel('Valor Unitário', natureza.propriedadeValorUnitario)}
+                          size="small"
+                          sx={{ fontSize: '0.75rem', border: 'none', '& .MuiChip-label': { px: 1.5 }, ...getPropriedadeColor(natureza.propriedadeValorUnitario) }}
+                        />
+                        <Chip
+                          label={getPropriedadeLabel('Status', natureza.propriedadeStatus)}
+                          size="small"
+                          sx={{ fontSize: '0.75rem', border: 'none', '& .MuiChip-label': { px: 1.5 }, ...getPropriedadeColor(natureza.propriedadeStatus) }}
+                        />
                       </Box>
                     </TableCell>
                     <TableCell align="center">

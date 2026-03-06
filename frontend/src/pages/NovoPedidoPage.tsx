@@ -30,9 +30,12 @@ export default function NovoPedidoPage() {
     clienteId: null as number | null,
     clienteNome: '', // Para armazenar nome de cliente ainda não criado
     documentoReferencia: '',
-    status: 'PAGO',
+    status: '',
     itens: [{ produtoId: 0, produtoDescricao: '', quantidade: 0, valorUnitario: 0, valorTotal: 0 }] as ItemPedido[]
   })
+
+  const isObrigatorio = (propriedade?: 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO') => propriedade === 'OBRIGATORIO'
+  const isAtivo = (propriedade?: 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO') => propriedade !== 'DESATIVADO'
 
   useEffect(() => {
     Promise.all([
@@ -111,7 +114,7 @@ export default function NovoPedidoPage() {
         clienteId: pedido.clienteId || null,
         clienteNome: '',
         documentoReferencia: pedido.documentoReferencia || '',
-        status: pedido.status || 'PAGO',
+        status: pedido.status || '',
         itens: pedido.itens.length > 0 ? pedido.itens : [{ produtoId: 0, produtoDescricao: '', quantidade: 1, valorUnitario: 0, valorTotal: 0 }]
       })
     } catch (error) {
@@ -176,12 +179,17 @@ export default function NovoPedidoPage() {
 
     // Validate based on natureza configuration
     if (selectedNatureza) {
-      if (selectedNatureza.exigeCliente && !form.clienteId && !form.clienteNome.trim()) {
+      if (isObrigatorio(selectedNatureza.propriedadeCliente) && !form.clienteId && !form.clienteNome.trim()) {
         showToast('Cliente é obrigatório para esta natureza de operação', 'error')
         return
       }
 
-      if (selectedNatureza.exigeStatus && form.status === 'PENDENTE' && !form.documentoReferencia?.trim()) {
+      if (isObrigatorio(selectedNatureza.propriedadeStatus) && !form.status) {
+        showToast('Status é obrigatório para esta natureza de operação', 'error')
+        return
+      }
+
+      if (isAtivo(selectedNatureza.propriedadeStatus) && form.status === 'PENDENTE' && !form.documentoReferencia?.trim()) {
         showToast('Documento de referência é obrigatório para pedidos pendentes', 'error')
         return
       }
@@ -191,7 +199,7 @@ export default function NovoPedidoPage() {
     try {
       // Se houver um nome de cliente mas não um ID, cria o cliente PF primeiro
       let clienteId = form.clienteId
-      if (!clienteId && form.clienteNome.trim() && selectedNatureza?.exigeCliente) {
+      if (!clienteId && form.clienteNome.trim() && isAtivo(selectedNatureza?.propriedadeCliente)) {
         clienteId = await buscarOuCriarClientePF(form.clienteNome)
       }
 
@@ -202,18 +210,20 @@ export default function NovoPedidoPage() {
           .map(item => ({
             produtoId: item.produtoId,
             quantidade: item.quantidade,
-            ...(selectedNatureza?.exigeValorUnitario && { valorUnitario: item.valorUnitario })
+            ...(isAtivo(selectedNatureza?.propriedadeValorUnitario) && { valorUnitario: item.valorUnitario })
           }))
       }
 
       // Add optional fields based on natureza configuration
-      if (selectedNatureza?.exigeCliente && clienteId) {
+      if (isAtivo(selectedNatureza?.propriedadeCliente) && clienteId) {
         payload.clienteId = clienteId
       }
 
-      if (selectedNatureza?.exigeStatus) {
-        payload.status = form.status
-        if (form.documentoReferencia) {
+      if (isAtivo(selectedNatureza?.propriedadeStatus)) {
+        if (form.status) {
+          payload.status = form.status
+        }
+        if (form.status === 'PENDENTE' && form.documentoReferencia) {
           payload.documentoReferencia = form.documentoReferencia
         }
       }
@@ -239,6 +249,7 @@ export default function NovoPedidoPage() {
   }
 
   const selectedNatureza = naturezas.find(n => String(n.id) === form.naturezaOperacaoId)
+  const exibeCardDadosPedido = isAtivo(selectedNatureza?.propriedadeCliente) || isAtivo(selectedNatureza?.propriedadeStatus)
 
   return (
     <Box>
@@ -262,9 +273,9 @@ export default function NovoPedidoPage() {
        >
          <Typography variant="h5" sx={{ fontWeight: 300, color: 'white', fontSize: { xs: '1.2rem', md: '1.4rem' } }}>
            <Box component="span" sx={{ fontWeight: 400 }}>{selectedNatureza?.descricao || 'Pedido'}</Box>
-           {selectedNatureza?.exigeValorUnitario && (
-             <> no valor de <Box component="span" sx={{ fontWeight: 400 }}>R$ {calcularTotal().toFixed(2).replace('.', ',')}</Box></>
-           )}
+            {isAtivo(selectedNatureza?.propriedadeValorUnitario) && (
+              <> no valor de <Box component="span" sx={{ fontWeight: 400 }}>R$ {calcularTotal().toFixed(2).replace('.', ',')}</Box></>
+            )}
           </Typography>
         </Box>
 
@@ -273,11 +284,12 @@ export default function NovoPedidoPage() {
 
       <Box>
         {/* Seção 1: Dados Fiscais/Cliente */}
-        <Card sx={{ mb: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
-          <CardContent sx={{ p: 4 }}>
-            <Grid container spacing={4} alignItems="flex-end">
-              {selectedNatureza?.exigeCliente && (
-                <Grid item xs={12} md={selectedNatureza?.exigeStatus ? 8 : 12}>
+        {exibeCardDadosPedido && (
+          <Card sx={{ mb: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
+            <CardContent sx={{ p: 4 }}>
+              <Grid container spacing={4} alignItems="flex-end">
+                {isAtivo(selectedNatureza?.propriedadeCliente) && (
+                  <Grid item xs={12} md={isAtivo(selectedNatureza?.propriedadeStatus) ? 8 : 12}>
                    <Autocomplete
                       options={clientes}
                       getOptionLabel={(option) => typeof option === 'string' ? option : option.razaoSocial}
@@ -320,59 +332,63 @@ export default function NovoPedidoPage() {
                         </li>
                       )}
                     />
-                </Grid>
-              )}
-              {selectedNatureza?.exigeStatus && (
-                <Grid item xs={12} md={selectedNatureza?.exigeCliente ? 4 : 12}>
-                  <Box sx={!selectedNatureza?.exigeCliente ? { maxWidth: 400, mx: 'auto' } : {}}>
-                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, mb: 1, display: 'block', ml: 0.5, textAlign: !selectedNatureza?.exigeCliente ? 'center' : 'left' }}>
-                      STATUS DO PAGAMENTO
-                    </Typography>
-                    <ToggleButtonGroup
-                      value={form.status}
-                      exclusive
-                      onChange={(_, value) => value && setForm({ ...form, status: value })}
-                      fullWidth
-                      size="small"
-                      sx={{ 
-                        height: 40,
-                        '& .MuiToggleButton-root': {
-                          border: '1px solid #ddd',
-                          '&.Mui-selected': {
-                            bgcolor: form.status === 'PAGO' ? '#e8f5e9' : '#fff3e0',
-                            color: form.status === 'PAGO' ? '#2e7d32' : '#ed6c02',
-                            fontWeight: 600,
-                            '&:hover': {
-                              bgcolor: form.status === 'PAGO' ? '#c8e6c9' : '#ffe0b2',
+                  </Grid>
+                )}
+                {isAtivo(selectedNatureza?.propriedadeStatus) && (
+                  <Grid item xs={12} md={isAtivo(selectedNatureza?.propriedadeCliente) ? 4 : 12}>
+                    <Box sx={!isAtivo(selectedNatureza?.propriedadeCliente) ? { maxWidth: 400, mx: 'auto' } : {}}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, mb: 1, display: 'block', ml: 0.5, textAlign: !isAtivo(selectedNatureza?.propriedadeCliente) ? 'center' : 'left' }}>
+                        STATUS DO PAGAMENTO
+                      </Typography>
+                      <ToggleButtonGroup
+                        value={form.status || ''}
+                        exclusive
+                        onChange={(_, value) => value && setForm({ ...form, status: value })}
+                        fullWidth
+                        size="small"
+                        sx={{ 
+                          height: 40,
+                          '& .MuiToggleButton-root': {
+                            border: '1px solid #ddd',
+                            '&.Mui-selected': {
+                              bgcolor: form.status === 'PAGO' ? '#e8f5e9' : '#fff3e0',
+                              color: form.status === 'PAGO' ? '#2e7d32' : '#ed6c02',
+                              fontWeight: 600,
+                              '&:hover': {
+                                bgcolor: form.status === 'PAGO' ? '#c8e6c9' : '#ffe0b2',
+                              }
                             }
                           }
-                        }
-                      }}
-                    >
-                      <ToggleButton value="PAGO">PAGO</ToggleButton>
-                      <ToggleButton value="PENDENTE">PENDENTE</ToggleButton>
-                    </ToggleButtonGroup>
-                  </Box>
-                </Grid>
-              )}
-              
-              {selectedNatureza?.exigeStatus && (
-                <Grid item xs={12} sx={{ pt: form.status === 'PENDENTE' ? 4 : 0, transition: 'padding-top 0.3s' }}>
-                  <Collapse in={form.status === 'PENDENTE'} timeout={300}>
-                    <TextField
-                      label="Documento de Referência"
-                      value={form.documentoReferencia}
-                      onChange={(e) => setForm({ ...form, documentoReferencia: e.target.value })}
-                      fullWidth
-                      required={form.status === 'PENDENTE'}
-                      helperText="Obrigatório para pedidos pendentes"
-                    />
-                  </Collapse>
-                </Grid>
-              )}
-            </Grid>
-          </CardContent>
-        </Card>
+                        }}
+                      >
+                        {selectedNatureza?.propriedadeStatus === 'OPCIONAL' && (
+                          <ToggleButton value="">NÃO INFORMAR</ToggleButton>
+                        )}
+                        <ToggleButton value="PAGO">PAGO</ToggleButton>
+                        <ToggleButton value="PENDENTE">PENDENTE</ToggleButton>
+                      </ToggleButtonGroup>
+                    </Box>
+                  </Grid>
+                )}
+               
+                {isAtivo(selectedNatureza?.propriedadeStatus) && (
+                  <Grid item xs={12} sx={{ pt: form.status === 'PENDENTE' ? 4 : 0, transition: 'padding-top 0.3s' }}>
+                    <Collapse in={form.status === 'PENDENTE'} timeout={300}>
+                      <TextField
+                        label="Documento de Referência"
+                        value={form.documentoReferencia}
+                        onChange={(e) => setForm({ ...form, documentoReferencia: e.target.value })}
+                        fullWidth
+                        required={form.status === 'PENDENTE'}
+                        helperText="Obrigatório para pedidos pendentes"
+                      />
+                    </Collapse>
+                  </Grid>
+                )}
+              </Grid>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Seção 2: Itens do Pedido */}
         <Card sx={{ mb: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
@@ -392,13 +408,13 @@ export default function NovoPedidoPage() {
               <TableHead>
                 <TableRow sx={{ '& th': { borderBottom: '1px solid #ddd' } }}>
                   <TableCell width="5%" align="center" sx={{ borderBottom: '1px solid #ddd', fontSize: '0.875rem' }}></TableCell>
-                  <TableCell width={selectedNatureza?.exigeValorUnitario ? "45%" : "60%"} sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
+                  <TableCell width={isAtivo(selectedNatureza?.propriedadeValorUnitario) ? "45%" : "60%"} sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
                     <Box sx={{ px: 4, pb: 1.5 }}>Produto</Box>
                   </TableCell>
                    <TableCell width="15%" align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
                     <Box sx={{ px: 4, pb: 1.5 }}>Quantidade</Box>
                    </TableCell>
-                   {selectedNatureza?.exigeValorUnitario && (
+                   {isAtivo(selectedNatureza?.propriedadeValorUnitario) && (
                      <>
                        <TableCell width="15%" align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd', p: 0 }}>
                         <Box sx={{ px: 4, pb: 1.5 }}>Preço</Box>
@@ -596,8 +612,8 @@ export default function NovoPedidoPage() {
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault()
-                                // Move to price field in the same row if exigeValorUnitario, otherwise add new item
-                                if (selectedNatureza?.exigeValorUnitario) {
+                                // Move to price field in the same row if valor unitário está ativo
+                                if (isAtivo(selectedNatureza?.propriedadeValorUnitario)) {
                                   const row = document.querySelectorAll('tbody tr')[index];
                                   const inputs = row?.querySelectorAll('input');
                                   if (inputs && inputs[2]) (inputs[2] as HTMLInputElement).focus();
@@ -636,7 +652,7 @@ export default function NovoPedidoPage() {
                           />
                         </Box>
                       </TableCell>
-                      {selectedNatureza?.exigeValorUnitario && (
+                      {isAtivo(selectedNatureza?.propriedadeValorUnitario) && (
                         <>
                           <TableCell align="right" sx={{ position: 'relative' }}>
                             <Edit className="edit-icon" sx={{ opacity: 0, position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: '#aaa', transition: 'opacity 0.2s', zIndex: 1, pointerEvents: 'none' }} />
@@ -749,7 +765,7 @@ export default function NovoPedidoPage() {
                 })}
                 
                 {/* Total Row */}
-                {selectedNatureza?.exigeValorUnitario && (
+                {isAtivo(selectedNatureza?.propriedadeValorUnitario) && (
                   <TableRow>
                     <TableCell colSpan={4} sx={{ borderBottom: 'none' }}></TableCell>
                     <TableCell align="right" sx={{ borderBottom: 'none', p: 0 }}>

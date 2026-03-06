@@ -2,9 +2,9 @@ export interface NaturezaOperacao {
   id: number;
   descricao: string;
   tipoMovimento: 'ENTRADA' | 'SAIDA';
-  exigeCliente: boolean;
-  exigeValorUnitario: boolean;
-  exigeStatus: boolean;
+  propriedadeCliente: 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO';
+  propriedadeValorUnitario: 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO';
+  propriedadeStatus: 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO';
 }
 
 export interface Pedido {

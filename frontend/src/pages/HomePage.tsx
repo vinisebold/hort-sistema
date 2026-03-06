@@ -177,6 +177,9 @@ export default function HomePage() {
             await naturezasApi.criar({
                 descricao: naturezaForm.descricao,
                 tipoMovimento: naturezaForm.tipoMovimento,
+                propriedadeCliente: 'OBRIGATORIO',
+                propriedadeValorUnitario: 'OBRIGATORIO',
+                propriedadeStatus: 'OBRIGATORIO'
             })
             setFormState(prev => ({ ...prev, loading: false, error: '' }))
             closeModal()

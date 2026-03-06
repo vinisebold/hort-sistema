@@ -10,7 +10,7 @@
 - Muder o placeholder de quando o cliente nao foi colocado no pedido, atualmente tem somente "Consumido final" oque nao faz sentido;
 - Deve deixar mais simples a divida, poder usar um filtro que de para ver a divida deste mes, mes pasado, dos ultimos 7 dias etc por meio de badges;
 - O valor total da divida deve ser calculada considerando o valor ja pago ou do credito;
-- Nao deve colocar cliente em compra de mercadoria;
+- FEITO - Nao deve colocar cliente em compra de mercadoria;
 ===================================================================
 - Entender a necessidade de "Devolver" ou "Retornar" um pedido, atualmente temos somente a opcao de "Cancelar" um pedido, porem as vezes o cliente pode querer devolver um pedido ou retornar um pedido, entao devemos entender melhor a necessidade disso e caso seja necessario implementar essas funcionalidades.
 - FEITO - Melhorar UI e UX da tela de estoque, atualmente esta dificil de ler pois a primeira coisa que lemos e o campo de codigo do produto sendo que o codigo do produto deveria ser auto gerado e opcionalmente o o usuario poder modificar da forma que ele quiser.

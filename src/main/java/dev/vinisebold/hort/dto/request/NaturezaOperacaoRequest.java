@@ -3,6 +3,7 @@ package dev.vinisebold.hort.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import dev.vinisebold.hort.model.CampoPropriedade;
 import dev.vinisebold.hort.model.TipoMovimento;
 
 @Data
@@ -13,12 +14,12 @@ public class NaturezaOperacaoRequest {
     @NotNull(message = "O tipo de movimento (ENTRADA ou SAIDA) é obrigatório")
     private TipoMovimento tipoMovimento;
 
-    @NotNull(message = "Campo 'exigeCliente' é obrigatório")
-    private Boolean exigeCliente;
+    @NotNull(message = "Campo 'propriedadeCliente' é obrigatório")
+    private CampoPropriedade propriedadeCliente;
 
-    @NotNull(message = "Campo 'exigeValorUnitario' é obrigatório")
-    private Boolean exigeValorUnitario;
+    @NotNull(message = "Campo 'propriedadeValorUnitario' é obrigatório")
+    private CampoPropriedade propriedadeValorUnitario;
 
-    @NotNull(message = "Campo 'exigeStatus' é obrigatório")
-    private Boolean exigeStatus;
+    @NotNull(message = "Campo 'propriedadeStatus' é obrigatório")
+    private CampoPropriedade propriedadeStatus;
 }

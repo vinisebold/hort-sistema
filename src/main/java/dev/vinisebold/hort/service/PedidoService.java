@@ -44,7 +44,8 @@ public class PedidoService {
 
         // 3. Buscar Cliente (se obrigatório)
         Cliente cliente = null;
-        if (natureza.getExigeCliente() && request.getClienteId() != null) {
+        CampoPropriedade propriedadeCliente = resolvePropriedade(natureza.getPropriedadeCliente(), natureza.getExigeCliente());
+        if (propriedadeCliente != CampoPropriedade.DESATIVADO && request.getClienteId() != null) {
             cliente = clienteRepository.findById(request.getClienteId())
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         }
@@ -59,9 +60,13 @@ public class PedidoService {
 
         // Calcula o valor total apenas se natureza exigir valorUnitario
         BigDecimal valorTotalPedido = BigDecimal.ZERO;
-        if (natureza.getExigeValorUnitario()) {
+        CampoPropriedade propriedadeValorUnitario = resolvePropriedade(natureza.getPropriedadeValorUnitario(), natureza.getExigeValorUnitario());
+        if (propriedadeValorUnitario != CampoPropriedade.DESATIVADO) {
             valorTotalPedido = request.getItens().stream()
-                    .map(i -> i.getValorUnitario().multiply(i.getQuantidade()))
+                    .map(i -> {
+                        BigDecimal valorUnitario = i.getValorUnitario() != null ? i.getValorUnitario() : BigDecimal.ZERO;
+                        return valorUnitario.multiply(i.getQuantidade());
+                    })
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
         pedido.setValorTotal(valorTotalPedido);
@@ -79,8 +84,8 @@ public class PedidoService {
             item.setQuantidade(itemReq.getQuantidade());
             
             // Valor unitário é setado apenas se natureza exigir
-            BigDecimal valorUnitario = natureza.getExigeValorUnitario() 
-                    ? itemReq.getValorUnitario() 
+            BigDecimal valorUnitario = propriedadeValorUnitario != CampoPropriedade.DESATIVADO
+                    ? (itemReq.getValorUnitario() != null ? itemReq.getValorUnitario() : BigDecimal.ZERO)
                     : BigDecimal.ZERO;
             item.setValorUnitario(valorUnitario);
             item.setValorTotal(valorUnitario.multiply(itemReq.getQuantidade()));
@@ -93,7 +98,7 @@ public class PedidoService {
 
             // 6. Mágica do Fluxo (Entrada vs Saída)
             if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
-                if (natureza.getExigeValorUnitario()) {
+                if (propriedadeValorUnitario != CampoPropriedade.DESATIVADO) {
                     item.setCustoUnitario(item.getValorUnitario());
                     item = itemPedidoRepository.save(item);
                     fifoService.registrarLoteCompra(item);
@@ -103,7 +108,7 @@ public class PedidoService {
             } else if (TipoMovimento.SAIDA.equals(natureza.getTipoMovimento())) {
                 estoqueService.processarMovimentacao(produto, natureza, pedido, item.getQuantidade());
 
-                if (natureza.getExigeValorUnitario()) {
+                if (propriedadeValorUnitario != CampoPropriedade.DESATIVADO) {
                     // Puxa o custo exato do banco de lotes FIFO
                     BigDecimal custoExatoFifo = fifoService.processarVendaFifo(item);
                     item.setCustoUnitario(custoExatoFifo);
@@ -114,7 +119,9 @@ public class PedidoService {
 
         List<ItemPedidoResponse> itensResponse = request.getItens().stream().map(req -> {
             Produto p = produtoRepository.findById(req.getProdutoId()).orElseThrow();
-            BigDecimal valorUnit = natureza.getExigeValorUnitario() ? req.getValorUnitario() : BigDecimal.ZERO;
+            BigDecimal valorUnit = propriedadeValorUnitario != CampoPropriedade.DESATIVADO
+                    ? (req.getValorUnitario() != null ? req.getValorUnitario() : BigDecimal.ZERO)
+                    : BigDecimal.ZERO;
             return ItemPedidoResponse.builder()
                     .produtoId(p.getId())
                     .produtoDescricao(p.getDescricao())
@@ -137,16 +144,22 @@ public class PedidoService {
     }
 
     private void validatePedido(PedidoRequest request, NaturezaOperacao natureza) {
+        CampoPropriedade propriedadeCliente = resolvePropriedade(natureza.getPropriedadeCliente(), natureza.getExigeCliente());
+        CampoPropriedade propriedadeStatus = resolvePropriedade(natureza.getPropriedadeStatus(), natureza.getExigeStatus());
+        CampoPropriedade propriedadeValorUnitario = resolvePropriedade(natureza.getPropriedadeValorUnitario(), natureza.getExigeValorUnitario());
         
         // 1. Validar Cliente
-        if (natureza.getExigeCliente() && request.getClienteId() == null) {
+        if (propriedadeCliente == CampoPropriedade.OBRIGATORIO && request.getClienteId() == null) {
             throw new IllegalArgumentException(
                 "Cliente/Fornecedor é obrigatório para: " + natureza.getDescricao()
             );
         }
+        if (propriedadeCliente == CampoPropriedade.DESATIVADO && request.getClienteId() != null) {
+            throw new IllegalArgumentException("Cliente/Fornecedor deve estar desativado para: " + natureza.getDescricao());
+        }
         
         // 2. Validar Status
-        if (natureza.getExigeStatus()) {
+        if (propriedadeStatus == CampoPropriedade.OBRIGATORIO) {
             if (request.getStatus() == null || request.getStatus().trim().isEmpty()) {
                 throw new IllegalArgumentException("Status é obrigatório para: " + natureza.getDescricao());
             }
@@ -166,14 +179,31 @@ public class PedidoService {
                     );
                 }
             }
+        } else if (propriedadeStatus == CampoPropriedade.OPCIONAL) {
+            if (request.getStatus() != null && !request.getStatus().trim().isEmpty()) {
+                List<String> statusValidos = List.of("PAGO", "PENDENTE");
+                if (!statusValidos.contains(request.getStatus())) {
+                    throw new IllegalArgumentException("Status inválido: " + request.getStatus());
+                }
+
+                if ("PENDENTE".equals(request.getStatus()) &&
+                        (request.getDocumentoReferencia() == null || request.getDocumentoReferencia().trim().isEmpty())) {
+                    throw new IllegalArgumentException(
+                            "Documento de referência obrigatório para status PENDENTE"
+                    );
+                }
+            } else {
+                request.setStatus(null);
+                request.setDocumentoReferencia(null);
+            }
         } else {
-            // Operação não exige status: forçar NULL
+            // Operação com status desativado: forçar NULL
             request.setStatus(null);
             request.setDocumentoReferencia(null);
         }
         
         // 3. Validar Valor Unitário nos Itens
-        if (natureza.getExigeValorUnitario()) {
+        if (propriedadeValorUnitario == CampoPropriedade.OBRIGATORIO) {
             for (ItemPedidoRequest item : request.getItens()) {
                 if (item.getValorUnitario() == null) {
                     throw new IllegalArgumentException(
@@ -181,7 +211,7 @@ public class PedidoService {
                     );
                 }
             }
-        } else {
+        } else if (propriedadeValorUnitario == CampoPropriedade.DESATIVADO) {
             // Operação não exige valor: forçar ZERO em todos os itens
             for (ItemPedidoRequest item : request.getItens()) {
                 item.setValorUnitario(BigDecimal.ZERO);
@@ -234,16 +264,17 @@ public class PedidoService {
         
         List<ItemPedido> itens = itemPedidoRepository.findByPedido(pedido);
         NaturezaOperacao natureza = pedido.getNaturezaOperacao();
+        CampoPropriedade propriedadeValorUnitario = resolvePropriedade(natureza.getPropriedadeValorUnitario(), natureza.getExigeValorUnitario());
         
         for (ItemPedido item : itens) {
             Produto produto = item.getProduto();
             
             if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
-                if (natureza.getExigeValorUnitario()) {
+                if (propriedadeValorUnitario != CampoPropriedade.DESATIVADO) {
                     fifoService.estornarLoteCompra(item);
                 }
             } else if (TipoMovimento.SAIDA.equals(natureza.getTipoMovimento())) {
-                if (natureza.getExigeValorUnitario()) {
+                if (propriedadeValorUnitario != CampoPropriedade.DESATIVADO) {
                     fifoService.estornarVendaFifo(item);
                 }
             }
@@ -305,5 +336,12 @@ public class PedidoService {
                 .dataEmissao(pedido.getDataEmissao())
                 .itens(itensResponse)
                 .build();
+    }
+
+    private CampoPropriedade resolvePropriedade(CampoPropriedade propriedade, Boolean legadoExige) {
+        if (propriedade != null) {
+            return propriedade;
+        }
+        return Boolean.TRUE.equals(legadoExige) ? CampoPropriedade.OBRIGATORIO : CampoPropriedade.DESATIVADO;
     }
 }

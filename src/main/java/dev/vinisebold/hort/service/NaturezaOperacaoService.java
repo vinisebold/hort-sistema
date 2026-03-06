@@ -2,6 +2,7 @@ package dev.vinisebold.hort.service;
 
 import dev.vinisebold.hort.dto.request.NaturezaOperacaoRequest;
 import dev.vinisebold.hort.dto.response.NaturezaOperacaoResponse;
+import dev.vinisebold.hort.model.CampoPropriedade;
 import dev.vinisebold.hort.model.NaturezaOperacao;
 import dev.vinisebold.hort.repository.NaturezaOperacaoRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +24,10 @@ public class NaturezaOperacaoService {
         NaturezaOperacao no = new NaturezaOperacao();
         no.setDescricao(request.getDescricao());
         no.setTipoMovimento(request.getTipoMovimento());
-        no.setExigeCliente(request.getExigeCliente());
-        no.setExigeValorUnitario(request.getExigeValorUnitario());
-        no.setExigeStatus(request.getExigeStatus());
+        no.setPropriedadeCliente(request.getPropriedadeCliente());
+        no.setPropriedadeValorUnitario(request.getPropriedadeValorUnitario());
+        no.setPropriedadeStatus(request.getPropriedadeStatus());
+        syncLegacyFlags(no);
         return mapToResponse(repository.save(no));
     }
 
@@ -47,19 +49,44 @@ public class NaturezaOperacaoService {
         }
         no.setDescricao(request.getDescricao());
         no.setTipoMovimento(request.getTipoMovimento());
-        no.setExigeCliente(request.getExigeCliente());
-        no.setExigeValorUnitario(request.getExigeValorUnitario());
-        no.setExigeStatus(request.getExigeStatus());
+        no.setPropriedadeCliente(request.getPropriedadeCliente());
+        no.setPropriedadeValorUnitario(request.getPropriedadeValorUnitario());
+        no.setPropriedadeStatus(request.getPropriedadeStatus());
+        syncLegacyFlags(no);
         return mapToResponse(repository.save(no));
     }
 
     public NaturezaOperacaoResponse mapToResponse(NaturezaOperacao no) {
+        CampoPropriedade propriedadeCliente = resolvePropriedade(no.getPropriedadeCliente(), no.getExigeCliente());
+        CampoPropriedade propriedadeValorUnitario = resolvePropriedade(no.getPropriedadeValorUnitario(), no.getExigeValorUnitario());
+        CampoPropriedade propriedadeStatus = resolvePropriedade(no.getPropriedadeStatus(), no.getExigeStatus());
+
         return NaturezaOperacaoResponse.builder()
                 .id(no.getId()).descricao(no.getDescricao())
                 .tipoMovimento(no.getTipoMovimento())
-                .exigeCliente(no.getExigeCliente())
-                .exigeValorUnitario(no.getExigeValorUnitario())
-                .exigeStatus(no.getExigeStatus())
+                .propriedadeCliente(propriedadeCliente)
+                .propriedadeValorUnitario(propriedadeValorUnitario)
+                .propriedadeStatus(propriedadeStatus)
                 .build();
+    }
+
+    private void syncLegacyFlags(NaturezaOperacao no) {
+        CampoPropriedade propriedadeCliente = resolvePropriedade(no.getPropriedadeCliente(), no.getExigeCliente());
+        CampoPropriedade propriedadeValorUnitario = resolvePropriedade(no.getPropriedadeValorUnitario(), no.getExigeValorUnitario());
+        CampoPropriedade propriedadeStatus = resolvePropriedade(no.getPropriedadeStatus(), no.getExigeStatus());
+
+        no.setPropriedadeCliente(propriedadeCliente);
+        no.setPropriedadeValorUnitario(propriedadeValorUnitario);
+        no.setPropriedadeStatus(propriedadeStatus);
+        no.setExigeCliente(CampoPropriedade.OBRIGATORIO.equals(propriedadeCliente));
+        no.setExigeValorUnitario(CampoPropriedade.OBRIGATORIO.equals(propriedadeValorUnitario));
+        no.setExigeStatus(CampoPropriedade.OBRIGATORIO.equals(propriedadeStatus));
+    }
+
+    private CampoPropriedade resolvePropriedade(CampoPropriedade propriedade, Boolean legadoExige) {
+        if (propriedade != null) {
+            return propriedade;
+        }
+        return Boolean.TRUE.equals(legadoExige) ? CampoPropriedade.OBRIGATORIO : CampoPropriedade.DESATIVADO;
     }
 }

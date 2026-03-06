@@ -2,6 +2,7 @@ package dev.vinisebold.hort.controller;
 
 import dev.vinisebold.hort.dto.request.NaturezaOperacaoRequest;
 import dev.vinisebold.hort.dto.response.NaturezaOperacaoResponse;
+import dev.vinisebold.hort.model.CampoPropriedade;
 import dev.vinisebold.hort.model.TipoMovimento;
 import dev.vinisebold.hort.service.JwtService;
 import dev.vinisebold.hort.service.NaturezaOperacaoService;
@@ -45,15 +46,15 @@ class NaturezaOperacaoControllerTest {
     // ---------------------------------------------------------------------------
 
     private NaturezaOperacaoResponse criarResponse(Integer id, String descricao,
-                                                    TipoMovimento tipoMovimento, Boolean exigeCliente,
-                                                    Boolean exigeValorUnitario, Boolean exigeStatus) {
+                                                    TipoMovimento tipoMovimento, CampoPropriedade propriedadeCliente,
+                                                    CampoPropriedade propriedadeValorUnitario, CampoPropriedade propriedadeStatus) {
         return NaturezaOperacaoResponse.builder()
                 .id(id)
                 .descricao(descricao)
                 .tipoMovimento(tipoMovimento)
-                .exigeCliente(exigeCliente)
-                .exigeValorUnitario(exigeValorUnitario)
-                .exigeStatus(exigeStatus)
+                .propriedadeCliente(propriedadeCliente)
+                .propriedadeValorUnitario(propriedadeValorUnitario)
+                .propriedadeStatus(propriedadeStatus)
                 .build();
     }
 
@@ -68,7 +69,8 @@ class NaturezaOperacaoControllerTest {
         @Test
         @DisplayName("Deve retornar 201 ao criar natureza de operacao com sucesso")
         void deveRetornar201AoCriarComSucesso() throws Exception {
-            NaturezaOperacaoResponse response = criarResponse(1, "Compra", TipoMovimento.ENTRADA, true, true, true);
+            NaturezaOperacaoResponse response = criarResponse(1, "Compra", TipoMovimento.ENTRADA,
+                    CampoPropriedade.OBRIGATORIO, CampoPropriedade.OBRIGATORIO, CampoPropriedade.OBRIGATORIO);
 
             when(service.criar(any(NaturezaOperacaoRequest.class))).thenReturn(response);
 
@@ -76,9 +78,9 @@ class NaturezaOperacaoControllerTest {
                     {
                         "descricao": "Compra",
                         "tipoMovimento": "ENTRADA",
-                        "exigeCliente": true,
-                        "exigeValorUnitario": true,
-                        "exigeStatus": true
+                        "propriedadeCliente": "OBRIGATORIO",
+                        "propriedadeValorUnitario": "OBRIGATORIO",
+                        "propriedadeStatus": "OBRIGATORIO"
                     }
                     """;
 
@@ -89,9 +91,9 @@ class NaturezaOperacaoControllerTest {
                     .andExpect(jsonPath("$.id").value(1))
                     .andExpect(jsonPath("$.descricao").value("Compra"))
                     .andExpect(jsonPath("$.tipoMovimento").value("ENTRADA"))
-                    .andExpect(jsonPath("$.exigeCliente").value(true))
-                    .andExpect(jsonPath("$.exigeValorUnitario").value(true))
-                    .andExpect(jsonPath("$.exigeStatus").value(true));
+                    .andExpect(jsonPath("$.propriedadeCliente").value("OBRIGATORIO"))
+                    .andExpect(jsonPath("$.propriedadeValorUnitario").value("OBRIGATORIO"))
+                    .andExpect(jsonPath("$.propriedadeStatus").value("OBRIGATORIO"));
         }
 
         @Test
@@ -101,9 +103,9 @@ class NaturezaOperacaoControllerTest {
                     {
                         "descricao": "",
                         "tipoMovimento": "ENTRADA",
-                        "exigeCliente": true,
-                        "exigeValorUnitario": true,
-                        "exigeStatus": true
+                        "propriedadeCliente": "OBRIGATORIO",
+                        "propriedadeValorUnitario": "OBRIGATORIO",
+                        "propriedadeStatus": "OBRIGATORIO"
                     }
                     """;
 
@@ -116,15 +118,15 @@ class NaturezaOperacaoControllerTest {
         }
 
         @Test
-        @DisplayName("Deve retornar 400 quando exigeCliente for nulo")
-        void deveRetornar400QuandoExigeClienteNulo() throws Exception {
+        @DisplayName("Deve retornar 400 quando propriedadeCliente for nulo")
+        void deveRetornar400QuandoPropriedadeClienteNulo() throws Exception {
             String requestJson = """
                     {
                         "descricao": "Compra",
                         "tipoMovimento": "ENTRADA",
-                        "exigeCliente": null,
-                        "exigeValorUnitario": true,
-                        "exigeStatus": true
+                        "propriedadeCliente": null,
+                        "propriedadeValorUnitario": "OBRIGATORIO",
+                        "propriedadeStatus": "OBRIGATORIO"
                     }
                     """;
 
@@ -148,8 +150,10 @@ class NaturezaOperacaoControllerTest {
         @Test
         @DisplayName("Deve retornar 200 com lista de naturezas de operacao")
         void deveRetornar200ComLista() throws Exception {
-            NaturezaOperacaoResponse no1 = criarResponse(1, "Compra", TipoMovimento.ENTRADA, true, true, true);
-            NaturezaOperacaoResponse no2 = criarResponse(2, "Venda", TipoMovimento.SAIDA, true, true, true);
+            NaturezaOperacaoResponse no1 = criarResponse(1, "Compra", TipoMovimento.ENTRADA,
+                    CampoPropriedade.OBRIGATORIO, CampoPropriedade.OBRIGATORIO, CampoPropriedade.OBRIGATORIO);
+            NaturezaOperacaoResponse no2 = criarResponse(2, "Venda", TipoMovimento.SAIDA,
+                    CampoPropriedade.OBRIGATORIO, CampoPropriedade.OBRIGATORIO, CampoPropriedade.OBRIGATORIO);
 
             when(service.listarTodos()).thenReturn(List.of(no1, no2));
 
@@ -176,7 +180,8 @@ class NaturezaOperacaoControllerTest {
         @Test
         @DisplayName("Deve retornar 200 ao buscar natureza de operacao por id")
         void deveRetornar200AoBuscarPorId() throws Exception {
-            NaturezaOperacaoResponse response = criarResponse(1, "Compra", TipoMovimento.ENTRADA, true, true, true);
+            NaturezaOperacaoResponse response = criarResponse(1, "Compra", TipoMovimento.ENTRADA,
+                    CampoPropriedade.OBRIGATORIO, CampoPropriedade.OBRIGATORIO, CampoPropriedade.OBRIGATORIO);
 
             when(service.buscarPorId(1)).thenReturn(response);
 
@@ -185,9 +190,9 @@ class NaturezaOperacaoControllerTest {
                     .andExpect(jsonPath("$.id").value(1))
                     .andExpect(jsonPath("$.descricao").value("Compra"))
                     .andExpect(jsonPath("$.tipoMovimento").value("ENTRADA"))
-                    .andExpect(jsonPath("$.exigeCliente").value(true))
-                    .andExpect(jsonPath("$.exigeValorUnitario").value(true))
-                    .andExpect(jsonPath("$.exigeStatus").value(true));
+                    .andExpect(jsonPath("$.propriedadeCliente").value("OBRIGATORIO"))
+                    .andExpect(jsonPath("$.propriedadeValorUnitario").value("OBRIGATORIO"))
+                    .andExpect(jsonPath("$.propriedadeStatus").value("OBRIGATORIO"));
         }
 
         @Test
@@ -215,7 +220,8 @@ class NaturezaOperacaoControllerTest {
         @Test
         @DisplayName("Deve retornar 200 ao atualizar natureza de operacao com sucesso")
         void deveRetornar200AoAtualizarComSucesso() throws Exception {
-            NaturezaOperacaoResponse response = criarResponse(1, "Venda Direta", TipoMovimento.SAIDA, true, true, false);
+            NaturezaOperacaoResponse response = criarResponse(1, "Venda Direta", TipoMovimento.SAIDA,
+                    CampoPropriedade.OBRIGATORIO, CampoPropriedade.OBRIGATORIO, CampoPropriedade.DESATIVADO);
 
             when(service.atualizar(eq(1), any(NaturezaOperacaoRequest.class))).thenReturn(response);
 
@@ -223,9 +229,9 @@ class NaturezaOperacaoControllerTest {
                     {
                         "descricao": "Venda Direta",
                         "tipoMovimento": "SAIDA",
-                        "exigeCliente": true,
-                        "exigeValorUnitario": true,
-                        "exigeStatus": false
+                        "propriedadeCliente": "OBRIGATORIO",
+                        "propriedadeValorUnitario": "OBRIGATORIO",
+                        "propriedadeStatus": "DESATIVADO"
                     }
                     """;
 
@@ -236,9 +242,9 @@ class NaturezaOperacaoControllerTest {
                     .andExpect(jsonPath("$.id").value(1))
                     .andExpect(jsonPath("$.descricao").value("Venda Direta"))
                     .andExpect(jsonPath("$.tipoMovimento").value("SAIDA"))
-                    .andExpect(jsonPath("$.exigeCliente").value(true))
-                    .andExpect(jsonPath("$.exigeValorUnitario").value(true))
-                    .andExpect(jsonPath("$.exigeStatus").value(false));
+                    .andExpect(jsonPath("$.propriedadeCliente").value("OBRIGATORIO"))
+                    .andExpect(jsonPath("$.propriedadeValorUnitario").value("OBRIGATORIO"))
+                    .andExpect(jsonPath("$.propriedadeStatus").value("DESATIVADO"));
         }
     }
 }

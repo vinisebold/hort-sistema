@@ -2,6 +2,7 @@ package dev.vinisebold.hort.service;
 
 import dev.vinisebold.hort.dto.request.NaturezaOperacaoRequest;
 import dev.vinisebold.hort.dto.response.NaturezaOperacaoResponse;
+import dev.vinisebold.hort.model.CampoPropriedade;
 import dev.vinisebold.hort.model.NaturezaOperacao;
 import dev.vinisebold.hort.model.TipoMovimento;
 import dev.vinisebold.hort.repository.NaturezaOperacaoRepository;
@@ -41,6 +42,9 @@ class NaturezaOperacaoServiceTest {
         naturezaOperacao.setId(1);
         naturezaOperacao.setDescricao("Compra");
         naturezaOperacao.setTipoMovimento(TipoMovimento.ENTRADA);
+        naturezaOperacao.setPropriedadeCliente(CampoPropriedade.OBRIGATORIO);
+        naturezaOperacao.setPropriedadeValorUnitario(CampoPropriedade.OBRIGATORIO);
+        naturezaOperacao.setPropriedadeStatus(CampoPropriedade.OBRIGATORIO);
         naturezaOperacao.setExigeCliente(true);
         naturezaOperacao.setExigeValorUnitario(true);
         naturezaOperacao.setExigeStatus(true);
@@ -48,9 +52,9 @@ class NaturezaOperacaoServiceTest {
         request = new NaturezaOperacaoRequest();
         request.setDescricao("Compra");
         request.setTipoMovimento(TipoMovimento.ENTRADA);
-        request.setExigeCliente(true);
-        request.setExigeValorUnitario(true);
-        request.setExigeStatus(true);
+        request.setPropriedadeCliente(CampoPropriedade.OBRIGATORIO);
+        request.setPropriedadeValorUnitario(CampoPropriedade.OBRIGATORIO);
+        request.setPropriedadeStatus(CampoPropriedade.OBRIGATORIO);
     }
 
     @Nested
@@ -69,9 +73,9 @@ class NaturezaOperacaoServiceTest {
             assertThat(response.getId()).isEqualTo(1);
             assertThat(response.getDescricao()).isEqualTo("Compra");
             assertThat(response.getTipoMovimento()).isEqualTo(TipoMovimento.ENTRADA);
-            assertThat(response.getExigeCliente()).isTrue();
-            assertThat(response.getExigeValorUnitario()).isTrue();
-            assertThat(response.getExigeStatus()).isTrue();
+            assertThat(response.getPropriedadeCliente()).isEqualTo(CampoPropriedade.OBRIGATORIO);
+            assertThat(response.getPropriedadeValorUnitario()).isEqualTo(CampoPropriedade.OBRIGATORIO);
+            assertThat(response.getPropriedadeStatus()).isEqualTo(CampoPropriedade.OBRIGATORIO);
 
             verify(repository).existsByDescricao("Compra");
             verify(repository).save(any(NaturezaOperacao.class));
@@ -102,6 +106,9 @@ class NaturezaOperacaoServiceTest {
             no2.setId(2);
             no2.setDescricao("Venda");
             no2.setTipoMovimento(TipoMovimento.SAIDA);
+            no2.setPropriedadeCliente(CampoPropriedade.OBRIGATORIO);
+            no2.setPropriedadeValorUnitario(CampoPropriedade.OBRIGATORIO);
+            no2.setPropriedadeStatus(CampoPropriedade.OBRIGATORIO);
             no2.setExigeCliente(true);
             no2.setExigeValorUnitario(true);
             no2.setExigeStatus(true);
@@ -147,9 +154,9 @@ class NaturezaOperacaoServiceTest {
             assertThat(response.getId()).isEqualTo(1);
             assertThat(response.getDescricao()).isEqualTo("Compra");
             assertThat(response.getTipoMovimento()).isEqualTo(TipoMovimento.ENTRADA);
-            assertThat(response.getExigeCliente()).isTrue();
-            assertThat(response.getExigeValorUnitario()).isTrue();
-            assertThat(response.getExigeStatus()).isTrue();
+            assertThat(response.getPropriedadeCliente()).isEqualTo(CampoPropriedade.OBRIGATORIO);
+            assertThat(response.getPropriedadeValorUnitario()).isEqualTo(CampoPropriedade.OBRIGATORIO);
+            assertThat(response.getPropriedadeStatus()).isEqualTo(CampoPropriedade.OBRIGATORIO);
 
             verify(repository).findById(1);
         }
@@ -177,14 +184,17 @@ class NaturezaOperacaoServiceTest {
             NaturezaOperacaoRequest updateRequest = new NaturezaOperacaoRequest();
             updateRequest.setDescricao("Devolução");
             updateRequest.setTipoMovimento(TipoMovimento.SAIDA);
-            updateRequest.setExigeCliente(false);
-            updateRequest.setExigeValorUnitario(false);
-            updateRequest.setExigeStatus(false);
+            updateRequest.setPropriedadeCliente(CampoPropriedade.DESATIVADO);
+            updateRequest.setPropriedadeValorUnitario(CampoPropriedade.DESATIVADO);
+            updateRequest.setPropriedadeStatus(CampoPropriedade.DESATIVADO);
 
             NaturezaOperacao noAtualizada = new NaturezaOperacao();
             noAtualizada.setId(1);
             noAtualizada.setDescricao("Devolução");
             noAtualizada.setTipoMovimento(TipoMovimento.SAIDA);
+            noAtualizada.setPropriedadeCliente(CampoPropriedade.DESATIVADO);
+            noAtualizada.setPropriedadeValorUnitario(CampoPropriedade.DESATIVADO);
+            noAtualizada.setPropriedadeStatus(CampoPropriedade.DESATIVADO);
             noAtualizada.setExigeCliente(false);
             noAtualizada.setExigeValorUnitario(false);
             noAtualizada.setExigeStatus(false);
@@ -198,9 +208,9 @@ class NaturezaOperacaoServiceTest {
             assertThat(response).isNotNull();
             assertThat(response.getDescricao()).isEqualTo("Devolução");
             assertThat(response.getTipoMovimento()).isEqualTo(TipoMovimento.SAIDA);
-            assertThat(response.getExigeCliente()).isFalse();
-            assertThat(response.getExigeValorUnitario()).isFalse();
-            assertThat(response.getExigeStatus()).isFalse();
+            assertThat(response.getPropriedadeCliente()).isEqualTo(CampoPropriedade.DESATIVADO);
+            assertThat(response.getPropriedadeValorUnitario()).isEqualTo(CampoPropriedade.DESATIVADO);
+            assertThat(response.getPropriedadeStatus()).isEqualTo(CampoPropriedade.DESATIVADO);
 
             verify(repository).findById(1);
             verify(repository).existsByDescricao("Devolução");
@@ -213,9 +223,9 @@ class NaturezaOperacaoServiceTest {
             NaturezaOperacaoRequest updateRequest = new NaturezaOperacaoRequest();
             updateRequest.setDescricao("Venda");
             updateRequest.setTipoMovimento(TipoMovimento.SAIDA);
-            updateRequest.setExigeCliente(true);
-            updateRequest.setExigeValorUnitario(true);
-            updateRequest.setExigeStatus(true);
+            updateRequest.setPropriedadeCliente(CampoPropriedade.OBRIGATORIO);
+            updateRequest.setPropriedadeValorUnitario(CampoPropriedade.OBRIGATORIO);
+            updateRequest.setPropriedadeStatus(CampoPropriedade.OBRIGATORIO);
 
             when(repository.findById(1)).thenReturn(Optional.of(naturezaOperacao));
             when(repository.existsByDescricao("Venda")).thenReturn(true);
@@ -235,14 +245,17 @@ class NaturezaOperacaoServiceTest {
             NaturezaOperacaoRequest updateRequest = new NaturezaOperacaoRequest();
             updateRequest.setDescricao("Compra");
             updateRequest.setTipoMovimento(TipoMovimento.ENTRADA);
-            updateRequest.setExigeCliente(true);
-            updateRequest.setExigeValorUnitario(true);
-            updateRequest.setExigeStatus(false);
+            updateRequest.setPropriedadeCliente(CampoPropriedade.OBRIGATORIO);
+            updateRequest.setPropriedadeValorUnitario(CampoPropriedade.OBRIGATORIO);
+            updateRequest.setPropriedadeStatus(CampoPropriedade.DESATIVADO);
 
             NaturezaOperacao noAtualizada = new NaturezaOperacao();
             noAtualizada.setId(1);
             noAtualizada.setDescricao("Compra");
             noAtualizada.setTipoMovimento(TipoMovimento.ENTRADA);
+            noAtualizada.setPropriedadeCliente(CampoPropriedade.OBRIGATORIO);
+            noAtualizada.setPropriedadeValorUnitario(CampoPropriedade.OBRIGATORIO);
+            noAtualizada.setPropriedadeStatus(CampoPropriedade.DESATIVADO);
             noAtualizada.setExigeCliente(true);
             noAtualizada.setExigeValorUnitario(true);
             noAtualizada.setExigeStatus(false);
@@ -254,9 +267,9 @@ class NaturezaOperacaoServiceTest {
 
             assertThat(response).isNotNull();
             assertThat(response.getDescricao()).isEqualTo("Compra");
-            assertThat(response.getExigeCliente()).isTrue();
-            assertThat(response.getExigeValorUnitario()).isTrue();
-            assertThat(response.getExigeStatus()).isFalse();
+            assertThat(response.getPropriedadeCliente()).isEqualTo(CampoPropriedade.OBRIGATORIO);
+            assertThat(response.getPropriedadeValorUnitario()).isEqualTo(CampoPropriedade.OBRIGATORIO);
+            assertThat(response.getPropriedadeStatus()).isEqualTo(CampoPropriedade.DESATIVADO);
 
             verify(repository).findById(1);
             verify(repository, never()).existsByDescricao(any());
