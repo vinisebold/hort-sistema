@@ -1,3 +1,17 @@
+- Colocar nos footers das tabelas a quantidades de itens que foram fetchados, por exemplo, "Mostrando 10 de 100 produtos" ou "Mostrando 20 de 50 pedidos", etc... para o usuario ter uma noção melhor da quantidade de itens que tem no total e quantos ele esta vendo.
+- Melhorar o visual dos "meus dados" para o visual enterprise;
+- TALVEZ - tabelar os precos dos produtos, por exemplo, ao cadastrar os produtos, voce colocar que o saco do produto equivale a X kilogramas, a unidade pesa Y, etc.
+- Os cadastros rapidos deve redirecionar para a pagina de cadastros novos indivudualmente, e ao fazer o cadasto voltar para a tela de inicio;
+- Deve ser possivel mudar os status do pedido de PENDENTE para PAGO tanto na tela de pedidos quanto no historico de pedidos no clientes;
+- Deve fazer uma verificacao no nome criado para evitar nomes genericos como "A" "akhdjs" coisas estranhas;
+- Deve-se deixar mais completo o ambiente financeiro, atualmente esta muito pobre de informacoes e nao esta com todos os requesitos implementados;
+- Fazer os checkbox funcionar de verdade igual na myrp;
+- Mudar icone de entrada e saida nos pedidos para ficar parecido com do natureza de operacoes
+- Muder o placeholder de quando o cliente nao foi colocado no pedido, atualmente tem somente "Consumido final" oque nao faz sentido;
+- Deve deixar mais simples a divida, poder usar um filtro que de para ver a divida deste mes, mes pasado, dos ultimos 7 dias etc por meio de badges;
+- O valor total da divida deve ser calculada considerando o valor ja pago ou do credito;
+- Nao deve colocar cliente em compra de mercadoria;
+===================================================================
 - Entender a necessidade de "Devolver" ou "Retornar" um pedido, atualmente temos somente a opcao de "Cancelar" um pedido, porem as vezes o cliente pode querer devolver um pedido ou retornar um pedido, entao devemos entender melhor a necessidade disso e caso seja necessario implementar essas funcionalidades.
 - FEITO - Melhorar UI e UX da tela de estoque, atualmente esta dificil de ler pois a primeira coisa que lemos e o campo de codigo do produto sendo que o codigo do produto deveria ser auto gerado e opcionalmente o o usuario poder modificar da forma que ele quiser.
 - FEITO - Fazer uma feature que consiga ver os clientes individualmente em uma tela onde conssiga ver a quantidade que eles estao devendo total e ver todo o historico de pedidos (tanto pago quanto pendente) do cliente de forma cronologica, deve conseguir abater (mudar os status como pago) dos produtos que o cliente tem pendente. Deve ser possivel ver o total da divida que o cliente esta devendo (falta pagar) o total desta divida do mes. De preferencia sempre tem a visao geral da divida no mes, ou no mes passado. Deve ter uma opcao para conseguir pagar uma parte da divida, entao por exemplo caso o cliente esteja devendo 6 mil reais e ele esta com 0/4 pedidos com o status em pago, e eu coloco que ele agou 3 mil reais, ai abateria 2/4 pedidos ja pago. Caso o cliente vai la e paga mais 1000 nao ira contar 3/4 pois nao deu o valor da notinha, caso o de o valor de alguma das notinhas (DUVIDA: deve ir abatendo as notinhas (pedidos) em algumaa ordem especifica ou ir abatendo pelo menor valor de notinhas, por exeplo  se tem uma notinha de 500 reais no final do mes aberta e outra de 1500 reais aberta no comeco do mes, os 1000 reais iria abter a notinha do final do mes ou nao abeter nenhnuma notinha?????). Deve ser um painel intuitivo de usar e simplificado.
