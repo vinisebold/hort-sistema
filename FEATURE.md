@@ -8,8 +8,8 @@
 - Fazer os checkbox funcionar de verdade igual na myrp;
 - Mudar icone de entrada e saida nos pedidos para ficar parecido com do natureza de operacoes
 - Muder o placeholder de quando o cliente nao foi colocado no pedido, atualmente tem somente "Consumido final" oque nao faz sentido;
-- Deve deixar mais simples a divida, poder usar um filtro que de para ver a divida deste mes, mes pasado, dos ultimos 7 dias etc por meio de badges;
-- O valor total da divida deve ser calculada considerando o valor ja pago ou do credito;
+- FEITO - Deve deixar mais simples a divida, poder usar um filtro que de para ver a divida deste mes, mes pasado, dos ultimos 7 dias etc por meio de badges;
+- FEITO - O valor total da divida deve ser calculada considerando o valor ja pago ou do credito;
 - FEITO - Nao deve colocar cliente em compra de mercadoria;
 ===================================================================
 - Entender a necessidade de "Devolver" ou "Retornar" um pedido, atualmente temos somente a opcao de "Cancelar" um pedido, porem as vezes o cliente pode querer devolver um pedido ou retornar um pedido, entao devemos entender melhor a necessidade disso e caso seja necessario implementar essas funcionalidades.

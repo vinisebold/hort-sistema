@@ -51,16 +51,18 @@ export default function PedidosPage() {
   }, [])
 
   useEffect(() => {
-    const state = location.state as { highlightPedidoId?: number; fromEstoque?: boolean; expandedProdutoId?: number; scrollPosition?: number }
+    const state = location.state as { highlightPedidoId?: number; fromEstoque?: boolean; fromCliente?: boolean; expandedProdutoId?: number; scrollPosition?: number }
     
     // Só processa uma vez por navegação
-    if (state?.fromEstoque && !hasProcessedNavigation.current) {
+    if ((state?.fromEstoque || state?.fromCliente) && !hasProcessedNavigation.current) {
       hasProcessedNavigation.current = true
-      setShowBackButton(true)
-      setEstoqueState({
-        expandedProdutoId: state.expandedProdutoId,
-        scrollPosition: state.scrollPosition
-      })
+      if (state?.fromEstoque) {
+        setShowBackButton(true)
+        setEstoqueState({
+          expandedProdutoId: state.expandedProdutoId,
+          scrollPosition: state.scrollPosition
+        })
+      }
       
       // Se veio do estoque, processa o highlight
       if (state.highlightPedidoId && pedidos.length > 0) {
@@ -180,6 +182,25 @@ export default function PedidosPage() {
     } catch (error: any) {
       setCancelConfirm(null)
       showToast(error.response?.data?.message || 'Erro ao cancelar pedido.', 'error')
+    }
+  }
+
+  const handleMarcarComoPago = async () => {
+    if (!selectedMenuPedido) return
+
+    try {
+      await pedidosApi.marcarComoPago(selectedMenuPedido.id)
+      showToast('Pedido marcado como PAGO com sucesso.', 'success')
+      await loadPedidos()
+
+      if (openView && selectedPedido?.id === selectedMenuPedido.id) {
+        const response = await pedidosApi.buscar(selectedMenuPedido.id)
+        setSelectedPedido(response.data)
+      }
+    } catch (error: any) {
+      showToast(error.response?.data?.message || 'Erro ao marcar pedido como PAGO.', 'error')
+    } finally {
+      handleMenuClose()
     }
   }
 
@@ -373,6 +394,12 @@ export default function PedidosPage() {
           }
         }}
       >
+        <MenuItem
+          onClick={handleMarcarComoPago}
+          disabled={selectedMenuPedido?.status !== 'PENDENTE'}
+        >
+          Marcar como PAGO
+        </MenuItem>
         <MenuItem onClick={() => { handleMenuClose(); /* TODO: Implement Devolver */ }}>
           Devolver
         </MenuItem>

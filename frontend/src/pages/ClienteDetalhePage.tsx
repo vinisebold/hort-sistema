@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Box, Grid, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Typography, TextField, Button, Chip, IconButton, Alert, CircularProgress
+  Typography, TextField, Button, Chip, IconButton, Alert, CircularProgress, Menu, MenuItem
 } from '@mui/material'
 import {
-  ArrowBack, InfoOutlined
+  ArrowBack, InfoOutlined, MoreVert
 } from '@mui/icons-material'
 import axios from 'axios'
-import { clientesApi } from '../services/api'
+import { clientesApi, pedidosApi } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 import { ClienteFinanceiroResponse, AbaterDividaResponse, Pedido } from '../types'
 
@@ -25,6 +25,9 @@ export default function ClienteDetalhePage() {
   const [valorPago, setValorPago] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [periodoFiltro, setPeriodoFiltro] = useState<PeriodoFiltro>('MES_ATUAL')
+  const [processingStatusPedidoId, setProcessingStatusPedidoId] = useState<number | null>(null)
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
+  const [selectedPedidoHistorico, setSelectedPedidoHistorico] = useState<Pedido | null>(null)
 
   useEffect(() => {
     if (!id) {
@@ -108,6 +111,47 @@ export default function ClienteDetalhePage() {
 
   const handleVoltar = () => {
     navigate('/clientes')
+  }
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, pedido: Pedido) => {
+    setMenuAnchorEl(event.currentTarget)
+    setSelectedPedidoHistorico(pedido)
+  }
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null)
+    setSelectedPedidoHistorico(null)
+  }
+
+  const handleIrParaPedido = () => {
+    if (!selectedPedidoHistorico) return
+
+    navigate('/pedidos', {
+      state: {
+        highlightPedidoId: selectedPedidoHistorico.id,
+        fromCliente: true,
+      }
+    })
+    handleMenuClose()
+  }
+
+  const handleMarcarPedidoComoPago = async (pedidoId: number) => {
+    try {
+      setProcessingStatusPedidoId(pedidoId)
+      await pedidosApi.marcarComoPago(pedidoId)
+      showToast('Pedido marcado como PAGO com sucesso.', 'success')
+      await loadClienteFinanceiro()
+      handleMenuClose()
+    } catch (error) {
+      console.error('Erro ao marcar pedido como pago:', error)
+      if (axios.isAxiosError(error)) {
+        showToast(error.response?.data?.message || 'Erro ao marcar pedido como pago', 'error')
+      } else {
+        showToast('Erro ao marcar pedido como pago', 'error')
+      }
+    } finally {
+      setProcessingStatusPedidoId(null)
+    }
   }
 
   const getPeriodoRange = (filtro: PeriodoFiltro) => {
@@ -316,6 +360,7 @@ export default function ClienteDetalhePage() {
                     <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd' }}>Doc. Ref</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd' }}>Valor</TableCell>
                     <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd' }}>Status</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#333', borderBottom: '1px solid #ddd' }}>Ações</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -339,6 +384,15 @@ export default function ClienteDetalhePage() {
                           sx={{ fontSize: '0.75rem' }}
                         />
                       </TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          size="small"
+                          onClick={(event) => handleMenuOpen(event, pedido)}
+                          disabled={processingStatusPedidoId === pedido.id}
+                        >
+                          {processingStatusPedidoId === pedido.id ? <CircularProgress size={16} /> : <MoreVert fontSize="small" />}
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -353,6 +407,20 @@ export default function ClienteDetalhePage() {
           )}
         </CardContent>
       </Card>
+
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem onClick={handleIrParaPedido}>Ir para pedido</MenuItem>
+        <MenuItem
+          onClick={() => selectedPedidoHistorico && handleMarcarPedidoComoPago(selectedPedidoHistorico.id)}
+          disabled={selectedPedidoHistorico?.status !== 'PENDENTE' || processingStatusPedidoId === selectedPedidoHistorico?.id}
+        >
+          Marcar como PAGO
+        </MenuItem>
+      </Menu>
     </Box>
   )
 }
