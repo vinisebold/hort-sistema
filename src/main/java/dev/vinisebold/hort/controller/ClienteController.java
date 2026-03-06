@@ -10,18 +10,21 @@ import dev.vinisebold.hort.dto.response.ConsultaCnpjResponse;
 import dev.vinisebold.hort.service.BrasilApiService;
 import dev.vinisebold.hort.service.ClienteService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/clientes")
-@RequiredArgsConstructor
 public class ClienteController {
 
     private final ClienteService clienteService;
     private final BrasilApiService brasilApiService;
+
+    public ClienteController(ClienteService clienteService, BrasilApiService brasilApiService) {
+        this.clienteService = clienteService;
+        this.brasilApiService = brasilApiService;
+    }
 
     @PostMapping
     public ResponseEntity<ClienteResponse> criar(@Valid @RequestBody ClienteRequest request) {

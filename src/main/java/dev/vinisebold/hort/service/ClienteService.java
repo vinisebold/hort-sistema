@@ -185,14 +185,20 @@ public class ClienteService {
             }
         }
         
+        BigDecimal saldoCredito = cliente.getSaldoCredito() != null ? cliente.getSaldoCredito() : BigDecimal.ZERO;
+        BigDecimal dividaTotalLiquida = dividaTotal.subtract(saldoCredito);
+        if (dividaTotalLiquida.compareTo(BigDecimal.ZERO) < 0) {
+            dividaTotalLiquida = BigDecimal.ZERO;
+        }
+
         return ClienteFinanceiroResponse.builder()
                 .clienteResponse(mapToResponse(cliente))
-                .dividaTotal(dividaTotal)
+                .dividaTotal(dividaTotalLiquida)
                 .dividaMesAtual(dividaMesAtual)
                 .dividaMesAnterior(dividaMesAnterior)
                 .totalPedidosPendentes(totalPedidosPendentes)
                 .totalPedidosPagos(totalPedidosPagos)
-                .saldoCredito(cliente.getSaldoCredito() != null ? cliente.getSaldoCredito() : BigDecimal.ZERO)
+                .saldoCredito(saldoCredito)
                 .historicoPedidos(pedidosResponse)
                 .build();
     }

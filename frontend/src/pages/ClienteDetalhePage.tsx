@@ -12,6 +12,8 @@ import { clientesApi } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 import { ClienteFinanceiroResponse, AbaterDividaResponse, Pedido } from '../types'
 
+type PeriodoFiltro = '7_DIAS' | '30_DIAS' | 'MES_ATUAL' | 'MES_PASSADO' | 'TODOS'
+
 export default function ClienteDetalhePage() {
   const { showToast } = useToast()
   const navigate = useNavigate()
@@ -22,6 +24,7 @@ export default function ClienteDetalhePage() {
   const [clienteFinanceiro, setClienteFinanceiro] = useState<ClienteFinanceiroResponse | null>(null)
   const [valorPago, setValorPago] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [periodoFiltro, setPeriodoFiltro] = useState<PeriodoFiltro>('MES_ATUAL')
 
   useEffect(() => {
     if (!id) {
@@ -107,6 +110,45 @@ export default function ClienteDetalhePage() {
     navigate('/clientes')
   }
 
+  const getPeriodoRange = (filtro: PeriodoFiltro) => {
+    const agora = new Date()
+    const inicioHoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate())
+
+    if (filtro === '7_DIAS') {
+      const inicio = new Date(inicioHoje)
+      inicio.setDate(inicio.getDate() - 6)
+      return { inicio, fim: null }
+    }
+
+    if (filtro === '30_DIAS') {
+      const inicio = new Date(inicioHoje)
+      inicio.setDate(inicio.getDate() - 29)
+      return { inicio, fim: null }
+    }
+
+    if (filtro === 'MES_ATUAL') {
+      const inicio = new Date(agora.getFullYear(), agora.getMonth(), 1)
+      const fim = new Date(agora.getFullYear(), agora.getMonth() + 1, 1)
+      return { inicio, fim }
+    }
+
+    if (filtro === 'MES_PASSADO') {
+      const inicio = new Date(agora.getFullYear(), agora.getMonth() - 1, 1)
+      const fim = new Date(agora.getFullYear(), agora.getMonth(), 1)
+      return { inicio, fim }
+    }
+
+    return { inicio: null, fim: null }
+  }
+
+  const getPeriodoLabel = (filtro: PeriodoFiltro) => {
+    if (filtro === '7_DIAS') return 'Últimos 7 dias'
+    if (filtro === '30_DIAS') return 'Últimos 30 dias'
+    if (filtro === 'MES_ATUAL') return 'Este mês'
+    if (filtro === 'MES_PASSADO') return 'Mês passado'
+    return 'Todo período'
+  }
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
@@ -131,7 +173,23 @@ export default function ClienteDetalhePage() {
   }
 
   const cliente = clienteFinanceiro?.cliente
-  const pendentes = clienteFinanceiro?.totalPedidosPendentes || 0
+  const saldoCredito = clienteFinanceiro?.saldoCredito || 0
+  const dividaTotalLiquida = clienteFinanceiro?.dividaTotal || 0
+
+  const historicoPedidos = clienteFinanceiro?.historicoPedidos || []
+  const periodo = getPeriodoRange(periodoFiltro)
+
+  const pedidosFiltrados = historicoPedidos.filter((pedido) => {
+    const dataPedido = new Date(pedido.dataEmissao)
+
+    if (periodo.inicio && dataPedido < periodo.inicio) return false
+    if (periodo.fim && dataPedido >= periodo.fim) return false
+
+    return true
+  })
+
+  const pedidosPendentesFiltrados = pedidosFiltrados.filter((pedido) => pedido.status === 'PENDENTE')
+  const dividaFiltrada = pedidosPendentesFiltrados.reduce((total, pedido) => total + pedido.valorTotal, 0)
 
   return (
     <Box>
@@ -152,55 +210,51 @@ export default function ClienteDetalhePage() {
       <Card sx={{ mb: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 2 }}>
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h6" sx={{ mb: 3, fontSize: '2rem', fontWeight: 100, color: '#333', letterSpacing: 0.1 }}>
-            Resumo Financeiro
+            Dívida
           </Typography>
-          
+
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
+            <Chip label="7 dias" clickable color={periodoFiltro === '7_DIAS' ? 'primary' : 'default'} onClick={() => setPeriodoFiltro('7_DIAS')} />
+            <Chip label="30 dias" clickable color={periodoFiltro === '30_DIAS' ? 'primary' : 'default'} onClick={() => setPeriodoFiltro('30_DIAS')} />
+            <Chip label="Este mês" clickable color={periodoFiltro === 'MES_ATUAL' ? 'primary' : 'default'} onClick={() => setPeriodoFiltro('MES_ATUAL')} />
+            <Chip label="Mês passado" clickable color={periodoFiltro === 'MES_PASSADO' ? 'primary' : 'default'} onClick={() => setPeriodoFiltro('MES_PASSADO')} />
+            <Chip label="Todos" clickable color={periodoFiltro === 'TODOS' ? 'primary' : 'default'} onClick={() => setPeriodoFiltro('TODOS')} />
+          </Box>
+
           <Grid container spacing={4}>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={4}>
               <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
-                Dívida Total
+                Dívida no Período
               </Typography>
               <Typography variant="h5" sx={{ fontWeight: 300, color: '#333' }}>
-                {formatCurrency(clienteFinanceiro?.dividaTotal || 0)}
+                {formatCurrency(dividaFiltrada)}
               </Typography>
               <Typography variant="caption" sx={{ color: '#888' }}>
-                {pendentes} pendente{pendentes !== 1 ? 's' : ''}
+                {getPeriodoLabel(periodoFiltro)} - {pedidosPendentesFiltrados.length} pendente{pedidosPendentesFiltrados.length !== 1 ? 's' : ''}
               </Typography>
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={4}>
               <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
-                Dívida Mês Atual
+                Crédito Disponível
               </Typography>
               <Typography variant="h5" sx={{ fontWeight: 300, color: '#333' }}>
-                {formatCurrency(clienteFinanceiro?.dividaMesAtual || 0)}
+                {formatCurrency(saldoCredito)}
               </Typography>
               <Typography variant="caption" sx={{ color: '#888' }}>
-                Período corrente
+                Saldo em carteira
               </Typography>
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={4}>
               <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
-                Dívida Mês Anterior
+                Dívida Total Líquida
               </Typography>
               <Typography variant="h5" sx={{ fontWeight: 300, color: '#333' }}>
-                {formatCurrency(clienteFinanceiro?.dividaMesAnterior || 0)}
+                {formatCurrency(dividaTotalLiquida)}
               </Typography>
               <Typography variant="caption" sx={{ color: '#888' }}>
-                Período anterior
-              </Typography>
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 0.5 }}>
-                Crédito
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 300, color: '#333' }}>
-                {formatCurrency(clienteFinanceiro?.saldoCredito || 0)}
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#888' }}>
-                Saldo disponível
+                Já considera pedidos pagos e desconto de crédito
               </Typography>
             </Grid>
           </Grid>
@@ -252,7 +306,7 @@ export default function ClienteDetalhePage() {
             Histórico de Pedidos
           </Typography>
           
-          {clienteFinanceiro?.historicoPedidos && clienteFinanceiro.historicoPedidos.length > 0 ? (
+          {pedidosFiltrados.length > 0 ? (
             <TableContainer sx={{ bgcolor: 'transparent', boxShadow: 'none' }}>
               <Table size="medium">
                 <TableHead>
@@ -265,7 +319,7 @@ export default function ClienteDetalhePage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {clienteFinanceiro.historicoPedidos.map((pedido: Pedido) => (
+                  {pedidosFiltrados.map((pedido: Pedido) => (
                     <TableRow 
                       key={pedido.id} 
                       sx={{ 
@@ -293,7 +347,7 @@ export default function ClienteDetalhePage() {
           ) : (
             <Box sx={{ textAlign: 'center', py: 4 }}>
               <Typography sx={{ color: '#888' }}>
-                Nenhum pedido encontrado para este cliente.
+                Nenhum pedido encontrado para o período selecionado.
               </Typography>
             </Box>
           )}
