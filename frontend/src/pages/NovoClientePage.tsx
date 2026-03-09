@@ -7,6 +7,7 @@ import {
 import { ArrowBack, Search, Check } from '@mui/icons-material'
 import { clientesApi } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
+import { getPersonNameValidationMessage, normalizePersonNameInput } from '../utils/personNameValidation'
 
 export default function NovoClientePage() {
   const navigate = useNavigate()
@@ -16,6 +17,7 @@ export default function NovoClientePage() {
 
   const [loading, setLoading] = useState(false)
   const [loadingCnpj, setLoadingCnpj] = useState(false)
+  const [nomeTouched, setNomeTouched] = useState(false)
 
   const [form, setForm] = useState({
     tipoPessoa: 'FISICA',
@@ -131,9 +133,19 @@ export default function NovoClientePage() {
   }
 
   const handleSubmit = async () => {
-    if (!form.razaoSocial) {
+    const nomeNormalizado = normalizePersonNameInput(form.razaoSocial)
+
+    if (!nomeNormalizado) {
       showToast('Preencha o campo Nome/Razão Social', 'error')
       return
+    }
+
+    if (form.tipoPessoa === 'FISICA') {
+      const nomeError = getPersonNameValidationMessage(nomeNormalizado)
+      if (nomeError) {
+        showToast(nomeError, 'error')
+        return
+      }
     }
 
     if (form.tipoPessoa === 'JURIDICA' && !form.documento) {
@@ -151,6 +163,7 @@ export default function NovoClientePage() {
       const documentoSemFormatacao = form.documento.replace(/\D/g, '')
       const data = { 
         ...form,
+        razaoSocial: form.tipoPessoa === 'FISICA' ? nomeNormalizado : form.razaoSocial,
         documento: documentoSemFormatacao || null
       }
 
@@ -172,6 +185,9 @@ export default function NovoClientePage() {
 
   const isCampoDocumentoObrigatorio = form.tipoPessoa === 'JURIDICA'
   const isCampoContatoObrigatorio = form.tipoPessoa === 'JURIDICA'
+  const nomeError = form.tipoPessoa === 'FISICA' && nomeTouched
+    ? getPersonNameValidationMessage(form.razaoSocial)
+    : ''
 
   return (
     <Box>
@@ -259,9 +275,17 @@ export default function NovoClientePage() {
               fullWidth
               value={form.razaoSocial}
               onChange={(e) => setForm({ ...form, razaoSocial: e.target.value })}
+              onBlur={() => {
+                setNomeTouched(true)
+                if (form.tipoPessoa === 'FISICA') {
+                  setForm((prev) => ({ ...prev, razaoSocial: normalizePersonNameInput(prev.razaoSocial) }))
+                }
+              }}
               required
               size="small"
               placeholder={form.tipoPessoa === 'JURIDICA' ? 'Ex: Empresa LTDA' : 'Ex: João da Silva'}
+              error={Boolean(nomeError)}
+              helperText={nomeError || ' '}
             />
           </Box>
 

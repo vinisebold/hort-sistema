@@ -200,7 +200,8 @@ class PedidoServiceTest {
             assertNotNull(response);
             assertEquals(1, response.getId());
             assertEquals("Compra", response.getNaturezaOperacao());
-            assertEquals("Consumidor Final", response.getClienteNome());
+            assertEquals("ENTRADA", response.getNaturezaOperacaoTipo());
+            assertEquals("N/A", response.getClienteNome());
             assertThat(response.getValorTotal()).isEqualByComparingTo(new BigDecimal("55.000"));
             assertNull(response.getStatus());  // ENTRADA has exigeStatus = false
             assertNotNull(response.getDataEmissao());
@@ -234,6 +235,7 @@ class PedidoServiceTest {
             assertNotNull(response);
             assertEquals(1, response.getId());
             assertEquals("Venda", response.getNaturezaOperacao());
+            assertEquals("SAIDA", response.getNaturezaOperacaoTipo());
             assertThat(response.getValorTotal()).isEqualByComparingTo(new BigDecimal("100.000"));
 
             verify(pedidoRepository).save(any(Pedido.class));
@@ -289,7 +291,7 @@ class PedidoServiceTest {
             PedidoResponse response = pedidoService.processarPedido(request);
 
             assertNotNull(response);
-            assertEquals("Consumidor Final", response.getClienteNome());
+            assertEquals("N/A", response.getClienteNome());
             verifyNoInteractions(clienteRepository);
         }
 
@@ -498,6 +500,7 @@ class PedidoServiceTest {
             assertAll(
                     () -> assertEquals(1, response.getId()),
                     () -> assertEquals("Venda", response.getNaturezaOperacao()),
+                    () -> assertEquals("SAIDA", response.getNaturezaOperacaoTipo()),
                     () -> assertEquals("Fornecedor ABC", response.getClienteNome()),
                     () -> assertEquals("DOC-001", response.getDocumentoReferencia()),
                     () -> assertEquals(new BigDecimal("100.00"), response.getValorTotal()),
@@ -515,8 +518,8 @@ class PedidoServiceTest {
         }
 
         @Test
-        @DisplayName("deve retornar 'Consumidor Final' quando pedido nao tem cliente")
-        void deveRetornarConsumidorFinalQuandoSemCliente() {
+        @DisplayName("deve retornar 'N/A' quando pedido nao tem cliente")
+        void deveRetornarClienteNaoInformadoQuandoSemCliente() {
             Pedido pedido = criarPedidoSalvo(1, naturezaSaida, null,
                     new BigDecimal("50.00"), "PAGO");
 
@@ -526,7 +529,7 @@ class PedidoServiceTest {
 
             CursorResponse<PedidoResponse> result = pedidoService.listarTodos(null, 10);
 
-            assertEquals("Consumidor Final", result.getData().getFirst().getClienteNome());
+            assertEquals("N/A", result.getData().getFirst().getClienteNome());
         }
     }
 

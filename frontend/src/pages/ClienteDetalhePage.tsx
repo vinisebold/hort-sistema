@@ -216,7 +216,7 @@ export default function ClienteDetalhePage() {
     )
   }
 
-  const cliente = clienteFinanceiro?.cliente
+  const cliente = clienteFinanceiro?.cliente ?? clienteFinanceiro?.clienteResponse
   const saldoCredito = clienteFinanceiro?.saldoCredito || 0
   const dividaTotalLiquida = clienteFinanceiro?.dividaTotal || 0
 

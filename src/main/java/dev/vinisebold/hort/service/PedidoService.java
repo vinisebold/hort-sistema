@@ -22,6 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PedidoService {
 
+    private static final String CLIENTE_NAO_INFORMADO = "N/A";
+
     private final PedidoRepository pedidoRepository;
     private final ItemPedidoRepository itemPedidoRepository;
     private final NaturezaOperacaoRepository naturezaOperacaoRepository;
@@ -134,7 +136,8 @@ public class PedidoService {
         return PedidoResponse.builder()
                 .id(pedido.getId())
                 .naturezaOperacao(natureza.getDescricao())
-                .clienteNome(cliente != null ? cliente.getRazaoSocial() : "Consumidor Final")
+                .naturezaOperacaoTipo(natureza.getTipoMovimento().name())
+                .clienteNome(cliente != null ? cliente.getRazaoSocial() : CLIENTE_NAO_INFORMADO)
                 .documentoReferencia(pedido.getDocumentoReferencia())
                 .valorTotal(pedido.getValorTotal())
                 .status(pedido.getStatus())
@@ -329,7 +332,8 @@ public class PedidoService {
         return PedidoResponse.builder()
                 .id(pedido.getId())
                 .naturezaOperacao(pedido.getNaturezaOperacao().getDescricao())
-                .clienteNome(pedido.getCliente() != null ? pedido.getCliente().getRazaoSocial() : "Consumidor Final")
+                .naturezaOperacaoTipo(pedido.getNaturezaOperacao().getTipoMovimento().name())
+                .clienteNome(pedido.getCliente() != null ? pedido.getCliente().getRazaoSocial() : CLIENTE_NAO_INFORMADO)
                 .documentoReferencia(pedido.getDocumentoReferencia())
                 .valorTotal(pedido.getValorTotal())
                 .status(pedido.getStatus())

@@ -9,6 +9,7 @@ import { ArrowBack, Close, InfoOutlined, Edit, Search, Check } from '@mui/icons-
 import { pedidosApi, produtosApi, clientesApi, naturezasApi } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
 import { NaturezaOperacao, Produto, Cliente, ItemPedido } from '../types'
+import { getPersonNameValidationMessage, normalizePersonNameInput } from '../utils/personNameValidation'
 
 export default function NovoPedidoPage() {
   const { showToast } = useToast()
@@ -24,6 +25,7 @@ export default function NovoPedidoPage() {
   const [loading, setLoading] = useState(false)
   const [activeInput, setActiveInput] = useState<{ index: number, field: string, value: string } | null>(null)
   const [inputClienteValue, setInputClienteValue] = useState('')
+  const [clienteNomeTouched, setClienteNomeTouched] = useState(false)
 
   const [form, setForm] = useState({
     naturezaOperacaoId: '',
@@ -85,12 +87,13 @@ export default function NovoPedidoPage() {
   }
 
   const buscarOuCriarClientePF = async (nome: string): Promise<number | null> => {
-    if (!nome || nome.trim().length === 0) {
+    const nomeNormalizado = normalizePersonNameInput(nome)
+    if (!nomeNormalizado) {
       return null
     }
 
     try {
-      const response = await clientesApi.buscarOuCriarPF(nome)
+      const response = await clientesApi.buscarOuCriarPF(nomeNormalizado)
       const novoCliente = response.data
 
       // Adiciona à lista de clientes se não existir
@@ -184,6 +187,14 @@ export default function NovoPedidoPage() {
         return
       }
 
+      if (!form.clienteId && form.clienteNome.trim() && isAtivo(selectedNatureza.propriedadeCliente)) {
+        const nomeError = getPersonNameValidationMessage(form.clienteNome)
+        if (nomeError) {
+          showToast(nomeError, 'error')
+          return
+        }
+      }
+
       if (isObrigatorio(selectedNatureza.propriedadeStatus) && !form.status) {
         showToast('Status é obrigatório para esta natureza de operação', 'error')
         return
@@ -250,6 +261,9 @@ export default function NovoPedidoPage() {
 
   const selectedNatureza = naturezas.find(n => String(n.id) === form.naturezaOperacaoId)
   const exibeCardDadosPedido = isAtivo(selectedNatureza?.propriedadeCliente) || isAtivo(selectedNatureza?.propriedadeStatus)
+  const clienteNomeError = !form.clienteId && clienteNomeTouched && inputClienteValue.trim()
+    ? getPersonNameValidationMessage(inputClienteValue)
+    : ''
 
   return (
     <Box>
@@ -294,24 +308,32 @@ export default function NovoPedidoPage() {
                       options={clientes}
                       getOptionLabel={(option) => typeof option === 'string' ? option : option.razaoSocial}
                       value={clientes.find(c => c.id === form.clienteId) || null}
-                      inputValue={inputClienteValue}
-                      onInputChange={(_, value) => {
-                        setInputClienteValue(value || '')
-                        // Se não há cliente selecionado, armazena o texto digitado como clienteNome
-                        if (!form.clienteId && value) {
-                          setForm(prev => ({ ...prev, clienteNome: value }))
-                        }
-                      }}
-                      onChange={(_, value) => {
-                        if (typeof value === 'string') {
-                          // É um texto livre digitado - armazena para criar depois
-                          setForm({ ...form, clienteId: null, clienteNome: value })
-                          return
-                        }
-                        // É um cliente selecionado da lista
-                        setForm({ ...form, clienteId: value?.id || null, clienteNome: '' })
-                        setInputClienteValue(value?.razaoSocial || '')
-                      }}
+                       inputValue={inputClienteValue}
+                       onInputChange={(_, value) => {
+                         setInputClienteValue(value || '')
+                         setClienteNomeTouched(Boolean(value))
+                         // Se não há cliente selecionado, armazena o texto digitado como clienteNome
+                         if (!form.clienteId && value) {
+                           setForm(prev => ({ ...prev, clienteNome: value }))
+                         }
+                         if (!value) {
+                           setForm(prev => ({ ...prev, clienteNome: '', clienteId: null }))
+                         }
+                       }}
+                       onChange={(_, value) => {
+                         if (typeof value === 'string') {
+                           // É um texto livre digitado - armazena para criar depois
+                           const nomeNormalizado = normalizePersonNameInput(value)
+                           setClienteNomeTouched(Boolean(nomeNormalizado))
+                           setForm({ ...form, clienteId: null, clienteNome: nomeNormalizado })
+                           setInputClienteValue(nomeNormalizado)
+                           return
+                         }
+                         // É um cliente selecionado da lista
+                         setClienteNomeTouched(false)
+                         setForm({ ...form, clienteId: value?.id || null, clienteNome: '' })
+                         setInputClienteValue(value?.razaoSocial || '')
+                       }}
                       freeSolo
                       renderInput={(params) => (
                         <TextField 
@@ -320,7 +342,16 @@ export default function NovoPedidoPage() {
                           placeholder="Selecione ou digite o nome do cliente"
                           fullWidth 
                           autoFocus
-                          helperText={inputClienteValue && !form.clienteId ? "Cliente será criado ao finalizar o pedido" : ""}
+                          onBlur={() => {
+                            setClienteNomeTouched(Boolean(inputClienteValue.trim()))
+                            if (!form.clienteId && inputClienteValue.trim()) {
+                              const nomeNormalizado = normalizePersonNameInput(inputClienteValue)
+                              setInputClienteValue(nomeNormalizado)
+                              setForm(prev => ({ ...prev, clienteNome: nomeNormalizado }))
+                            }
+                          }}
+                          error={Boolean(clienteNomeError)}
+                          helperText={clienteNomeError || (inputClienteValue && !form.clienteId ? 'Cliente será criado ao finalizar o pedido' : '')}
                         />
                       )}
                       renderOption={(props, option) => (

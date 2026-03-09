@@ -29,11 +29,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Set;
 import java.time.LocalDateTime;
+import java.text.Normalizer;
 
 @Service
 @RequiredArgsConstructor
 public class ClienteService {
+
+    private static final String CLIENTE_NAO_INFORMADO = "N/A";
+    private static final String NOME_PF_INVALIDO = "Nome inválido para cliente Pessoa Física. Use um nome ou apelido plausível.";
+    private static final Set<String> TITULOS_NOME_PF = Set.of("seu", "dona", "senhor", "senhora", "sr", "sra");
 
     private final ClienteRepository clienteRepository;
     private final PedidoRepository pedidoRepository;
@@ -120,14 +128,12 @@ public class ClienteService {
      */
     @Transactional
     public ClienteResponse buscarOuCriarClientePF(String nome) {
-        if (nome == null || nome.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome do cliente não pode estar vazio.");
-        }
+        String nomeNormalizado = normalizarNomePessoaFisica(nome);
 
         // Busca cliente PF com o mesmo nome (case-insensitive)
         var clienteExistente = clienteRepository
                 .findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrue(
-                        nome.trim(), "FISICA");
+                        nomeNormalizado, "FISICA");
 
         if (clienteExistente.isPresent()) {
             return mapToResponse(clienteExistente.get());
@@ -136,7 +142,7 @@ public class ClienteService {
         // Se não encontrar, cria novo cliente PF
         ClienteRequest novoClienteRequest = new ClienteRequest();
         novoClienteRequest.setTipoPessoa("FISICA");
-        novoClienteRequest.setRazaoSocial(nome.trim());
+        novoClienteRequest.setRazaoSocial(nomeNormalizado);
 
         return criar(novoClienteRequest);
     }
@@ -192,7 +198,7 @@ public class ClienteService {
         }
 
         return ClienteFinanceiroResponse.builder()
-                .clienteResponse(mapToResponse(cliente))
+                .cliente(mapToResponse(cliente))
                 .dividaTotal(dividaTotalLiquida)
                 .dividaMesAtual(dividaMesAtual)
                 .dividaMesAnterior(dividaMesAnterior)
@@ -301,10 +307,8 @@ public class ClienteService {
      * @param clienteId ID do cliente sendo atualizado, ou null se for criação
      */
     private void validarClientePF(ClienteRequest request, Integer clienteId) {
-        // Nome é obrigatório
-        if (request.getRazaoSocial() == null || request.getRazaoSocial().trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome é obrigatório para cliente Pessoa Física.");
-        }
+        String nomeNormalizado = normalizarNomePessoaFisica(request.getRazaoSocial());
+        request.setRazaoSocial(nomeNormalizado);
 
         // CPF é opcional, mas se preenchido deve ser válido
         if (request.getDocumento() != null && !request.getDocumento().trim().isEmpty()) {
@@ -317,7 +321,7 @@ public class ClienteService {
         // Verifica duplicação de nome para PF (ignora o cliente atual se for update)
         var clienteExistente = clienteRepository
                 .findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrue(
-                        request.getRazaoSocial().trim(), "FISICA");
+                        nomeNormalizado, "FISICA");
 
         if (clienteExistente.isPresent()) {
             // Se for update, ignora se for o mesmo cliente
@@ -362,10 +366,152 @@ public class ClienteService {
             cliente.setDocumento(null);
         }
 
-        cliente.setRazaoSocial(request.getRazaoSocial());
+        if ("FISICA".equalsIgnoreCase(request.getTipoPessoa())) {
+            cliente.setRazaoSocial(normalizarEspacos(request.getRazaoSocial()));
+        } else {
+            cliente.setRazaoSocial(request.getRazaoSocial());
+        }
         cliente.setNomeFantasia(request.getNomeFantasia());
         cliente.setEndereco(request.getEndereco());
         cliente.setContato(request.getContato());
+    }
+
+    private String normalizarNomePessoaFisica(String nome) {
+        String nomeNormalizado = normalizarEspacos(nome);
+
+        if (nomeNormalizado == null || nomeNormalizado.isEmpty()) {
+            throw new IllegalArgumentException("Nome é obrigatório para cliente Pessoa Física.");
+        }
+
+        String letrasDoNome = extrairLetras(nomeNormalizado);
+        if (letrasDoNome.length() < 2) {
+            throw new IllegalArgumentException(NOME_PF_INVALIDO);
+        }
+
+        if (!contemVogal(letrasDoNome)) {
+            throw new IllegalArgumentException(NOME_PF_INVALIDO);
+        }
+
+        List<String> partesSignificativas = Arrays.stream(nomeNormalizado.split(" "))
+                .map(this::extrairLetras)
+                .filter(parte -> !parte.isEmpty())
+                .filter(parte -> !TITULOS_NOME_PF.contains(normalizarToken(parte)))
+                .toList();
+
+        if (partesSignificativas.isEmpty()) {
+            throw new IllegalArgumentException(NOME_PF_INVALIDO);
+        }
+
+        boolean possuiParteValida = partesSignificativas.stream().anyMatch(parte -> parte.length() >= 2);
+        if (!possuiParteValida) {
+            throw new IllegalArgumentException(NOME_PF_INVALIDO);
+        }
+
+        String letrasSignificativas = extrairLetras(String.join("", partesSignificativas));
+        long letrasDistintas = letrasSignificativas.toLowerCase(Locale.ROOT).chars().distinct().count();
+        if (letrasSignificativas.length() <= 3 && letrasDistintas == 1) {
+            throw new IllegalArgumentException(NOME_PF_INVALIDO);
+        }
+
+        if (partesSignificativas.size() == 1 && nomePareceAleatorio(partesSignificativas.getFirst())) {
+            throw new IllegalArgumentException(NOME_PF_INVALIDO);
+        }
+
+        return nomeNormalizado;
+    }
+
+    private boolean nomePareceAleatorio(String nome) {
+        String letras = extrairLetras(nome).toLowerCase(Locale.ROOT);
+        if (letras.length() < 3) {
+            return false;
+        }
+
+        int quantidadeVogais = contarVogais(letras);
+        if (quantidadeVogais == 0) {
+            return true;
+        }
+
+        return letras.length() >= 6 && quantidadeVogais == 1 && maiorSequenciaConsoantes(letras) >= 5;
+    }
+
+    private int contarVogais(String valor) {
+        int total = 0;
+        for (int i = 0; i < valor.length(); i++) {
+            if (ehVogal(valor.charAt(i))) {
+                total++;
+            }
+        }
+        return total;
+    }
+
+    private int maiorSequenciaConsoantes(String valor) {
+        int maior = 0;
+        int atual = 0;
+
+        for (int i = 0; i < valor.length(); i++) {
+            char caractere = valor.charAt(i);
+            if (!Character.isLetter(caractere)) {
+                atual = 0;
+                continue;
+            }
+
+            if (ehVogal(caractere)) {
+                atual = 0;
+                continue;
+            }
+
+            atual++;
+            maior = Math.max(maior, atual);
+        }
+
+        return maior;
+    }
+
+    private boolean contemVogal(String valor) {
+        for (int i = 0; i < valor.length(); i++) {
+            if (ehVogal(valor.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean ehVogal(char caractere) {
+        String base = Normalizer.normalize(String.valueOf(caractere), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .toLowerCase(Locale.ROOT);
+
+        return !base.isEmpty() && "aeiouy".indexOf(base.charAt(0)) >= 0;
+    }
+
+    private String extrairLetras(String valor) {
+        if (valor == null) {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < valor.length(); i++) {
+            char caractere = valor.charAt(i);
+            if (Character.isLetter(caractere)) {
+                builder.append(caractere);
+            }
+        }
+        return builder.toString();
+    }
+
+    private String normalizarToken(String token) {
+        String semAcento = Normalizer.normalize(token, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "");
+
+        return semAcento.replaceAll("[^A-Za-z]", "").toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizarEspacos(String valor) {
+        if (valor == null) {
+            return null;
+        }
+
+        return valor.trim().replaceAll("\\s+", " ");
     }
 
     private ClienteResponse mapToResponse(Cliente cliente) {
@@ -405,7 +551,8 @@ public class ClienteService {
         return PedidoResponse.builder()
                 .id(pedido.getId())
                 .naturezaOperacao(pedido.getNaturezaOperacao().getDescricao())
-                .clienteNome(pedido.getCliente() != null ? pedido.getCliente().getRazaoSocial() : "Consumidor Final")
+                .naturezaOperacaoTipo(pedido.getNaturezaOperacao().getTipoMovimento().name())
+                .clienteNome(pedido.getCliente() != null ? pedido.getCliente().getRazaoSocial() : CLIENTE_NAO_INFORMADO)
                 .documentoReferencia(pedido.getDocumentoReferencia())
                 .valorTotal(pedido.getValorTotal())
                 .status(pedido.getStatus())

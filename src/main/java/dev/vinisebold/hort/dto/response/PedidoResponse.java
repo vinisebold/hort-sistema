@@ -11,7 +11,8 @@ import java.util.List;
 public class PedidoResponse {
     private Integer id;
     private String naturezaOperacao;
-    private String clienteNome; // Pode ser nulo em vendas de balcão
+    private String naturezaOperacaoTipo;
+    private String clienteNome; // Usa fallback quando o cliente nao foi informado
     private String documentoReferencia;
     private BigDecimal valorTotal;
     private String status;

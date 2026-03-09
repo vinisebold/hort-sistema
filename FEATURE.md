@@ -1,13 +1,14 @@
+- Poder editar o pedido ja feito
 - Colocar nos footers das tabelas a quantidades de itens que foram fetchados, por exemplo, "Mostrando 10 de 100 produtos" ou "Mostrando 20 de 50 pedidos", etc... para o usuario ter uma noção melhor da quantidade de itens que tem no total e quantos ele esta vendo.
 - Melhorar o visual dos "meus dados" para o visual enterprise;
 - TALVEZ - tabelar os precos dos produtos, por exemplo, ao cadastrar os produtos, voce colocar que o saco do produto equivale a X kilogramas, a unidade pesa Y, etc.
 - Os cadastros rapidos deve redirecionar para a pagina de cadastros novos indivudualmente, e ao fazer o cadasto voltar para a tela de inicio;
-- Deve ser possivel mudar os status do pedido de PENDENTE para PAGO tanto na tela de pedidos quanto no historico de pedidos no clientes;
-- Deve fazer uma verificacao no nome criado para evitar nomes genericos como "A" "akhdjs" coisas estranhas;
 - Deve-se deixar mais completo o ambiente financeiro, atualmente esta muito pobre de informacoes e nao esta com todos os requesitos implementados;
 - Fazer os checkbox funcionar de verdade igual na myrp;
-- Mudar icone de entrada e saida nos pedidos para ficar parecido com do natureza de operacoes
-- Muder o placeholder de quando o cliente nao foi colocado no pedido, atualmente tem somente "Consumido final" oque nao faz sentido;
+- FEITO - Deve fazer uma verificacao no nome criado para evitar nomes genericos como "A" "akhdjs" coisas estranhas;
+- FEITO - Mudar icone de entrada e saida nos pedidos para ficar parecido com do natureza de operacoes
+- FEITO - Muder o placeholder de quando o cliente nao foi colocado no pedido, atualmente tem somente "Consumido final" oque nao faz sentido;
+- FEITO - Deve ser possivel mudar os status do pedido de PENDENTE para PAGO tanto na tela de pedidos quanto no historico de pedidos no clientes;
 - FEITO - Deve deixar mais simples a divida, poder usar um filtro que de para ver a divida deste mes, mes pasado, dos ultimos 7 dias etc por meio de badges;
 - FEITO - O valor total da divida deve ser calculada considerando o valor ja pago ou do credito;
 - FEITO - Nao deve colocar cliente em compra de mercadoria;

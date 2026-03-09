@@ -30,6 +30,7 @@ import {
     Scale
 } from '@mui/icons-material'
 import { produtosApi, clientesApi, unidadesMedidaApi, naturezasApi } from '../services/api'
+import { getPersonNameValidationMessage, normalizePersonNameInput } from '../utils/personNameValidation'
 
 interface FormState {
     type: 'produto' | 'cliente' | 'unidade' | 'natureza' | null
@@ -68,6 +69,9 @@ export default function HomePage() {
     const [clienteForm, setClienteForm] = useState<ClienteForm>({ razaoSocial: '', documento: '', tipoPessoa: 'JURIDICA' })
     const [unidadeForm, setUnidadeForm] = useState<UnidadeForm>({ sigla: '', descricao: '' })
     const [naturezaForm, setNaturezaForm] = useState<NaturezaForm>({ descricao: '', tipoMovimento: 'SAIDA' })
+    const clienteNomeError = clienteForm.tipoPessoa === 'FISICA'
+        ? getPersonNameValidationMessage(clienteForm.razaoSocial)
+        : ''
 
     const acessoRapidoItems = [
         { label: 'Novo Pedido', icon: <AddShoppingCart fontSize="small" />, path: '/pedidos/novo' },
@@ -126,15 +130,22 @@ export default function HomePage() {
     }
 
     const handleSaveCliente = async () => {
-        if (!clienteForm.razaoSocial || !clienteForm.documento) {
+        const nomeNormalizado = normalizePersonNameInput(clienteForm.razaoSocial)
+
+        if (!nomeNormalizado || !clienteForm.documento) {
             setFormState(prev => ({ ...prev, error: 'Preencha todos os campos obrigatórios' }))
+            return
+        }
+
+        if (clienteForm.tipoPessoa === 'FISICA' && clienteNomeError) {
+            setFormState(prev => ({ ...prev, error: clienteNomeError }))
             return
         }
 
         setFormState(prev => ({ ...prev, loading: true }))
         try {
             await clientesApi.criar({
-                razaoSocial: clienteForm.razaoSocial,
+                razaoSocial: clienteForm.tipoPessoa === 'FISICA' ? nomeNormalizado : clienteForm.razaoSocial,
                 documento: clienteForm.documento,
                 tipoPessoa: clienteForm.tipoPessoa,
             })
@@ -372,7 +383,14 @@ export default function HomePage() {
                             size="small"
                             value={clienteForm.razaoSocial}
                             onChange={(e) => setClienteForm({ ...clienteForm, razaoSocial: e.target.value })}
+                            onBlur={() => {
+                                if (clienteForm.tipoPessoa === 'FISICA') {
+                                    setClienteForm(prev => ({ ...prev, razaoSocial: normalizePersonNameInput(prev.razaoSocial) }))
+                                }
+                            }}
                             placeholder={clienteForm.tipoPessoa === 'JURIDICA' ? 'Ex: Empresa LTDA' : 'Ex: João da Silva'}
+                            error={clienteForm.tipoPessoa === 'FISICA' && Boolean(clienteForm.razaoSocial) && Boolean(clienteNomeError)}
+                            helperText={clienteForm.tipoPessoa === 'FISICA' ? (clienteNomeError || ' ') : ' '}
                         />
                     </Box>
 

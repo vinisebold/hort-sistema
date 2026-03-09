@@ -116,12 +116,13 @@ class ClienteServiceTest {
         void devePermitirDocumentoNulo() {
             defaultRequest.setTipoPessoa("FISICA");
             defaultRequest.setDocumento(null);
+            defaultRequest.setRazaoSocial("Zé");
 
             Cliente clienteSemDoc = new Cliente();
             clienteSemDoc.setId(2);
             clienteSemDoc.setTipoPessoa("FISICA");
             clienteSemDoc.setDocumento(null);
-            clienteSemDoc.setRazaoSocial("Empresa Teste LTDA");
+            clienteSemDoc.setRazaoSocial("Zé");
             clienteSemDoc.setNomeFantasia("Teste");
             clienteSemDoc.setEndereco("Rua Exemplo, 123");
             clienteSemDoc.setContato("11999999999");
@@ -138,6 +139,47 @@ class ClienteServiceTest {
 
             verify(clienteRepository, never()).existsByDocumento(any());
             verify(clienteRepository).save(any(Cliente.class));
+        }
+
+        @Test
+        @DisplayName("Deve normalizar e aceitar apelido plausivel para cliente PF")
+        void deveAceitarApelidoPlausivelParaClientePf() {
+            ClienteRequest request = new ClienteRequest();
+            request.setTipoPessoa("FISICA");
+            request.setRazaoSocial("  Seu   João  ");
+
+            Cliente clienteSalvo = new Cliente();
+            clienteSalvo.setId(3);
+            clienteSalvo.setTipoPessoa("FISICA");
+            clienteSalvo.setRazaoSocial("Seu João");
+            clienteSalvo.setIsActive(true);
+            clienteSalvo.setCreatedAt(LocalDateTime.of(2026, 1, 15, 10, 30, 0));
+
+            when(clienteRepository.findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrue("Seu João", "FISICA"))
+                    .thenReturn(Optional.empty());
+            when(clienteRepository.save(any(Cliente.class))).thenReturn(clienteSalvo);
+
+            ClienteResponse response = clienteService.criar(request);
+
+            assertThat(response.getRazaoSocial()).isEqualTo("Seu João");
+
+            ArgumentCaptor<Cliente> captor = ArgumentCaptor.forClass(Cliente.class);
+            verify(clienteRepository).save(captor.capture());
+            assertThat(captor.getValue().getRazaoSocial()).isEqualTo("Seu João");
+        }
+
+        @Test
+        @DisplayName("Deve rejeitar nome generico ou aleatorio para cliente PF")
+        void deveRejeitarNomeInvalidoParaClientePf() {
+            ClienteRequest request = new ClienteRequest();
+            request.setTipoPessoa("FISICA");
+            request.setRazaoSocial("akhdjs");
+
+            assertThatThrownBy(() -> clienteService.criar(request))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Nome inválido para cliente Pessoa Física. Use um nome ou apelido plausível.");
+
+            verify(clienteRepository, never()).save(any());
         }
     }
 
@@ -390,6 +432,87 @@ class ClienteServiceTest {
 
             verify(clienteRepository).findById(999);
             verify(clienteRepository, never()).existsByDocumento(any());
+            verify(clienteRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Deve validar nome plausivel ao atualizar cliente PF")
+        void deveValidarNomePlausivelAoAtualizarClientePf() {
+            Cliente clientePf = new Cliente();
+            clientePf.setId(5);
+            clientePf.setTipoPessoa("FISICA");
+            clientePf.setRazaoSocial("Bia");
+            clientePf.setIsActive(true);
+
+            ClienteRequest updateRequest = new ClienteRequest();
+            updateRequest.setTipoPessoa("FISICA");
+            updateRequest.setRazaoSocial("aa");
+
+            when(clienteRepository.findById(5)).thenReturn(Optional.of(clientePf));
+
+            assertThatThrownBy(() -> clienteService.atualizar(5, updateRequest))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Nome inválido para cliente Pessoa Física. Use um nome ou apelido plausível.");
+
+            verify(clienteRepository, never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("buscarOuCriarClientePF")
+    class BuscarOuCriarClientePf {
+
+        @Test
+        @DisplayName("Deve buscar cliente PF existente com nome normalizado")
+        void deveBuscarClienteExistenteComNomeNormalizado() {
+            Cliente clientePf = new Cliente();
+            clientePf.setId(7);
+            clientePf.setTipoPessoa("FISICA");
+            clientePf.setRazaoSocial("Dona Cida");
+            clientePf.setIsActive(true);
+            clientePf.setCreatedAt(LocalDateTime.of(2026, 2, 10, 9, 0, 0));
+
+            when(clienteRepository.findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrue("Dona Cida", "FISICA"))
+                    .thenReturn(Optional.of(clientePf));
+
+            ClienteResponse response = clienteService.buscarOuCriarClientePF("  Dona   Cida ");
+
+            assertThat(response.getId()).isEqualTo(7);
+            assertThat(response.getRazaoSocial()).isEqualTo("Dona Cida");
+            verify(clienteRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Deve criar cliente PF com apelido curto valido")
+        void deveCriarClientePfComApelidoCurtoValido() {
+            Cliente clientePf = new Cliente();
+            clientePf.setId(8);
+            clientePf.setTipoPessoa("FISICA");
+            clientePf.setRazaoSocial("Léo");
+            clientePf.setIsActive(true);
+            clientePf.setCreatedAt(LocalDateTime.of(2026, 2, 10, 9, 0, 0));
+
+            when(clienteRepository.findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrue("Léo", "FISICA"))
+                    .thenReturn(Optional.empty());
+            when(clienteRepository.save(any(Cliente.class))).thenReturn(clientePf);
+
+            ClienteResponse response = clienteService.buscarOuCriarClientePF("  Léo ");
+
+            assertThat(response.getRazaoSocial()).isEqualTo("Léo");
+
+            ArgumentCaptor<Cliente> captor = ArgumentCaptor.forClass(Cliente.class);
+            verify(clienteRepository).save(captor.capture());
+            assertThat(captor.getValue().getRazaoSocial()).isEqualTo("Léo");
+        }
+
+        @Test
+        @DisplayName("Deve rejeitar nome invalido no fluxo buscarOuCriarClientePF")
+        void deveRejeitarNomeInvalidoNoFluxoBuscarOuCriarClientePf() {
+            assertThatThrownBy(() -> clienteService.buscarOuCriarClientePF("A"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Nome inválido para cliente Pessoa Física. Use um nome ou apelido plausível.");
+
+            verify(clienteRepository, never()).findByRazaoSocialIgnoreCaseAndTipoPessoaAndIsActiveTrue(any(), any());
             verify(clienteRepository, never()).save(any());
         }
     }

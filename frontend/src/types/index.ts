@@ -11,7 +11,7 @@ export interface Pedido {
   id: number;
   naturezaOperacaoId?: number;
   naturezaOperacao?: NaturezaOperacao | string;
-  naturezaOperacaoTipo?: string;
+  naturezaOperacaoTipo?: 'ENTRADA' | 'SAIDA';
   clienteId?: number | null;
   clienteNome?: string;
   documentoReferencia?: string | null;
@@ -42,15 +42,34 @@ export interface Cliente {
   id: number;
   razaoSocial: string;
   documento: string;
+  tipoPessoa?: string;
+  nomeFantasia?: string;
+  endereco?: string;
+  contato?: string;
+  isActive?: boolean;
+  createdAt?: string;
+}
+
+export type DashboardPeriodo = 'HOJE' | 'ULTIMOS_7_DIAS' | 'ULTIMO_MES' | 'MES_ANTERIOR' | 'ESTE_ANO' | 'ANO_ANTERIOR';
+
+export interface DashboardResumoResponse {
+  produtoMaisVendidoNome: string | null;
+  produtoMaisVendidoQtd: number | null;
+  clienteMaisFielNome: string | null;
+  clienteMaisFielCompras: number | null;
+  totalVendidoPeriodo: number;
+}
+
+export interface DashboardTopClienteResponse {
+  clienteId: number;
+  clienteNome: string;
+  quantidadeCompras: number | null;
+  valorTotal: number | null;
 }
 
 export interface ClienteFinanceiroResponse {
-  cliente: Cliente & { 
-    tipoPessoa: string;
-    documento: string;
-    endereco?: string;
-    contato?: string;
-  };
+  cliente?: Cliente;
+  clienteResponse?: Cliente;
   dividaTotal: number;
   dividaMesAtual: number;
   dividaMesAnterior: number;
@@ -58,6 +77,15 @@ export interface ClienteFinanceiroResponse {
   totalPedidosPendentes: number;
   totalPedidosPagos: number;
   historicoPedidos: Pedido[];
+}
+
+export interface ClientePendenciaFinanceira {
+  clienteId: number;
+  cliente: Cliente;
+  dividaTotal: number;
+  saldoCredito: number;
+  totalPedidosPendentes: number;
+  totalPedidosPagos: number;
 }
 
 export interface AbaterDividaRequest {

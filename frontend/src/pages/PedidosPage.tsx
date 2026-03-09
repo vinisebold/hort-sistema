@@ -204,6 +204,17 @@ export default function PedidosPage() {
     }
   }
 
+  const handleVerFinanceiro = () => {
+    if (!selectedMenuPedido?.clienteId) {
+      handleMenuClose()
+      return
+    }
+
+    const clienteId = selectedMenuPedido.clienteId
+    handleMenuClose()
+    navigate(`/clientes/${clienteId}`)
+  }
+
   const getStatusColor = (status: string | null) => {
     if (status === 'CANCELADO') return 'error'
     if (status === 'PAGO') return 'success'
@@ -211,12 +222,22 @@ export default function PedidosPage() {
     return 'default'
   }
 
-  const getNaturezaChip = (tipo: string) => {
-    const isEntrada = tipo?.toLowerCase().includes('compra') || tipo?.toLowerCase().includes('estorno')
+  const getPedidoTipoMovimento = (pedido: Pedido) => {
+    if (pedido.naturezaOperacaoTipo) return pedido.naturezaOperacaoTipo
+    if (typeof pedido.naturezaOperacao !== 'string') return pedido.naturezaOperacao?.tipoMovimento
+    return undefined
+  }
+
+  const getNaturezaDescricao = (pedido: Pedido) => {
+    return typeof pedido.naturezaOperacao === 'string' ? pedido.naturezaOperacao : pedido.naturezaOperacao?.descricao || ''
+  }
+
+  const getNaturezaChip = (descricao: string, tipoMovimento?: 'ENTRADA' | 'SAIDA') => {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        {isEntrada ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />}
-        <Typography variant="body2">{tipo}</Typography>
+        {tipoMovimento === 'ENTRADA' && <ArrowUpward fontSize="small" />}
+        {tipoMovimento === 'SAIDA' && <ArrowDownward fontSize="small" />}
+        <Typography variant="body2">{descricao}</Typography>
       </Box>
     )
   }
@@ -291,7 +312,7 @@ export default function PedidosPage() {
                       </Box>
                     </TableCell>
                     <TableCell sx={{ fontSize: '0.875rem', color: '#555' }}>
-                      {getNaturezaChip(typeof pedido.naturezaOperacao === 'string' ? pedido.naturezaOperacao : pedido.naturezaOperacao?.descricao || '')}
+                      {getNaturezaChip(getNaturezaDescricao(pedido), getPedidoTipoMovimento(pedido))}
                     </TableCell>
                     <TableCell align="right" sx={{ fontSize: '0.95rem', fontWeight: 500, color: '#333' }}>
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(pedido.valorTotal)}
@@ -415,7 +436,10 @@ export default function PedidosPage() {
         >
           Cancelar
         </MenuItem>
-        <MenuItem onClick={() => { handleMenuClose(); /* TODO: Implement Ver financeiro */ }}>
+        <MenuItem
+          onClick={handleVerFinanceiro}
+          disabled={!selectedMenuPedido?.clienteId}
+        >
           Ver financeiro
         </MenuItem>
       </Menu>
@@ -474,7 +498,7 @@ export default function PedidosPage() {
                     Natureza
                   </Typography>
                   <Box sx={{ mt: 0.5 }}>
-                    {getNaturezaChip(typeof selectedPedido.naturezaOperacao === 'string' ? selectedPedido.naturezaOperacao : selectedPedido.naturezaOperacao?.descricao || '')}
+                    {getNaturezaChip(getNaturezaDescricao(selectedPedido), getPedidoTipoMovimento(selectedPedido))}
                   </Box>
                 </Box>
                 {selectedPedido.status && (
