@@ -1,18 +1,40 @@
-import { Box, Card, CardContent, Typography, Divider, Avatar, Button } from '@mui/material'
-import { AccountCircle, Store, Logout, Email } from '@mui/icons-material'
+import { Box, Card, CardContent, Grid, Typography, Avatar, Button } from '@mui/material'
+import { AccountCircle, Logout } from '@mui/icons-material'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+
+const cardSx = {
+  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+  borderRadius: 2,
+}
+
+interface FieldProps {
+  label: string
+  value: string
+}
+
+function Field({ label, value }: FieldProps) {
+  return (
+    <Box>
+      <Typography variant="caption" sx={{ color: '#667085', display: 'block', mb: 0.5 }}>
+        {label}
+      </Typography>
+      <Typography variant="body1" sx={{ color: '#101828', fontWeight: 500 }}>
+        {value}
+      </Typography>
+    </Box>
+  )
+}
 
 export default function ContaPage() {
   const { usuario, logout } = useAuth()
   const navigate = useNavigate()
 
   const formatarCnpj = (cnpj: string): string => {
-    const apenasNumeros = cnpj.replace(/\D/g, '')
-    if (apenasNumeros.length !== 14) {
-      return apenasNumeros
-    }
-    return apenasNumeros.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
+    const n = cnpj.replace(/\D/g, '')
+    return n.length === 14
+      ? n.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
+      : n
   }
 
   const handleLogout = () => {
@@ -22,86 +44,85 @@ export default function ContaPage() {
 
   return (
     <Box>
-      <Card sx={{ maxWidth: 500, mt: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-            <Avatar sx={{ width: 64, height: 64, bgcolor: 'primary.main' }}>
-              <AccountCircle sx={{ fontSize: 40 }} />
-            </Avatar>
-            <Box>
-              <Typography variant="h6">
-                {usuario?.nomeFantasia || 'Usuário'}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Administrador
-              </Typography>
-            </Box>
-          </Box>
+      {/* Page header */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 300, color: '#333', mb: 1 }}>
+          Meus Dados
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#888' }}>
+          Informações da sua conta e empresa
+        </Typography>
+      </Box>
 
-          <Divider sx={{ my: 2 }} />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 700 }}>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Store color="primary" />
+        {/* Card 1 — Perfil */}
+        <Card sx={cardSx}>
+          <CardContent sx={{ p: 4 }}>
+            <Typography sx={{ fontSize: '1.75rem', fontWeight: 100, color: '#333', letterSpacing: 0.1, mb: 3 }}>
+              Perfil
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+              <Avatar sx={{ width: 56, height: 56, bgcolor: 'primary.main' }}>
+                <AccountCircle sx={{ fontSize: 34 }} />
+              </Avatar>
               <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Nome Fantasia
+                <Typography sx={{ fontWeight: 600, fontSize: '1rem', color: '#101828' }}>
+                  {usuario?.nomeFantasia || 'Usuário'}
                 </Typography>
-                <Typography variant="body1">
-                  {usuario?.nomeFantasia || 'Não definido'}
+                <Typography sx={{ fontSize: '0.8rem', color: '#667085', mt: 0.25 }}>
+                  Administrador
                 </Typography>
               </Box>
             </Box>
+          </CardContent>
+        </Card>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Store color="primary" />
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Razão Social
-                </Typography>
-                <Typography variant="body1">
-                  {usuario?.razaoSocial || 'Não definido'}
-                </Typography>
-              </Box>
-            </Box>
+        {/* Card 2 — Dados da Empresa */}
+        <Card sx={cardSx}>
+          <CardContent sx={{ p: 4 }}>
+            <Typography sx={{ fontSize: '1.75rem', fontWeight: 100, color: '#333', letterSpacing: 0.1, mb: 3 }}>
+              Empresa
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6}>
+                <Field label="Nome Fantasia" value={usuario?.nomeFantasia || '—'} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Field label="Razão Social" value={usuario?.razaoSocial || '—'} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Field label="CNPJ" value={usuario?.cnpj ? formatarCnpj(usuario.cnpj) : '—'} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Field label="Email" value={usuario?.email || '—'} />
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Store color="primary" />
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  CNPJ
-                </Typography>
-                <Typography variant="body1">
-                  {usuario?.cnpj ? formatarCnpj(usuario.cnpj) : 'Não definido'}
-                </Typography>
-              </Box>
-            </Box>
+        {/* Card 3 — Sessão */}
+        <Card sx={cardSx}>
+          <CardContent sx={{ p: 4 }}>
+            <Typography sx={{ fontSize: '1.75rem', fontWeight: 100, color: '#333', letterSpacing: 0.1, mb: 1 }}>
+              Sessão
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#667085', mb: 3 }}>
+              Você está conectado como administrador desta conta.
+            </Typography>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<Logout sx={{ fontSize: 18 }} />}
+              onClick={handleLogout}
+              sx={{ textTransform: 'none', fontWeight: 500 }}
+            >
+              Sair da conta
+            </Button>
+          </CardContent>
+        </Card>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Email color="primary" />
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Email
-                </Typography>
-                <Typography variant="body1">
-                  {usuario?.email || 'Não definido'}
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<Logout />}
-            onClick={handleLogout}
-          >
-            Sair da Conta
-          </Button>
-        </CardContent>
-      </Card>
+      </Box>
     </Box>
   )
 }
