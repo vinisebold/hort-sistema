@@ -245,6 +245,7 @@ public class PedidoService {
 
         return CursorResponse.<PedidoResponse>builder()
                 .data(data)
+                .totalCount(page.getTotalElements())
                 .nextCursor(nextCursor)
                 .hasNext(page.hasNext())
                 .build();

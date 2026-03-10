@@ -107,6 +107,11 @@ export default function UnidadesMedidaPage() {
               </TableBody>
             </Table>
           </TableContainer>
+          <Box sx={{ px: 3, py: 2, borderTop: '1px solid #eee', display: 'flex', justifyContent: 'center' }}>
+            <Typography variant="body2" sx={{ color: '#555', fontSize: '0.95rem' }}>
+              Exibindo {unidades.length} de {unidades.length}
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
 

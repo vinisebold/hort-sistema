@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CursorResponse<T> {
     private List<T> data;
+    private Long totalCount;
     private Integer nextCursor;
     private boolean hasNext;
 }

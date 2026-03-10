@@ -15,6 +15,7 @@ export default function PedidosPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const [pedidos, setPedidos] = useState<Pedido[]>([])
+  const [totalPedidos, setTotalPedidos] = useState(0)
   const [nextCursor, setNextCursor] = useState<number | null>(null)
   const [hasNext, setHasNext] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -112,9 +113,11 @@ export default function PedidosPage() {
       const response = await pedidosApi.listar()
       const payload = response.data
       const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const total = Array.isArray(payload) ? data.length : (payload.totalCount ?? data.length)
       const nc = Array.isArray(payload) ? null : payload.nextCursor
       const hn = Array.isArray(payload) ? false : payload.hasNext
       setPedidos(data)
+      setTotalPedidos(Number(total))
       setNextCursor(nc ?? null)
       setHasNext(hn)
     } catch (error) {
@@ -129,9 +132,11 @@ export default function PedidosPage() {
       const response = await pedidosApi.listar(nextCursor)
       const payload = response.data
       const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const total = Array.isArray(payload) ? pedidos.length + data.length : (payload.totalCount ?? pedidos.length + data.length)
       const nc = Array.isArray(payload) ? null : payload.nextCursor
       const hn = Array.isArray(payload) ? false : payload.hasNext
       setPedidos(prev => [...prev, ...data])
+      setTotalPedidos(Number(total))
       setNextCursor(nc ?? null)
       setHasNext(hn)
     } catch (error) {
@@ -342,6 +347,11 @@ export default function PedidosPage() {
               </TableBody>
             </Table>
           </TableContainer>
+          <Box sx={{ px: 3, py: 2, borderTop: '1px solid #eee', display: 'flex', justifyContent: 'center' }}>
+            <Typography variant="body2" sx={{ color: '#555', fontSize: '0.95rem' }}>
+              Exibindo {pedidos.length} de {totalPedidos}
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
 

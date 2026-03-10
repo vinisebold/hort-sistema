@@ -122,6 +122,11 @@ export default function NaturezasOperacaoPage() {
               </TableBody>
             </Table>
           </TableContainer>
+          <Box sx={{ px: 3, py: 2, borderTop: '1px solid #eee', display: 'flex', justifyContent: 'center' }}>
+            <Typography variant="body2" sx={{ color: '#555', fontSize: '0.95rem' }}>
+              Exibindo {naturezas.length} de {naturezas.length}
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
 

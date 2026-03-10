@@ -18,6 +18,7 @@ interface Cliente {
 export default function ClientesPage() {
   const navigate = useNavigate()
   const [clientes, setClientes] = useState<Cliente[]>([])
+  const [totalClientes, setTotalClientes] = useState(0)
   const [nextCursor, setNextCursor] = useState<number | null>(null)
   const [hasNext, setHasNext] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -31,9 +32,11 @@ export default function ClientesPage() {
       const response = await clientesApi.listar()
       const payload = response.data
       const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const total = Array.isArray(payload) ? data.length : (payload.totalCount ?? data.length)
       const nc = Array.isArray(payload) ? null : payload.nextCursor
       const hn = Array.isArray(payload) ? false : payload.hasNext
       setClientes(data)
+      setTotalClientes(Number(total))
       setNextCursor(nc ?? null)
       setHasNext(hn)
     } catch (error) {
@@ -48,9 +51,11 @@ export default function ClientesPage() {
       const response = await clientesApi.listar(nextCursor)
       const payload = response.data
       const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const total = Array.isArray(payload) ? clientes.length + data.length : (payload.totalCount ?? clientes.length + data.length)
       const nc = Array.isArray(payload) ? null : payload.nextCursor
       const hn = Array.isArray(payload) ? false : payload.hasNext
       setClientes((prev) => [...prev, ...data])
+      setTotalClientes(Number(total))
       setNextCursor(nc ?? null)
       setHasNext(hn)
     } catch (error) {
@@ -189,6 +194,11 @@ export default function ClientesPage() {
               </TableBody>
             </Table>
           </TableContainer>
+          <Box sx={{ px: 3, py: 2, borderTop: '1px solid #eee', display: 'flex', justifyContent: 'center' }}>
+            <Typography variant="body2" sx={{ color: '#555', fontSize: '0.95rem' }}>
+              Exibindo {clientes.length} de {totalClientes}
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
 

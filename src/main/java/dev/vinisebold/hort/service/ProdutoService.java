@@ -75,6 +75,7 @@ public class ProdutoService {
 
         return CursorResponse.<ProdutoResponse>builder()
                 .data(data)
+                .totalCount(page.getTotalElements())
                 .nextCursor(nextCursor)
                 .hasNext(page.hasNext())
                 .build();

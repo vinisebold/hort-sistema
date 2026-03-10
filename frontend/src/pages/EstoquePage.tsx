@@ -241,6 +241,11 @@ export default function EstoquePage() {
               </TableBody>
             </Table>
           </TableContainer>
+          <Box sx={{ px: 3, py: 2, borderTop: '1px solid #eee', display: 'flex', justifyContent: 'center' }}>
+            <Typography variant="body2" sx={{ color: '#555', fontSize: '0.95rem' }}>
+              Exibindo {produtos.length} de {produtos.length}
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
     </Box>

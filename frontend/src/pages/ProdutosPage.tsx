@@ -15,6 +15,7 @@ interface Produto {
 export default function ProdutosPage() {
   const navigate = useNavigate()
   const [produtos, setProdutos] = useState<Produto[]>([])
+  const [totalProdutos, setTotalProdutos] = useState(0)
   const [nextCursor, setNextCursor] = useState<number | null>(null)
   const [hasNext, setHasNext] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -30,9 +31,11 @@ export default function ProdutosPage() {
       const payload = response.data
       // support legacy array responses and new CursorResponse wrapper
       const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const total = Array.isArray(payload) ? data.length : (payload.totalCount ?? data.length)
       const nc = Array.isArray(payload) ? null : payload.nextCursor
       const hn = Array.isArray(payload) ? false : payload.hasNext
       setProdutos(data)
+      setTotalProdutos(Number(total))
       setNextCursor(nc ?? null)
       setHasNext(hn)
     } catch (error) {
@@ -47,9 +50,11 @@ export default function ProdutosPage() {
       const response = await produtosApi.listar(nextCursor)
       const payload = response.data
       const data = Array.isArray(payload) ? payload : (payload.data ?? [])
+      const total = Array.isArray(payload) ? produtos.length + data.length : (payload.totalCount ?? produtos.length + data.length)
       const nc = Array.isArray(payload) ? null : payload.nextCursor
       const hn = Array.isArray(payload) ? false : payload.hasNext
       setProdutos(prev => [...prev, ...data])
+      setTotalProdutos(Number(total))
       setNextCursor(nc ?? null)
       setHasNext(hn)
     } catch (error) {
@@ -146,6 +151,11 @@ export default function ProdutosPage() {
               </TableBody>
             </Table>
           </TableContainer>
+          <Box sx={{ px: 3, py: 2, borderTop: '1px solid #eee', display: 'flex', justifyContent: 'center' }}>
+            <Typography variant="body2" sx={{ color: '#555', fontSize: '0.95rem' }}>
+              Exibindo {produtos.length} de {totalProdutos}
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
 

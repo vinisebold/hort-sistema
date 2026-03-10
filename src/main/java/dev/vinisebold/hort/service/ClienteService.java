@@ -84,6 +84,7 @@ public class ClienteService {
 
         return CursorResponse.<ClienteResponse>builder()
                 .data(data)
+                .totalCount(page.getTotalElements())
                 .nextCursor(nextCursor)
                 .hasNext(page.hasNext())
                 .build();
