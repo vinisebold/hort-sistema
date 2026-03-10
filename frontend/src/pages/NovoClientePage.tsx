@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import {
   Box, Typography, Button, TextField, Card, CardContent,
   InputAdornment, IconButton, CircularProgress, Fab, ToggleButton, ToggleButtonGroup, Grid
@@ -11,8 +11,10 @@ import { getPersonNameValidationMessage, normalizePersonNameInput } from '../uti
 
 export default function NovoClientePage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { id } = useParams()
   const isEditing = Boolean(id)
+  const fromHome = (location.state as any)?.fromHome
   const { showToast } = useToast()
 
   const [loading, setLoading] = useState(false)
@@ -175,7 +177,7 @@ export default function NovoClientePage() {
         showToast('Cliente criado com sucesso!', 'success')
       }
 
-      navigate('/clientes')
+      navigate(fromHome ? '/' : '/clientes')
     } catch (error: any) {
       showToast(error.response?.data?.message || 'Erro ao salvar cliente', 'error')
     } finally {
@@ -343,7 +345,7 @@ export default function NovoClientePage() {
         <Button
           variant="outlined"
           startIcon={<ArrowBack />}
-          onClick={() => navigate('/clientes')}
+          onClick={() => navigate(fromHome ? '/' : '/clientes')}
         >
           Voltar
         </Button>

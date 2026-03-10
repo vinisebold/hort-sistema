@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
 import {
     Box,
     Card,
@@ -7,16 +6,7 @@ import {
     Typography,
     Grid2 as Grid,
     Link,
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    FormControl,
-    Select,
-    MenuItem,
-    Alert
+    Button
 } from '@mui/material'
 import {
     Inventory,
@@ -29,49 +19,9 @@ import {
     Category,
     Scale
 } from '@mui/icons-material'
-import { produtosApi, clientesApi, unidadesMedidaApi, naturezasApi } from '../services/api'
-import { getPersonNameValidationMessage, normalizePersonNameInput } from '../utils/personNameValidation'
-
-interface FormState {
-    type: 'produto' | 'cliente' | 'unidade' | 'natureza' | null
-    loading: boolean
-    error: string
-}
-
-interface ProdutoForm {
-    descricao: string
-    unidadeMedidaId: string
-}
-
-interface ClienteForm {
-    razaoSocial: string
-    documento: string
-    tipoPessoa: string
-}
-
-interface UnidadeForm {
-    sigla: string
-    descricao: string
-}
-
-interface NaturezaForm {
-    descricao: string
-    tipoMovimento: string
-}
 
 export default function HomePage() {
     const navigate = useNavigate()
-    const [formState, setFormState] = useState<FormState>({ type: null, loading: false, error: '' })
-    const [unidades, setUnidades] = useState<any[]>([])
-    
-    // Form states
-    const [produtoForm, setProdutoForm] = useState<ProdutoForm>({ descricao: '', unidadeMedidaId: '' })
-    const [clienteForm, setClienteForm] = useState<ClienteForm>({ razaoSocial: '', documento: '', tipoPessoa: 'JURIDICA' })
-    const [unidadeForm, setUnidadeForm] = useState<UnidadeForm>({ sigla: '', descricao: '' })
-    const [naturezaForm, setNaturezaForm] = useState<NaturezaForm>({ descricao: '', tipoMovimento: 'SAIDA' })
-    const clienteNomeError = clienteForm.tipoPessoa === 'FISICA'
-        ? getPersonNameValidationMessage(clienteForm.razaoSocial)
-        : ''
 
     const acessoRapidoItems = [
         { label: 'Novo Pedido', icon: <AddShoppingCart fontSize="small" />, path: '/pedidos/novo' },
@@ -83,122 +33,11 @@ export default function HomePage() {
     ]
 
     const cadastrosRapidos = [
-        { label: 'Adicionar Produto', icon: <Inventory />, type: 'produto' as const },
-        { label: 'Adicionar Cliente', icon: <PersonAdd />, type: 'cliente' as const },
-        { label: 'Adicionar Unidade', icon: <Scale />, type: 'unidade' as const },
-        { label: 'Adicionar Natureza', icon: <Category />, type: 'natureza' as const },
+        { label: 'Adicionar Produto', icon: <Inventory />, path: '/produtos/novo' },
+        { label: 'Adicionar Cliente', icon: <PersonAdd />, path: '/clientes/novo' },
+        { label: 'Adicionar Unidade', icon: <Scale />, path: '/unidades-medida/novo' },
+        { label: 'Adicionar Natureza', icon: <Category />, path: '/naturezas-operacao/novo' },
     ]
-
-    const openModal = async (type: 'produto' | 'cliente' | 'unidade' | 'natureza') => {
-        setFormState({ type, loading: false, error: '' })
-        if (type === 'produto') {
-            try {
-                const response = await unidadesMedidaApi.listar()
-                setUnidades(response.data)
-            } catch (error) {
-                console.error('Erro ao carregar unidades:', error)
-            }
-        }
-    }
-
-    const closeModal = () => {
-        setFormState({ type: null, loading: false, error: '' })
-        setProdutoForm({ descricao: '', unidadeMedidaId: '' })
-        setClienteForm({ razaoSocial: '', documento: '', tipoPessoa: 'JURIDICA' })
-        setUnidadeForm({ sigla: '', descricao: '' })
-        setNaturezaForm({ descricao: '', tipoMovimento: 'SAIDA' })
-    }
-
-    const handleSaveProduto = async () => {
-        if (!produtoForm.descricao || !produtoForm.unidadeMedidaId) {
-            setFormState(prev => ({ ...prev, error: 'Preencha todos os campos obrigatórios' }))
-            return
-        }
-
-        setFormState(prev => ({ ...prev, loading: true }))
-        try {
-            await produtosApi.criar({
-                descricao: produtoForm.descricao,
-                unidadeMedidaId: Number(produtoForm.unidadeMedidaId),
-            })
-            setFormState(prev => ({ ...prev, loading: false, error: '' }))
-            closeModal()
-            navigate('/produtos')
-        } catch (error: any) {
-            setFormState(prev => ({ ...prev, loading: false, error: error.response?.data?.message || 'Erro ao criar produto' }))
-        }
-    }
-
-    const handleSaveCliente = async () => {
-        const nomeNormalizado = normalizePersonNameInput(clienteForm.razaoSocial)
-
-        if (!nomeNormalizado || !clienteForm.documento) {
-            setFormState(prev => ({ ...prev, error: 'Preencha todos os campos obrigatórios' }))
-            return
-        }
-
-        if (clienteForm.tipoPessoa === 'FISICA' && clienteNomeError) {
-            setFormState(prev => ({ ...prev, error: clienteNomeError }))
-            return
-        }
-
-        setFormState(prev => ({ ...prev, loading: true }))
-        try {
-            await clientesApi.criar({
-                razaoSocial: clienteForm.tipoPessoa === 'FISICA' ? nomeNormalizado : clienteForm.razaoSocial,
-                documento: clienteForm.documento,
-                tipoPessoa: clienteForm.tipoPessoa,
-            })
-            setFormState(prev => ({ ...prev, loading: false, error: '' }))
-            closeModal()
-            navigate('/clientes')
-        } catch (error: any) {
-            setFormState(prev => ({ ...prev, loading: false, error: error.response?.data?.message || 'Erro ao criar cliente' }))
-        }
-    }
-
-    const handleSaveUnidade = async () => {
-        if (!unidadeForm.sigla || !unidadeForm.descricao) {
-            setFormState(prev => ({ ...prev, error: 'Preencha todos os campos obrigatórios' }))
-            return
-        }
-
-        setFormState(prev => ({ ...prev, loading: true }))
-        try {
-            await unidadesMedidaApi.criar({
-                sigla: unidadeForm.sigla,
-                descricao: unidadeForm.descricao,
-            })
-            setFormState(prev => ({ ...prev, loading: false, error: '' }))
-            closeModal()
-            navigate('/unidades-medida')
-        } catch (error: any) {
-            setFormState(prev => ({ ...prev, loading: false, error: error.response?.data?.message || 'Erro ao criar unidade' }))
-        }
-    }
-
-    const handleSaveNatureza = async () => {
-        if (!naturezaForm.descricao) {
-            setFormState(prev => ({ ...prev, error: 'Preencha o campo obrigatório' }))
-            return
-        }
-
-        setFormState(prev => ({ ...prev, loading: true }))
-        try {
-            await naturezasApi.criar({
-                descricao: naturezaForm.descricao,
-                tipoMovimento: naturezaForm.tipoMovimento,
-                propriedadeCliente: 'OBRIGATORIO',
-                propriedadeValorUnitario: 'OBRIGATORIO',
-                propriedadeStatus: 'OBRIGATORIO'
-            })
-            setFormState(prev => ({ ...prev, loading: false, error: '' }))
-            closeModal()
-            navigate('/naturezas-operacao')
-        } catch (error: any) {
-            setFormState(prev => ({ ...prev, loading: false, error: error.response?.data?.message || 'Erro ao criar natureza' }))
-        }
-    }
 
     return (
         <Box sx={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -270,7 +109,7 @@ export default function HomePage() {
                                         <Button
                                             variant="outlined"
                                             fullWidth
-                                            onClick={() => openModal(item.type)}
+                                            onClick={() => navigate(item.path, { state: { fromHome: true } })}
                                             startIcon={<Box component="span" sx={{ color: '#039be5', display: 'flex', alignItems: 'center' }}>{item.icon}</Box>}
                                             endIcon={<ArrowForward fontSize="small" sx={{ color: '#bdbdbd' }} />}
                                             sx={{
@@ -303,200 +142,6 @@ export default function HomePage() {
 
                 </Grid>
             </Grid>
-
-            {/* DIALOGS DE CADASTRO RÁPIDO */}
-
-            {/* Dialog Produto */}
-            <Dialog open={formState.type === 'produto'} onClose={closeModal} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>Novo Produto</DialogTitle>
-                <DialogContent sx={{ pt: 3 }}>
-                    {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
-                    
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
-                            Descrição *
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            value={produtoForm.descricao}
-                            onChange={(e) => setProdutoForm({ ...produtoForm, descricao: e.target.value })}
-                            placeholder="Ex: Tomate Salada"
-                        />
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
-                            Unidade de Medida *
-                        </Typography>
-                        <FormControl fullWidth size="small">
-                            <Select
-                                value={produtoForm.unidadeMedidaId}
-                                onChange={(e) => setProdutoForm({ ...produtoForm, unidadeMedidaId: e.target.value })}
-                                displayEmpty
-                            >
-                                <MenuItem value="" disabled>
-                                    Selecione uma unidade
-                                </MenuItem>
-                                {unidades.map((u) => (
-                                    <MenuItem key={u.id} value={u.id}>{u.sigla} - {u.descricao}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
-                </DialogContent>
-                <DialogActions sx={{ borderTop: '1px solid #eee', p: 2 }}>
-                    <Button onClick={closeModal} sx={{ color: '#666' }}>Cancelar</Button>
-                    <Button onClick={handleSaveProduto} variant="contained" disabled={formState.loading}>
-                        Criar
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Dialog Cliente */}
-            <Dialog open={formState.type === 'cliente'} onClose={closeModal} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>Novo Cliente</DialogTitle>
-                <DialogContent sx={{ pt: 3 }}>
-                    {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
-                    
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
-                            Tipo de Pessoa *
-                        </Typography>
-                        <FormControl fullWidth size="small">
-                            <Select
-                                value={clienteForm.tipoPessoa}
-                                onChange={(e) => setClienteForm({ ...clienteForm, tipoPessoa: e.target.value })}
-                            >
-                                <MenuItem value="JURIDICA">Jurídica (CNPJ)</MenuItem>
-                                <MenuItem value="FISICA">Física (CPF)</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
-                            {clienteForm.tipoPessoa === 'JURIDICA' ? 'Razão Social *' : 'Nome *'}
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            value={clienteForm.razaoSocial}
-                            onChange={(e) => setClienteForm({ ...clienteForm, razaoSocial: e.target.value })}
-                            onBlur={() => {
-                                if (clienteForm.tipoPessoa === 'FISICA') {
-                                    setClienteForm(prev => ({ ...prev, razaoSocial: normalizePersonNameInput(prev.razaoSocial) }))
-                                }
-                            }}
-                            placeholder={clienteForm.tipoPessoa === 'JURIDICA' ? 'Ex: Empresa LTDA' : 'Ex: João da Silva'}
-                            error={clienteForm.tipoPessoa === 'FISICA' && Boolean(clienteForm.razaoSocial) && Boolean(clienteNomeError)}
-                            helperText={clienteForm.tipoPessoa === 'FISICA' ? (clienteNomeError || ' ') : ' '}
-                        />
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
-                            {clienteForm.tipoPessoa === 'JURIDICA' ? 'CNPJ *' : 'CPF *'}
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            value={clienteForm.documento}
-                            onChange={(e) => setClienteForm({ ...clienteForm, documento: e.target.value })}
-                            placeholder={clienteForm.tipoPessoa === 'JURIDICA' ? '00.000.000/0000-00' : '000.000.000-00'}
-                        />
-                    </Box>
-                </DialogContent>
-                <DialogActions sx={{ borderTop: '1px solid #eee', p: 2 }}>
-                    <Button onClick={closeModal} sx={{ color: '#666' }}>Cancelar</Button>
-                    <Button onClick={handleSaveCliente} variant="contained" disabled={formState.loading}>
-                        Criar
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Dialog Unidade de Medida */}
-            <Dialog open={formState.type === 'unidade'} onClose={closeModal} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>Nova Unidade de Medida</DialogTitle>
-                <DialogContent sx={{ pt: 3 }}>
-                    {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
-                    
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
-                            Sigla *
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            value={unidadeForm.sigla}
-                            onChange={(e) => setUnidadeForm({ ...unidadeForm, sigla: e.target.value })}
-                            inputProps={{ maxLength: 10 }}
-                            placeholder="Ex: UN, KG, CX"
-                        />
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
-                            Descrição *
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            value={unidadeForm.descricao}
-                            onChange={(e) => setUnidadeForm({ ...unidadeForm, descricao: e.target.value })}
-                            placeholder="Ex: Unidade, Quilograma, Caixa"
-                        />
-                    </Box>
-                </DialogContent>
-                <DialogActions sx={{ borderTop: '1px solid #eee', p: 2 }}>
-                    <Button onClick={closeModal} sx={{ color: '#666' }}>Cancelar</Button>
-                    <Button onClick={handleSaveUnidade} variant="contained" disabled={formState.loading}>
-                        Criar
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Dialog Natureza de Operação */}
-            <Dialog open={formState.type === 'natureza'} onClose={closeModal} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>Nova Natureza de Operação</DialogTitle>
-                <DialogContent sx={{ pt: 3 }}>
-                    {formState.error && <Alert severity="error" sx={{ mb: 2 }}>{formState.error}</Alert>}
-                    
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
-                            Descrição *
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            value={naturezaForm.descricao}
-                            onChange={(e) => setNaturezaForm({ ...naturezaForm, descricao: e.target.value })}
-                            placeholder="Ex: Venda, Compra, Devolução"
-                        />
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="caption" sx={{ color: '#666', mb: 0.5, display: 'block' }}>
-                            Tipo de Movimento *
-                        </Typography>
-                        <FormControl fullWidth size="small">
-                            <Select
-                                value={naturezaForm.tipoMovimento}
-                                onChange={(e) => setNaturezaForm({ ...naturezaForm, tipoMovimento: e.target.value })}
-                            >
-                                <MenuItem value="ENTRADA">Entrada</MenuItem>
-                                <MenuItem value="SAIDA">Saída</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Box>
-                </DialogContent>
-                <DialogActions sx={{ borderTop: '1px solid #eee', p: 2 }}>
-                    <Button onClick={closeModal} sx={{ color: '#666' }}>Cancelar</Button>
-                    <Button onClick={handleSaveNatureza} variant="contained" disabled={formState.loading}>
-                        Criar
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Box>
     )
 }

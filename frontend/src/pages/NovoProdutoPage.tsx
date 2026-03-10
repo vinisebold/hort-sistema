@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import {
   Box, Typography, Button, TextField, Card, CardContent,
   CircularProgress, Fab, Grid, FormControl, Select, MenuItem
@@ -16,8 +16,10 @@ interface UnidadeMedida {
 
 export default function NovoProdutoPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { id } = useParams()
   const isEditing = Boolean(id)
+  const fromHome = (location.state as any)?.fromHome
   const { showToast } = useToast()
 
   const [loading, setLoading] = useState(false)
@@ -79,7 +81,7 @@ export default function NovoProdutoPage() {
         showToast('Produto criado com sucesso!', 'success')
       }
 
-      navigate('/produtos')
+      navigate(fromHome ? '/' : '/produtos')
     } catch (error: any) {
       showToast(error.response?.data?.message || 'Erro ao salvar produto', 'error')
     } finally {
@@ -138,15 +140,15 @@ export default function NovoProdutoPage() {
         </CardContent>
       </Card>
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 3, py: 2 }}>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBack />}
-          onClick={() => navigate('/produtos')}
-        >
-          Voltar
-        </Button>
-      </Box>
+       <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 3, py: 2 }}>
+         <Button
+           variant="outlined"
+           startIcon={<ArrowBack />}
+           onClick={() => navigate(fromHome ? '/' : '/produtos')}
+         >
+           Voltar
+         </Button>
+       </Box>
 
       <Fab
         color="primary"

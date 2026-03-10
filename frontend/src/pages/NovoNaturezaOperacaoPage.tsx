@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import {
   Box, Typography, Button, TextField, Card, CardContent,
   CircularProgress, Fab, Grid, ToggleButton, ToggleButtonGroup,
@@ -12,8 +12,10 @@ import { useToast } from '../contexts/ToastContext'
 
 export default function NovoNaturezaOperacaoPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { id } = useParams()
   const isEditing = Boolean(id)
+  const fromHome = (location.state as any)?.fromHome
   const { showToast } = useToast()
 
   const [loading, setLoading] = useState(false)
@@ -58,14 +60,14 @@ export default function NovoNaturezaOperacaoPage() {
     setLoading(true)
     try {
       if (isEditing) {
-        await naturezasApi.atualizar(Number(id), form)
-        showToast('Natureza de operação atualizada!', 'success')
-      } else {
-        await naturezasApi.criar(form)
-        showToast('Natureza de operação criada!', 'success')
-      }
+         await naturezasApi.atualizar(Number(id), form)
+         showToast('Natureza de operação atualizada!', 'success')
+       } else {
+         await naturezasApi.criar(form)
+         showToast('Natureza de operação criada!', 'success')
+       }
 
-      navigate('/naturezas-operacao')
+       navigate(fromHome ? '/' : '/naturezas-operacao')
     } catch (error: any) {
       showToast(error.response?.data?.message || 'Erro ao salvar', 'error')
     } finally {
@@ -184,13 +186,13 @@ export default function NovoNaturezaOperacaoPage() {
         </CardContent>
       </Card>
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 3, py: 2 }}>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBack />}
-          onClick={() => navigate('/naturezas-operacao')}
-        >
-          Voltar
+       <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 3, py: 2 }}>
+         <Button
+           variant="outlined"
+           startIcon={<ArrowBack />}
+           onClick={() => navigate(fromHome ? '/' : '/naturezas-operacao')}
+         >
+           Voltar
         </Button>
       </Box>
 
