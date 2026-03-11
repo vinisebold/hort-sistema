@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -8,6 +8,7 @@ import {
 import { Add, Visibility, MoreVert, ArrowDownward, ArrowUpward, ArrowBack } from '@mui/icons-material'
 import { pedidosApi, naturezasApi } from '../services/api'
 import { useToast } from '../contexts/ToastContext'
+import { useSelectionContext } from '../contexts/SelectionContext'
 import NaturezaOverlay from '../components/NaturezaOverlay'
 import { NaturezaOperacao, Pedido } from '../types'
 
@@ -22,10 +23,13 @@ export default function PedidosPage() {
   const [openView, setOpenView] = useState(false)
   const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null)
   const { showToast } = useToast()
+  const { registerSelection, unregisterSelection } = useSelectionContext()
   const [naturezas, setNaturezas] = useState<NaturezaOperacao[]>([])
   const [showOverlay, setShowOverlay] = useState(false)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [cancelConfirm, setCancelConfirm] = useState<Pedido | null>(null)
+  const [bulkCancelConfirm, setBulkCancelConfirm] = useState(false)
+  const [bulkCancelling, setBulkCancelling] = useState(false)
   const [highlightedId, setHighlightedId] = useState<number | null>(null)
   const [showBackButton, setShowBackButton] = useState(false)
   const [estoqueState, setEstoqueState] = useState<{ expandedProdutoId?: number; scrollPosition?: number } | null>(null)
@@ -35,6 +39,26 @@ export default function PedidosPage() {
   
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedMenuPedido, setSelectedMenuPedido] = useState<Pedido | null>(null)
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedIds([])
+  }, [])
+
+  const handleOpenBulkCancel = useCallback(() => {
+    setBulkCancelConfirm(true)
+  }, [])
+
+  // Sync selection state with the AppBar context
+  useEffect(() => {
+    registerSelection(selectedIds.length, handleClearSelection, handleOpenBulkCancel)
+  }, [selectedIds.length, handleClearSelection, handleOpenBulkCancel, registerSelection])
+
+  // Clean up selection context on unmount
+  useEffect(() => {
+    return () => {
+      unregisterSelection()
+    }
+  }, [unregisterSelection])
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, pedido: Pedido) => {
     setMenuAnchorEl(event.currentTarget)
@@ -187,6 +211,31 @@ export default function PedidosPage() {
     } catch (error: any) {
       setCancelConfirm(null)
       showToast(error.response?.data?.message || 'Erro ao cancelar pedido.', 'error')
+    }
+  }
+
+  const handleBulkCancelar = async () => {
+    setBulkCancelling(true)
+    const ids = [...selectedIds]
+    const results = await Promise.allSettled(ids.map(id => pedidosApi.cancelar(id)))
+    const failed = results.filter(r => r.status === 'rejected').length
+    const succeeded = results.filter(r => r.status === 'fulfilled').length
+    setBulkCancelling(false)
+    setBulkCancelConfirm(false)
+    setSelectedIds([])
+    await loadPedidos()
+    if (failed === 0) {
+      showToast(
+        `${succeeded} ${succeeded === 1 ? 'pedido cancelado' : 'pedidos cancelados'} com sucesso.`,
+        'success'
+      )
+    } else if (succeeded === 0) {
+      showToast('Nenhum pedido foi cancelado. Verifique os status selecionados.', 'error')
+    } else {
+      showToast(
+        `${succeeded} cancelado(s) com sucesso, ${failed} falhou/falharam.`,
+        'warning'
+      )
     }
   }
 
@@ -454,7 +503,7 @@ export default function PedidosPage() {
         </MenuItem>
       </Menu>
 
-      {/* Dialog Confirmar Cancelamento */}
+      {/* Dialog Confirmar Cancelamento (único pedido) */}
       <Dialog open={!!cancelConfirm} onClose={() => setCancelConfirm(null)}>
         <DialogTitle>Cancelar Pedido {cancelConfirm?.id}?</DialogTitle>
         <DialogContent>
@@ -466,6 +515,28 @@ export default function PedidosPage() {
         <DialogActions>
           <Button onClick={() => setCancelConfirm(null)}>Voltar</Button>
           <Button onClick={handleCancelar} color="error" variant="contained">
+            Confirmar Cancelamento
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog Confirmar Cancelamento em Massa */}
+      <Dialog open={bulkCancelConfirm} onClose={() => !bulkCancelling && setBulkCancelConfirm(false)}>
+        <DialogTitle>
+          Cancelar {selectedIds.length} {selectedIds.length === 1 ? 'pedido' : 'pedidos'}?
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            Esta ação irá estornar o estoque e reverter os lotes FIFO de cada pedido selecionado.
+            Esta operação não pode ser desfeita.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setBulkCancelConfirm(false)} disabled={bulkCancelling}>
+            Voltar
+          </Button>
+          <Button onClick={handleBulkCancelar} color="error" variant="contained" disabled={bulkCancelling}>
+            {bulkCancelling ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
             Confirmar Cancelamento
           </Button>
         </DialogActions>

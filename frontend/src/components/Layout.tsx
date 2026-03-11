@@ -12,6 +12,7 @@ import {
     IconButton,
     CssBaseline,
     Divider,
+    Button,
 } from '@mui/material'
 import {
     Dashboard,
@@ -27,9 +28,12 @@ import {
     HelpOutline,
     Apps,
     AttachMoney,
-    Person
+    Person,
+    ArrowBack,
+    Cancel,
 } from '@mui/icons-material'
 import { useAuth } from '../contexts/AuthContext'
+import { useSelectionContext } from '../contexts/SelectionContext'
 
 const drawerWidth = 280
 
@@ -63,6 +67,9 @@ export default function Layout() {
     const navigate = useNavigate()
     const location = useLocation()
     const { logout, usuario } = useAuth()
+    const { selectedCount, onClearSelection, onCancelSelected } = useSelectionContext()
+
+    const hasSelection = selectedCount > 0
 
     const [open, setOpen] = useState(false)
     const [accountOpen, setAccountOpen] = useState(false)
@@ -135,7 +142,7 @@ export default function Layout() {
                     right: 0,
                     height: 64,
                     bgcolor: (theme) => theme.palette.primary.main,
-                    boxShadow: isExtendedHeaderRoute ? 'none' : 2,
+                    boxShadow: isExtendedHeaderRoute && !hasSelection ? 'none' : 2,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -144,45 +151,85 @@ export default function Layout() {
                     '& .MuiTypography-root': { color: 'white' }
                 }}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={toggleDrawer(true)}
-                        sx={{ height: '100%', borderRadius: 0, px: 2 }}
-                    >
-                        <Menu />
-                    </IconButton>
+                {hasSelection ? (
+                    /* SELECTION MODE */
+                    <>
+                        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                            <IconButton
+                                color="inherit"
+                                aria-label="limpar seleção"
+                                onClick={onClearSelection ?? undefined}
+                                sx={{ height: '100%', borderRadius: 0, px: 2 }}
+                            >
+                                <ArrowBack />
+                            </IconButton>
+                            <Typography variant="h6" sx={{ fontWeight: 400, fontSize: '20px' }}>
+                                {selectedCount} {selectedCount === 1 ? 'item selecionado' : 'itens selecionados'}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%', pr: 1 }}>
+                            <Button
+                                color="inherit"
+                                startIcon={<Cancel />}
+                                onClick={onCancelSelected ?? undefined}
+                                sx={{
+                                    height: '80%',
+                                    borderRadius: 1,
+                                    px: 2,
+                                    color: 'white',
+                                    border: '1px solid rgba(255,255,255,0.5)',
+                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.15)' },
+                                    '& .MuiTypography-root': { color: 'white' },
+                                }}
+                            >
+                                Cancelar pedidos
+                            </Button>
+                        </Box>
+                    </>
+                ) : (
+                    /* NORMAL MODE */
+                    <>
+                        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                            <IconButton
+                                color="inherit"
+                                aria-label="open drawer"
+                                onClick={toggleDrawer(true)}
+                                sx={{ height: '100%', borderRadius: 0, px: 2 }}
+                            >
+                                <Menu />
+                            </IconButton>
 
-                    <Box
-                        onClick={() => navigate('/inicio')}
-                        sx={{
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            px: 2,
-                            cursor: 'pointer',
-                            '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
-                        }}
-                    >
-                        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 400, fontSize: '24px' }}>
-                            {pageTitle}
-                        </Typography>
-                    </Box>
-                </Box>
+                            <Box
+                                onClick={() => navigate('/inicio')}
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    px: 2,
+                                    cursor: 'pointer',
+                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+                                }}
+                            >
+                                <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 400, fontSize: '24px' }}>
+                                    {pageTitle}
+                                </Typography>
+                            </Box>
+                        </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                    {usuario && (
-                        <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, mr: 3 }}>
-                            {usuario.nomeFantasia} - {formatarCnpj(usuario.cnpj)}
-                        </Typography>
-                    )}
-                    <IconButton color="inherit" sx={{ height: '100%', borderRadius: 0, px: 1.5 }}><Apps /></IconButton>
-                    <IconButton color="inherit" sx={{ height: '100%', borderRadius: 0, px: 1.5 }}><HelpOutline /></IconButton>
-                    <IconButton color="inherit" onClick={toggleAccountDrawer(true)} sx={{ height: '100%', borderRadius: 0, px: 1.5 }}>
-                        <AccountCircle />
-                    </IconButton>
-                </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                            {usuario && (
+                                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, mr: 3 }}>
+                                    {usuario.nomeFantasia} - {formatarCnpj(usuario.cnpj)}
+                                </Typography>
+                            )}
+                            <IconButton color="inherit" sx={{ height: '100%', borderRadius: 0, px: 1.5 }}><Apps /></IconButton>
+                            <IconButton color="inherit" sx={{ height: '100%', borderRadius: 0, px: 1.5 }}><HelpOutline /></IconButton>
+                            <IconButton color="inherit" onClick={toggleAccountDrawer(true)} sx={{ height: '100%', borderRadius: 0, px: 1.5 }}>
+                                <AccountCircle />
+                            </IconButton>
+                        </Box>
+                    </>
+                )}
             </Box>
 
             {/* DRAWER ESQUERDO (Navegação Principal) */}

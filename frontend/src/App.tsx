@@ -21,6 +21,7 @@ import NovoUnidadeMedidaPage from './pages/NovoUnidadeMedidaPage'
 import ContaPage from './pages/ContaPage'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
+import { SelectionProvider } from './contexts/SelectionContext'
 
 function App() {
   return (
@@ -33,7 +34,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           
           {/* Rotas protegidas com Layout */}
-          <Route path="/" element={<PrivateRoute element={<Layout />} />}>
+          <Route path="/" element={<PrivateRoute element={<SelectionProvider><Layout /></SelectionProvider>} />}>
             <Route index element={<HomePage />} />
             <Route path="inicio" element={<HomePage />} />
             <Route path="financeiro" element={<DashboardPage />} />
