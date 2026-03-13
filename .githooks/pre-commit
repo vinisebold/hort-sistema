@@ -3,9 +3,9 @@
 set -euo pipefail
 
 echo "🔍 [pre-commit] Verificando formatação (Spotless)..."
-./mvnw --no-transfer-progress spotless:check -q
+mvn --no-transfer-progress spotless:check -q
 
 echo "🔍 [pre-commit] Verificando estilo (Checkstyle)..."
-./mvnw --no-transfer-progress checkstyle:check -q
+mvn --no-transfer-progress checkstyle:check -q
 
 echo "✅ [pre-commit] Verificações passaram."

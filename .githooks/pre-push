@@ -3,6 +3,6 @@
 set -euo pipefail
 
 echo "🧪 [pre-push] Rodando testes..."
-./mvnw --no-transfer-progress test -q
+mvn --no-transfer-progress test -q
 
 echo "✅ [pre-push] Todos os testes passaram."
