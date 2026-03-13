@@ -69,16 +69,22 @@ class PedidoServiceTest {
     naturezaEntrada.setDescricao("Compra");
     naturezaEntrada.setTipoMovimento(TipoMovimento.ENTRADA);
     naturezaEntrada.setExigeCliente(false); // Entrada doesn't require client
+    naturezaEntrada.setPropriedadeValorUnitario(CampoPropriedade.OBRIGATORIO);
     naturezaEntrada.setExigeValorUnitario(true);
     naturezaEntrada.setExigeStatus(false); // Entrada doesn't require status
+    naturezaEntrada.setPropriedadeCliente(CampoPropriedade.DESATIVADO);
+    naturezaEntrada.setPropriedadeStatus(CampoPropriedade.DESATIVADO);
 
     naturezaSaida = new NaturezaOperacao();
     naturezaSaida.setId(2);
     naturezaSaida.setDescricao("Venda");
     naturezaSaida.setTipoMovimento(TipoMovimento.SAIDA);
     naturezaSaida.setExigeCliente(true); // Saída requires client
+    naturezaSaida.setPropriedadeValorUnitario(CampoPropriedade.OBRIGATORIO);
     naturezaSaida.setExigeValorUnitario(true);
     naturezaSaida.setExigeStatus(true); // Saída requires status
+    naturezaSaida.setPropriedadeCliente(CampoPropriedade.OBRIGATORIO);
+    naturezaSaida.setPropriedadeStatus(CampoPropriedade.OBRIGATORIO);
 
     cliente = new Cliente();
     cliente.setId(1);
@@ -187,7 +193,7 @@ class PedidoServiceTest {
     @DisplayName("ENTRADA - deve criar pedido, salvar itens, chamar estoque e fifo, e setar custoUnitario = valorUnitario")
     void deveProcessarPedidoEntrada() {
       ItemPedidoRequest itemReq = criarItemPedidoRequest(1, "10.000", "5.50");
-      PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq));
+      PedidoRequest request = criarPedidoRequest(1, null, List.of(itemReq));
 
       when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
       // when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente)); // ENTRADA ignores cliente
@@ -301,7 +307,7 @@ class PedidoServiceTest {
     @DisplayName("deve lancar IllegalArgumentException quando produto nao encontrado")
     void deveLancarExcecaoProdutoNaoEncontrado() {
       ItemPedidoRequest itemReq = criarItemPedidoRequest(999, "10.000", "5.50");
-      PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq));
+      PedidoRequest request = criarPedidoRequest(1, null, List.of(itemReq));
 
       when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
       configurarPedidoSaveComId();
@@ -326,7 +332,7 @@ class PedidoServiceTest {
 
       ItemPedidoRequest itemReq1 = criarItemPedidoRequest(1, "10.000", "5.50");
       ItemPedidoRequest itemReq2 = criarItemPedidoRequest(2, "20.000", "3.00");
-      PedidoRequest request = criarPedidoRequest(1, 1, List.of(itemReq1, itemReq2));
+      PedidoRequest request = criarPedidoRequest(1, null, List.of(itemReq1, itemReq2));
 
       when(naturezaOperacaoRepository.findById(1)).thenReturn(Optional.of(naturezaEntrada));
       // when(clienteRepository.findById(1)).thenReturn(Optional.of(cliente));

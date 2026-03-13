@@ -54,6 +54,7 @@ class AuthControllerTest {
 
   private LoginRequest criarLoginRequest(String senha) {
     LoginRequest request = new LoginRequest();
+    request.setEmail("usuario@example.com");
     request.setSenha(senha);
     return request;
   }

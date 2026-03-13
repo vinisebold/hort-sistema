@@ -31,7 +31,7 @@
         <java.version>25</java.version>
         <!-- Plugin versions -->
         <spotless.version>2.44.4</spotless.version>
-        <jacoco.version>0.8.12</jacoco.version>
+        <jacoco.version>0.8.13</jacoco.version>
         <git-build-hook.version>3.5.0</git-build-hook.version>
     </properties>
 
