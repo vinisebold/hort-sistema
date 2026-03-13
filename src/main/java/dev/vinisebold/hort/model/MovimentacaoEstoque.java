@@ -1,10 +1,20 @@
 package dev.vinisebold.hort.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Getter
@@ -13,29 +23,29 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MovimentacaoEstoque {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
-    private Produto produto;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(nullable = false)
+  private Produto produto;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
-    private NaturezaOperacao naturezaOperacao;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(nullable = false)
+  private NaturezaOperacao naturezaOperacao;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
-    private Pedido pedido;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn
+  private Pedido pedido;
 
-    @Column(nullable = false, precision = 10, scale = 3)
-    private BigDecimal quantidade;
+  @Column(nullable = false, precision = 10, scale = 3)
+  private BigDecimal quantidade;
 
-    @Column(nullable = false, precision = 10, scale = 3)
-    private BigDecimal estoqueAposMovimentacao;
+  @Column(nullable = false, precision = 10, scale = 3)
+  private BigDecimal estoqueAposMovimentacao;
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime dataMovimentacao;
+  @CreationTimestamp
+  @Column(updatable = false)
+  private LocalDateTime dataMovimentacao;
 }

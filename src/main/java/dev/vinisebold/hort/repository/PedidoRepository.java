@@ -2,29 +2,25 @@ package dev.vinisebold.hort.repository;
 
 import dev.vinisebold.hort.model.Pedido;
 import dev.vinisebold.hort.model.TipoMovimento;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 
-    List<Pedido> findByNaturezaOperacaoTipoMovimentoAndDataEmissaoBetween(
-            TipoMovimento tipoMovimento, LocalDateTime inicio, LocalDateTime fim);
+  List<Pedido> findByNaturezaOperacaoTipoMovimentoAndDataEmissaoBetween(
+      TipoMovimento tipoMovimento, LocalDateTime inicio, LocalDateTime fim);
 
-    List<Pedido> findByNaturezaOperacaoTipoMovimento(TipoMovimento tipoMovimento);
+  Page<Pedido> findByIdLessThanOrderByIdDesc(Integer id, Pageable pageable);
 
-    Page<Pedido> findByIdLessThanOrderByIdDesc(Integer id, Pageable pageable);
+  Page<Pedido> findAllByOrderByIdDesc(Pageable pageable);
 
-    Page<Pedido> findAllByOrderByIdDesc(Pageable pageable);
+  List<Pedido> findByClienteIdOrderByDataEmissaoAsc(Integer clienteId);
 
-    List<Pedido> findByClienteIdOrderByDataEmissaoAsc(Integer clienteId);
+  List<Pedido> findByClienteIdAndStatusOrderByDataEmissaoAsc(Integer clienteId, String status);
 
-    List<Pedido> findByClienteIdAndStatusOrderByDataEmissaoAsc(Integer clienteId, String status);
-
-    List<Pedido> findByClienteIdAndStatusAndDataEmissaoBetween(Integer clienteId, String status, LocalDateTime inicio, LocalDateTime fim);
 }

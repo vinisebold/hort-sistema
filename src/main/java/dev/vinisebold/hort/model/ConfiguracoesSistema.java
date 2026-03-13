@@ -1,7 +1,14 @@
 package dev.vinisebold.hort.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -10,12 +17,12 @@ import lombok.*;
 @AllArgsConstructor
 public class ConfiguracoesSistema {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
-    @Column(nullable = false)
-    private String senhaMasterHash;
+  @Column(nullable = false)
+  private String senhaMasterHash;
 
-    private String nomeNegocio;
+  private String nomeNegocio;
 }

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Importa conversores do Spring Boot (%clr, %wEx, etc.) -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="hort-sistema"/>
+
+    <!-- ============================================================ -->
+    <!-- Appenders                                                     -->
+    <!-- ============================================================ -->
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%clr(%d{HH:mm:ss.SSS}){faint} %clr(%5p) %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ============================================================ -->
+    <!-- Loggers                                                       -->
+    <!-- ============================================================ -->
+
+    <!-- Application code — INFO by default, DEBUG on dev profile -->
+    <springProfile name="default,dev">
+        <logger name="dev.vinisebold.hort" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+    </springProfile>
+
+    <springProfile name="prod">
+        <logger name="dev.vinisebold.hort" level="INFO" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+    </springProfile>
+
+    <!-- Frameworks — reduce noise -->
+    <logger name="org.springframework"        level="WARN"/>
+    <logger name="org.hibernate"              level="WARN"/>
+    <logger name="org.hibernate.SQL"          level="WARN"/>
+    <logger name="org.hibernate.type"         level="WARN"/>
+    <logger name="com.zaxxer.hikari"          level="WARN"/>
+    <logger name="org.flywaydb"               level="INFO"/>
+
+    <!-- ============================================================ -->
+    <!-- Root                                                          -->
+    <!-- ============================================================ -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>

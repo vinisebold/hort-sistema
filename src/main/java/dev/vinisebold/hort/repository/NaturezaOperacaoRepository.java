@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NaturezaOperacaoRepository extends JpaRepository<NaturezaOperacao, Integer> {
-    boolean existsByDescricao(String descricao);
+  boolean existsByDescricao(String descricao);
 }

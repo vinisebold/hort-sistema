@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class UnidadeMedidaResponse {
-    private Integer id;
-    private String sigla;
-    private String descricao;
-    private Boolean isActive;
+  private Integer id;
+  private String sigla;
+  private String descricao;
+  private Boolean isActive;
 }
