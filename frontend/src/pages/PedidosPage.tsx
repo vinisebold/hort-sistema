@@ -475,6 +475,11 @@ export default function PedidosPage() {
         }}
       >
         <MenuItem
+          onClick={() => { handleMenuClose(); navigate(`/pedidos/${selectedMenuPedido?.id}`) }}
+        >
+          Editar
+        </MenuItem>
+        <MenuItem
           onClick={handleMarcarComoPago}
           disabled={selectedMenuPedido?.status !== 'PENDENTE'}
         >

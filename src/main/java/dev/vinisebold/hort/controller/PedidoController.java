@@ -41,6 +41,13 @@ public class PedidoController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<PedidoResponse> atualizar(
+            @PathVariable Integer id,
+            @Valid @RequestBody PedidoRequest request) {
+        return ResponseEntity.ok(pedidoService.atualizarPedido(id, request));
+    }
+
     @PostMapping("/{id}/marcar-pago")
     public ResponseEntity<PedidoResponse> marcarComoPago(@PathVariable Integer id) {
         pedidoService.marcarComoPago(id);

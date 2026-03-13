@@ -135,8 +135,10 @@ public class PedidoService {
 
         return PedidoResponse.builder()
                 .id(pedido.getId())
+                .naturezaOperacaoId(natureza.getId())
                 .naturezaOperacao(natureza.getDescricao())
                 .naturezaOperacaoTipo(natureza.getTipoMovimento().name())
+                .clienteId(cliente != null ? cliente.getId() : null)
                 .clienteNome(cliente != null ? cliente.getRazaoSocial() : CLIENTE_NAO_INFORMADO)
                 .documentoReferencia(pedido.getDocumentoReferencia())
                 .valorTotal(pedido.getValorTotal())
@@ -258,6 +260,109 @@ public class PedidoService {
     }
 
     @Transactional
+    public PedidoResponse atualizarPedido(Integer id, PedidoRequest request) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
+
+        NaturezaOperacao natureza = pedido.getNaturezaOperacao();
+        boolean cancelado = "CANCELADO".equalsIgnoreCase(pedido.getStatus());
+
+        // 1. Resolver propriedades da natureza
+        CampoPropriedade propValorUnit = resolvePropriedade(
+                natureza.getPropriedadeValorUnitario(), natureza.getExigeValorUnitario());
+        CampoPropriedade propCliente = resolvePropriedade(
+                natureza.getPropriedadeCliente(), natureza.getExigeCliente());
+
+        // 2. Se não estiver cancelado, estornar os efeitos do pedido original
+        if (!cancelado) {
+            List<ItemPedido> itensAntigos = itemPedidoRepository.findByPedido(pedido);
+
+            for (ItemPedido item : itensAntigos) {
+                if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
+                    if (propValorUnit != CampoPropriedade.DESATIVADO) {
+                        fifoService.estornarLoteCompra(item);
+                    }
+                } else if (TipoMovimento.SAIDA.equals(natureza.getTipoMovimento())) {
+                    if (propValorUnit != CampoPropriedade.DESATIVADO) {
+                        fifoService.estornarVendaFifo(item);
+                    }
+                }
+                estoqueService.estornarMovimentacao(item.getProduto(), natureza, pedido, item.getQuantidade());
+            }
+        }
+
+        // 3. Deletar todos os itens antigos
+        itemPedidoRepository.deleteByPedido(pedido);
+
+        // 4. Validar e atualizar cabeçalho (naturezaOperacao não pode ser alterada)
+        request.setNaturezaOperacaoId(natureza.getId());
+        validatePedido(request, natureza);
+
+        Cliente cliente = null;
+        if (propCliente != CampoPropriedade.DESATIVADO && request.getClienteId() != null) {
+            cliente = clienteRepository.findById(request.getClienteId())
+                    .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+        }
+
+        pedido.setCliente(cliente);
+        pedido.setDocumentoReferencia(request.getDocumentoReferencia());
+        pedido.setStatus(request.getStatus());
+
+        // 5. Recalcular valorTotal
+        BigDecimal valorTotalPedido = BigDecimal.ZERO;
+        if (propValorUnit != CampoPropriedade.DESATIVADO) {
+            valorTotalPedido = request.getItens().stream()
+                    .map(i -> {
+                        BigDecimal valorUnitario = i.getValorUnitario() != null ? i.getValorUnitario() : BigDecimal.ZERO;
+                        return valorUnitario.multiply(i.getQuantidade());
+                    })
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        pedido.setValorTotal(valorTotalPedido);
+        pedidoRepository.save(pedido);
+
+        // 5. Reprocessar itens (mesma lógica do processarPedido)
+        for (ItemPedidoRequest itemReq : request.getItens()) {
+            Produto produto = produtoRepository.findById(itemReq.getProdutoId())
+                    .orElseThrow(() -> new IllegalArgumentException("Produto ID " + itemReq.getProdutoId() + " não encontrado."));
+
+            ItemPedido item = new ItemPedido();
+            item.setPedido(pedido);
+            item.setProduto(produto);
+            item.setQuantidade(itemReq.getQuantidade());
+
+            BigDecimal valorUnitario = propValorUnit != CampoPropriedade.DESATIVADO
+                    ? (itemReq.getValorUnitario() != null ? itemReq.getValorUnitario() : BigDecimal.ZERO)
+                    : BigDecimal.ZERO;
+            item.setValorUnitario(valorUnitario);
+            item.setValorTotal(valorUnitario.multiply(itemReq.getQuantidade()));
+            item.setCustoUnitario(BigDecimal.ZERO);
+
+            item = itemPedidoRepository.save(item);
+
+            if (TipoMovimento.ENTRADA.equals(natureza.getTipoMovimento())) {
+                if (propValorUnit != CampoPropriedade.DESATIVADO) {
+                    item.setCustoUnitario(item.getValorUnitario());
+                    item = itemPedidoRepository.save(item);
+                    fifoService.registrarLoteCompra(item);
+                }
+                estoqueService.processarMovimentacao(produto, natureza, pedido, item.getQuantidade());
+
+            } else if (TipoMovimento.SAIDA.equals(natureza.getTipoMovimento())) {
+                estoqueService.processarMovimentacao(produto, natureza, pedido, item.getQuantidade());
+
+                if (propValorUnit != CampoPropriedade.DESATIVADO) {
+                    BigDecimal custoExatoFifo = fifoService.processarVendaFifo(item);
+                    item.setCustoUnitario(custoExatoFifo);
+                    itemPedidoRepository.save(item);
+                }
+            }
+        }
+
+        return mapToResponse(pedido);
+    }
+
+    @Transactional
     public void cancelarPedido(Integer id) {
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
@@ -332,8 +437,10 @@ public class PedidoService {
 
         return PedidoResponse.builder()
                 .id(pedido.getId())
+                .naturezaOperacaoId(pedido.getNaturezaOperacao().getId())
                 .naturezaOperacao(pedido.getNaturezaOperacao().getDescricao())
                 .naturezaOperacaoTipo(pedido.getNaturezaOperacao().getTipoMovimento().name())
+                .clienteId(pedido.getCliente() != null ? pedido.getCliente().getId() : null)
                 .clienteNome(pedido.getCliente() != null ? pedido.getCliente().getRazaoSocial() : CLIENTE_NAO_INFORMADO)
                 .documentoReferencia(pedido.getDocumentoReferencia())
                 .valorTotal(pedido.getValorTotal())

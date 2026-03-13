@@ -40,14 +40,17 @@ export default function NovoPedidoPage() {
   const isAtivo = (propriedade?: 'DESATIVADO' | 'OPCIONAL' | 'OBRIGATORIO') => propriedade !== 'DESATIVADO'
 
   useEffect(() => {
-    Promise.all([
-      loadProdutos(),
-      loadClientes(),
-      loadNaturezas(),
-    ])
-    if (isEditing) {
-      loadPedido()
+    const init = async () => {
+      await Promise.all([
+        loadProdutos(),
+        loadClientes(),
+        loadNaturezas(),
+      ])
+      if (isEditing) {
+        await loadPedido()
+      }
     }
+    init()
   }, [id])
 
   const loadProdutos = async () => {
@@ -112,14 +115,29 @@ export default function NovoPedidoPage() {
     try {
       const response = await pedidosApi.buscar(Number(id))
       const pedido = response.data
+      const clienteNomeDoPedido = pedido.clienteId
+        ? (pedido.clienteNome && pedido.clienteNome !== 'N/A' ? pedido.clienteNome : '')
+        : ''
       setForm({
-        naturezaOperacaoId: String(pedido.naturezaOperacaoId || (typeof pedido.naturezaOperacao === 'object' ? pedido.naturezaOperacao?.id : '') || ''),
+        naturezaOperacaoId: String(pedido.naturezaOperacaoId || ''),
         clienteId: pedido.clienteId || null,
         clienteNome: '',
         documentoReferencia: pedido.documentoReferencia || '',
         status: pedido.status || '',
-        itens: pedido.itens.length > 0 ? pedido.itens : [{ produtoId: 0, produtoDescricao: '', quantidade: 1, valorUnitario: 0, valorTotal: 0 }]
+        itens: pedido.itens.length > 0
+          ? pedido.itens.map((item: ItemPedido) => ({
+              id: item.id,
+              produtoId: Number(item.produtoId),
+              produtoDescricao: item.produtoDescricao || '',
+              quantidade: Number(item.quantidade),
+              valorUnitario: Number(item.valorUnitario),
+              valorTotal: Number(item.valorTotal),
+            }))
+          : [{ produtoId: 0, produtoDescricao: '', quantidade: 1, valorUnitario: 0, valorTotal: 0 }]
       })
+      if (clienteNomeDoPedido) {
+        setInputClienteValue(clienteNomeDoPedido)
+      }
     } catch (error) {
       console.error('Erro ao carregar pedido:', error)
       showToast('Erro ao carregar pedido', 'error')
@@ -285,12 +303,12 @@ export default function NovoPedidoPage() {
           zIndex: (theme as any).zIndex.appBar - 1,
         })}
        >
-         <Typography variant="h5" sx={{ fontWeight: 300, color: 'white', fontSize: { xs: '1.2rem', md: '1.4rem' } }}>
-           <Box component="span" sx={{ fontWeight: 400 }}>{selectedNatureza?.descricao || 'Pedido'}</Box>
-            {isAtivo(selectedNatureza?.propriedadeValorUnitario) && (
-              <> no valor de <Box component="span" sx={{ fontWeight: 400 }}>R$ {calcularTotal().toFixed(2).replace('.', ',')}</Box></>
-            )}
-          </Typography>
+        <Typography variant="h5" sx={{ fontWeight: 300, color: 'white', fontSize: { xs: '1.2rem', md: '1.4rem' } }}>
+           {isEditing
+             ? <><Box component="span" sx={{ fontWeight: 400 }}>Editando Pedido #{id}</Box>{isAtivo(selectedNatureza?.propriedadeValorUnitario) && (<> — <Box component="span" sx={{ fontWeight: 400 }}>R$ {calcularTotal().toFixed(2).replace('.', ',')}</Box></>)}</>
+             : <><Box component="span" sx={{ fontWeight: 400 }}>{selectedNatureza?.descricao || 'Pedido'}</Box>{isAtivo(selectedNatureza?.propriedadeValorUnitario) && (<> no valor de <Box component="span" sx={{ fontWeight: 400 }}>R$ {calcularTotal().toFixed(2).replace('.', ',')}</Box></>)}</>
+           }
+           </Typography>
         </Box>
 
       {/* spacer so page content sits below the fixed header */}
@@ -511,11 +529,12 @@ export default function NovoPedidoPage() {
                             '& .search-icon': { display: 'flex !important' },
                           }
                         }}>
-                          <Autocomplete
+                           <Autocomplete
                             className="product-autocomplete"
                             options={produtos}
                             getOptionLabel={(option) => `${option.codigo} - ${option.descricao}`}
-                            value={produtos.find(p => p.id === item.produtoId)}
+                            value={produtos.find(p => p.id === item.produtoId) ?? null}
+                            isOptionEqualToValue={(option, value) => option.id === value.id}
                             onChange={(_, value: Produto | null) => {
                               handleUpdateItem(index, 'produtoId', value?.id || 0);
                             }}
@@ -532,8 +551,7 @@ export default function NovoPedidoPage() {
                                 }, 100);
                               }
                             }}
-                            disableClearable
-                            forcePopupIcon={false}
+                             forcePopupIcon={false}
                             autoHighlight
                             openOnFocus
                             renderOption={(props, option) => (

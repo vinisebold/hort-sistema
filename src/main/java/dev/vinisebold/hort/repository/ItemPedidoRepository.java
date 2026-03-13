@@ -14,6 +14,8 @@ public interface ItemPedidoRepository extends JpaRepository<ItemPedido, Integer>
 
     List<ItemPedido> findByPedido(Pedido pedido);
 
+    void deleteByPedido(Pedido pedido);
+
     List<ItemPedido> findByPedidoId(Integer pedidoId);
 
     List<ItemPedido> findByPedidoNaturezaOperacaoTipoMovimentoAndPedidoDataEmissaoBetween(

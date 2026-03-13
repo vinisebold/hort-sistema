@@ -1,7 +1,8 @@
 - Poder editar o pedido ja feito
 - REVER - Deve-se deixar mais completo o ambiente financeiro, atualmente esta muito pobre de informacoes e nao esta com todos os requesitos implementados;
 - TALVEZ - tabelar os precos dos produtos, por exemplo, ao cadastrar os produtos, voce colocar que o saco do produto equivale a X kilogramas, a unidade pesa Y, etc.
-
+- Mudar tela verde de login, masespecficadamente o titulo que esta muito grande e extenso tentar deixar mais minimalista e coeso;
+- O redirecionamento de produto na tela de estoque deve ser melhorado, atualmente quando clicamos no produto ele nao indica nada na tela de pedidos;
 
 
 

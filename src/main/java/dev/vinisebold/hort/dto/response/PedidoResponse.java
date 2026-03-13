@@ -10,8 +10,10 @@ import java.util.List;
 @Builder
 public class PedidoResponse {
     private Integer id;
+    private Integer naturezaOperacaoId;
     private String naturezaOperacao;
     private String naturezaOperacaoTipo;
+    private Integer clienteId;
     private String clienteNome; // Usa fallback quando o cliente nao foi informado
     private String documentoReferencia;
     private BigDecimal valorTotal;
