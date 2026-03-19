@@ -1,21 +1,20 @@
-HELP.md
-hort_sistema.db
-target/
-.mvn/wrapper/maven-wrapper.jar
+### Backend artifacts ###
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+### Frontend artifacts ###
+frontend/node_modules/
+frontend/dist/
+frontend/release/
 
-### IntelliJ IDEA ###
-.idea
+### Runtime data ###
+backend/data/
+*.db
+
+### IDE / editor ###
+.vscode/
 *.iws
 *.iml
 *.ipr
@@ -30,10 +29,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-
 ### Secrets ###
 .env
-!.idea/dtds/
-!.idea/dtds/*.dtd
+backend/.env
+frontend/.env

@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8263d9d7-9c93-411b-bad3-8cb2ed5a94bf" name="Changes" comment="- Backend moved to backend/ directory with all configurations updated&#10;- All 13 temporary frontend scripts removed&#10;- CI/CD workflow removed&#10;- Documentation moved to docs/ directory&#10;- IDE configuration files cleaned up (.idea/ was recreated by IntelliJ when you reopened the project - this is normal)&#10;- All path references updated in configuration files&#10;- Both backend and frontend builds validated successfully&#10;- Database path updated to data/hort_sistema.db">
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/.classpath" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/.factorypath" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/.project" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/.settings/org.eclipse.core.resources.prefs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/.settings/org.eclipse.jdt.apt.core.prefs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/.settings/org.eclipse.jdt.core.prefs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/.settings/org.eclipse.m2e.core.prefs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/HELP.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.githooks/pre-commit" beforeDir="false" afterPath="$PROJECT_DIR$/.githooks/pre-commit" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.githooks/pre-push" beforeDir="false" afterPath="$PROJECT_DIR$/.githooks/pre-push" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dtds/configuration_1_3.dtd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mvn/jvm.config" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.mvn/jvm.config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CONTRIBUTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/CONTRIBUTING.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FEATURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/FEATURES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI_REDESIGN_SUMMARY.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/UI_REDESIGN.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkstyle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/config/checkstyle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eclipse-formatter.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/config/eclipse-formatter.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/fix_errors.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/fix_hover.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/fix_hover_inputs.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/fix_natureza.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/fix_pencil.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/fix_styles.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/fix_white_hover.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/fix_white_hover_retry.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/modify_pedido.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/patch_input.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/simplify_hover_focus.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/update_inputs.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/update_pedido.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mvnw" beforeDir="false" afterPath="$PROJECT_DIR$/backend/mvnw" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mvnw.cmd" beforeDir="false" afterPath="$PROJECT_DIR$/backend/mvnw.cmd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/opencode.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/HortSistemaApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/HortSistemaApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/config/CorsConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/config/CorsConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/config/DataInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/config/DataInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/config/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/config/JwtAuthenticationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/config/OpenApiConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/config/OpenApiConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/controller/ClienteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/controller/ClienteController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/controller/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/controller/DashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/controller/EstoqueController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/controller/EstoqueController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/controller/NaturezaOperacaoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/controller/NaturezaOperacaoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/controller/PedidoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/controller/PedidoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/controller/ProdutoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/controller/ProdutoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/controller/UnidadeMedidaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/controller/UnidadeMedidaController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/controller/advice/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/controller/advice/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/request/AbaterDividaRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/request/AbaterDividaRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/request/ClienteRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/request/ClienteRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/request/ItemPedidoRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/request/ItemPedidoRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/request/LoginRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/request/LoginRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/request/NaturezaOperacaoRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/request/NaturezaOperacaoRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/request/PedidoRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/request/PedidoRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/request/ProdutoRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/request/ProdutoRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/request/RegisterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/request/RegisterRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/request/SetupRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/request/SetupRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/request/UnidadeMedidaRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/request/UnidadeMedidaRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/AbaterDividaResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/AbaterDividaResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/AuthResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/AuthResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/ClienteFinanceiroResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/ClienteFinanceiroResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/ClienteResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/ClienteResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/CnpjApiResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/CnpjApiResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/ConsultaCnpjResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/ConsultaCnpjResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/CursorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/CursorResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/DashboardResumoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/DashboardResumoResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/DetalheMovimentacaoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/DetalheMovimentacaoResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/ItemPedidoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/ItemPedidoResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/ItemPedidoResumidoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/ItemPedidoResumidoResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/MovimentacaoEstoqueResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/MovimentacaoEstoqueResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/NaturezaOperacaoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/NaturezaOperacaoResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/PedidoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/PedidoResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/PedidoResumidoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/PedidoResumidoResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/ProdutoEstoqueResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/ProdutoEstoqueResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/ProdutoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/ProdutoResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/TopClienteResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/TopClienteResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/TopProdutoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/TopProdutoResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/UnidadeMedidaResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/UnidadeMedidaResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/dto/response/VendasPeriodoResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/dto/response/VendasPeriodoResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/CampoPropriedade.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/CampoPropriedade.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/Cliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/Cliente.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/ConfiguracoesSistema.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/ConfiguracoesSistema.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/ItemPedido.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/ItemPedido.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/LoteEntrada.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/LoteEntrada.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/LoteSaida.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/LoteSaida.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/MovimentacaoEstoque.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/MovimentacaoEstoque.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/NaturezaOperacao.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/NaturezaOperacao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/Pedido.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/Pedido.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/Produto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/Produto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/TipoMovimento.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/TipoMovimento.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/UnidadeMedida.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/UnidadeMedida.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/model/Usuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/model/Usuario.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/ClienteRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/ClienteRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/ConfiguracoesSistemaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/ConfiguracoesSistemaRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/ItemPedidoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/ItemPedidoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/LoteEntradaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/LoteEntradaRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/LoteSaidaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/LoteSaidaRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/MovimentacaoEstoqueRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/MovimentacaoEstoqueRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/NaturezaOperacaoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/NaturezaOperacaoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/PedidoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/PedidoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/ProdutoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/ProdutoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/UnidadeMedidaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/UnidadeMedidaRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/repository/UsuarioRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/repository/UsuarioRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/BrasilApiService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/BrasilApiService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/ClienteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/ClienteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/DashboardService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/DashboardService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/EstoqueService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/EstoqueService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/FifoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/FifoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/JwtService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/JwtService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/NaturezaOperacaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/NaturezaOperacaoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/PedidoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/PedidoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/ProdutoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/ProdutoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/service/UnidadeMedidaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/service/UnidadeMedidaService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/util/ClienteFormatter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/util/ClienteFormatter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/validator/CnpjValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/validator/CnpjValidator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/vinisebold/hort/validator/CpfValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dev/vinisebold/hort/validator/CpfValidator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/additional-spring-configuration-metadata.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/META-INF/additional-spring-configuration-metadata.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/db/migration/V1__create_initial_schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/db/migration/V1__create_initial_schema.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/db/migration/V2__seed_default_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/db/migration/V2__seed_default_data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/logback-spring.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/HortSistemaApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/HortSistemaApplicationTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/controller/AuthControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/controller/AuthControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/controller/ClienteControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/controller/ClienteControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/controller/DashboardControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/controller/DashboardControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/controller/EstoqueControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/controller/EstoqueControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/controller/NaturezaOperacaoControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/controller/NaturezaOperacaoControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/controller/PedidoControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/controller/PedidoControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/controller/ProdutoControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/controller/ProdutoControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/controller/UnidadeMedidaControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/controller/UnidadeMedidaControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/AuthServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/AuthServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/BrasilApiServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/BrasilApiServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/ClienteServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/ClienteServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/DashboardServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/DashboardServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/EstoqueServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/EstoqueServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/FifoIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/FifoIntegrationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/FifoServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/FifoServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/JwtServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/JwtServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/NaturezaOperacaoServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/NaturezaOperacaoServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/PedidoServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/PedidoServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/PerformanceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/PerformanceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/ProdutoServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/ProdutoServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/vinisebold/hort/service/UnidadeMedidaServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/dev/vinisebold/hort/service/UnidadeMedidaServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/resources/application.yaml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/home/vinisebold/Desktop/hort-sistema" value="3A2E4YFqM8baqSPwInwO6NX68FJ" />
+    </persistenceIdMap>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;vinisebold&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/vinisebold/hort-sistema&quot;,
+    &quot;accountId&quot;: &quot;2c94ea50-711f-46a0-a1e0-0daf3a2e88bd&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/frontend/node_modules/@mui/material/Grid/Grid.d.ts" root0="SKIP_INSPECTION" />
+    <setting file="jar://$MAVEN_REPOSITORY$/org/assertj/assertj-core/3.27.7/assertj-core-3.27.7.jar!/org/assertj/core/api/AbstractBooleanAssert.class" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="HttpClientEndpointsTabState">
+    <option name="cachedRequestData" value="&lt;CachedHttpClientTabRequests /&gt;" />
+  </component>
+  <component name="HttpClientOnboardingState">{
+  &quot;isOnboardingCommentShown&quot;: true
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="3A2E4YFqM8baqSPwInwO6NX68FJ" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Notification.DisplayName-DoNotAsk-DatabaseConfigFileWatcher.found": "New/updated database configurations found",
+    "Notification.DoNotAsk-DatabaseConfigFileWatcher.found": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHELLCHECK.PATH": "/home/vinisebold/.local/share/JetBrains/IntelliJIdea2025.3/Shell Script/shellcheck",
+    "Spring Boot.HortSistemaApplication.executor": "Run",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/vinisebold/Desktop/hort-sistema/backend/pom.xml",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "/home/vinisebold/Desktop/hort-sistema/frontend/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/frontend/src/assets" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/frontend/public/assets" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="HortSistemaApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="hort" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="dev.vinisebold.hort.HortSistemaApplication" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/backend/" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8263d9d7-9c93-411b-bad3-8cb2ed5a94bf" name="Changes" comment="" />
+      <created>1771782075001</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1771782075001</updated>
+      <workItem from="1771782076371" duration="1232000" />
+      <workItem from="1771783329647" duration="478000" />
+      <workItem from="1771785099172" duration="4714000" />
+      <workItem from="1771973909560" duration="1491000" />
+      <workItem from="1772015503058" duration="13095000" />
+      <workItem from="1772029496294" duration="4932000" />
+      <workItem from="1772043340257" duration="20425000" />
+      <workItem from="1772100807997" duration="6999000" />
+      <workItem from="1772112173629" duration="6968000" />
+      <workItem from="1772195537004" duration="979000" />
+      <workItem from="1772230676702" duration="13549000" />
+      <workItem from="1772370528919" duration="3777000" />
+      <workItem from="1772489099024" duration="4461000" />
+      <workItem from="1772567154088" duration="10091000" />
+      <workItem from="1772619460411" duration="24499000" />
+      <workItem from="1772705369532" duration="9529000" />
+      <workItem from="1772722778172" duration="6151000" />
+      <workItem from="1772748108560" duration="725000" />
+      <workItem from="1772755975762" duration="1184000" />
+      <workItem from="1772804450313" duration="5865000" />
+      <workItem from="1772833049175" duration="2247000" />
+      <workItem from="1773089031950" duration="168000" />
+      <workItem from="1773159787580" duration="7608000" />
+      <workItem from="1773224037603" duration="2716000" />
+      <workItem from="1773236094147" duration="289000" />
+      <workItem from="1773236542752" duration="63000" />
+      <workItem from="1773402280217" duration="15407000" />
+      <workItem from="1773507748478" duration="49000" />
+      <workItem from="1773531662726" duration="1743000" />
+      <workItem from="1773917417140" duration="1846000" />
+    </task>
+    <task id="LOCAL-00041" summary="refactor: update NovoPedidoPage action layout; replace save button with floating action button, adjust table input UX and typography for improved usability">
+      <option name="closed" value="true" />
+      <created>1772118730861</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1772118730861</updated>
+    </task>
+    <task id="LOCAL-00042" summary="refactor: improve NovoPedidoPage input UX; add pointer cursor and auto-select on click for table inputs">
+      <option name="closed" value="true" />
+      <created>1772118842417</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1772118842417</updated>
+    </task>
+    <task id="LOCAL-00043" summary="refactor: update typography weights for improved consistency; adjust NovoPedidoPage table and header styles to match theme">
+      <option name="closed" value="true" />
+      <created>1772196452355</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1772196452355</updated>
+    </task>
+    <task id="LOCAL-00044" summary="refactor: add NaturezaOverlay for selecting nota fiscal type; update PedidosPage and NovoPedidoPage to support natureza selection flow">
+      <option name="closed" value="true" />
+      <created>1772235451941</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1772235451941</updated>
+    </task>
+    <task id="LOCAL-00045" summary="refactor: add row selection with checkboxes to PedidosPage table; update columns for improved clarity and usability">
+      <option name="closed" value="true" />
+      <created>1772237324727</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1772237324727</updated>
+    </task>
+    <task id="LOCAL-00046" summary="refactor: update fiscal/client section layout on NovoPedidoPage; replace status select with toggle buttons, improve card styling and input labels">
+      <option name="closed" value="true" />
+      <created>1772238507951</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1772238507951</updated>
+    </task>
+    <task id="LOCAL-00047" summary="refactor: improve NovoPedidoPage item entry flow; auto-focus and select quantity after product selection, enhance keyboard navigation between fields">
+      <option name="closed" value="true" />
+      <created>1772239600142</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1772239600142</updated>
+    </task>
+    <task id="LOCAL-00048" summary="refactor: enhance NovoPedidoPage item entry UX; show unit on quantity input, improve focus logic, unify input styles">
+      <option name="closed" value="true" />
+      <created>1772242410421</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1772242410421</updated>
+    </task>
+    <task id="LOCAL-00049" summary="refactor: implement cursor-based pagination for produtos, clientes, and pedidos APIs; add cancel functionality for pedidos">
+      <option name="closed" value="true" />
+      <created>1772388622693</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1772388622694</updated>
+    </task>
+    <task id="LOCAL-00050" summary="refactor: streamline cursor retrieval in service classes; remove unused imports and simplify method signatures">
+      <option name="closed" value="true" />
+      <created>1772388761754</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1772388761754</updated>
+    </task>
+    <task id="LOCAL-00051" summary="feat: test coverage e implementar auto-ID em NaturezaOperacao&#10;Production changes:&#10;- NaturezaOperacao.java: adicionar @GeneratedValue(IDENTITY) no id&#10;- NaturezaOperacaoRequest.java: mudar @NotBlank para @NotNull em tipoMovimento&#10;- DataInitializer.java: remover setId manual (auto-gerado agora)&#10;Test fixes:&#10;- 7 controller tests: substituir @Autowired ObjectMapper por instância local&#10;  (Spring Boot 4.x não registra ObjectMapper como bean em @WebMvcTest)&#10;- JwtServiceTest: aumentar sleep para 1100ms entre gerações (JJWT usa epoch seconds)&#10;- PedidoServiceTest: usar isEqualByComparingTo para BigDecimal (scale differences)&#10;- ProdutoServiceTest: corrigir PageRequest para hasNext() funcionar corretamente&#10;&#10;Result: 289/289 testes passando">
+      <option name="closed" value="true" />
+      <created>1772496578354</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1772496578355</updated>
+    </task>
+    <task id="LOCAL-00052" summary="refactor: simplify test setup and assertions; replace index-based access with first/last methods">
+      <option name="closed" value="true" />
+      <created>1772497675569</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1772497675569</updated>
+    </task>
+    <task id="LOCAL-00053" summary="refactor: simplify test setup and assertions; replace index-based access with first/last methods">
+      <option name="closed" value="true" />
+      <created>1772497689088</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1772497689088</updated>
+    </task>
+    <task id="LOCAL-00054" summary="refactor: remove formas de pagamento from API and related components; update pedido handling to enforce document reference requirement for pending status">
+      <option name="closed" value="true" />
+      <created>1772569629771</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1772569629773</updated>
+    </task>
+    <task id="LOCAL-00055" summary="refactor: update NovoPedidoPage to conditionally render cliente selection and collapse documento de referência for pending payments">
+      <option name="closed" value="true" />
+      <created>1772570962172</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1772570962172</updated>
+    </task>
+    <task id="LOCAL-00056" summary="refactor: reorganize menu structure and update navigation paths in Layout and HomePage">
+      <option name="closed" value="true" />
+      <created>1772571567972</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1772571567972</updated>
+    </task>
+    <task id="LOCAL-00057" summary="refactor: update routing paths and labels for financial sections in navigation">
+      <option name="closed" value="true" />
+      <created>1772572149524</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1772572149524</updated>
+    </task>
+    <task id="LOCAL-00058" summary="refactor: remove action columns from various pages and implement menu for additional options in PedidosPage">
+      <option name="closed" value="true" />
+      <created>1772573202269</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1772573202269</updated>
+    </task>
+    <task id="LOCAL-00059" summary="refactor: enhance natureza chip display with icons for entrada and saída types in PedidosPage">
+      <option name="closed" value="true" />
+      <created>1772573530949</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1772573530949</updated>
+    </task>
+    <task id="LOCAL-00060" summary="add FEATURE.md">
+      <option name="closed" value="true" />
+      <created>1772584391063</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1772584391063</updated>
+    </task>
+    <task id="LOCAL-00061" summary="refactor: update client model and related components to use 'contato' instead of 'telefone' and improve CNPJ formatting">
+      <option name="closed" value="true" />
+      <created>1772626237523</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1772626237523</updated>
+    </task>
+    <task id="LOCAL-00062" summary="feat: implement user registration and login functionality with email and CNPJ validation">
+      <option name="closed" value="true" />
+      <created>1772634375249</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1772634375249</updated>
+    </task>
+    <task id="LOCAL-00063" summary="refactor: remove estoqueAtual and related columns from ProdutosPage table">
+      <option name="closed" value="true" />
+      <created>1772635087326</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1772635087327</updated>
+    </task>
+    <task id="LOCAL-00064" summary="feat: update UI text for pedidos and integrate Roboto Variable font with CSS styling">
+      <option name="closed" value="true" />
+      <created>1772636725266</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1772636725267</updated>
+    </task>
+    <task id="LOCAL-00065" summary="feat: make product code optional and auto-generate if not provided">
+      <option name="closed" value="true" />
+      <created>1772644642170</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1772644642170</updated>
+    </task>
+    <task id="LOCAL-00066" summary="feat: add option to uncancel orders and unify registration screens; improve UI/UX for product creation and order display">
+      <option name="closed" value="true" />
+      <created>1772646288146</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1772646288146</updated>
+    </task>
+    <task id="LOCAL-00067" summary="feat: sistema permite/implementa:&#10;- Criar operações personalizadas sem limitações&#10;- Ajustar estoque manualmente (Quebra/Ajuste) sem preços&#10;- Vendas e compras com validação completa&#10;- Flexibilidade total para novos casos de uso">
+      <option name="closed" value="true" />
+      <created>1772650786790</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1772650786790</updated>
+    </task>
+    <task id="LOCAL-00068" summary="feat: add navigation from Estoque to Pedidos with state management; improve UI with back button and highlight functionality">
+      <option name="closed" value="true" />
+      <created>1772653932694</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1772653932694</updated>
+    </task>
+    <task id="LOCAL-00069" summary="refactor: enhance UI of Estoque and Pedidos pages for better readability and user experience">
+      <option name="closed" value="true" />
+      <created>1772707654919</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1772707654921</updated>
+    </task>
+    <task id="LOCAL-00070" summary="refactor: improve UI of NaturezasOperacao and UnidadesMedida pages for enhanced usability and readability">
+      <option name="closed" value="true" />
+      <created>1772708211959</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1772708211959</updated>
+    </task>
+    <task id="LOCAL-00071" summary="refactor: update NaturezasOperacaoPage UI to use Chips for better visual clarity">
+      <option name="closed" value="true" />
+      <created>1772708421963</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1772708421963</updated>
+    </task>
+    <task id="LOCAL-00072" summary="refactor: redesign ClientesPage UI for improved clarity and user experience">
+      <option name="closed" value="true" />
+      <created>1772708734522</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1772708734522</updated>
+    </task>
+    <task id="LOCAL-00073" summary="refactor: redesign ClientesPage UI for improved clarity and user experience">
+      <option name="closed" value="true" />
+      <created>1772708945200</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1772708945200</updated>
+    </task>
+    <task id="LOCAL-00074" summary="refactor: enhance Dashboard and Home pages UI for improved clarity and user experience">
+      <option name="closed" value="true" />
+      <created>1772709646640</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1772709646640</updated>
+    </task>
+    <task id="LOCAL-00075" summary="refactor: enhance Dashboard and Home pages UI for improved clarity and user experience">
+      <option name="closed" value="true" />
+      <created>1772717017124</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1772717017124</updated>
+    </task>
+    <task id="LOCAL-00076" summary="refactor: add NovoNaturezaOperacaoPage and update routing for naturezas-operacao">
+      <option name="closed" value="true" />
+      <created>1772717390950</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1772717390950</updated>
+    </task>
+    <task id="LOCAL-00077" summary="refactor: add NovoUnidadeMedidaPage and update routing for unidades-medida">
+      <option name="closed" value="true" />
+      <created>1772718198704</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1772718198704</updated>
+    </task>
+    <task id="LOCAL-00078" summary="refactor: add fade animation to page transitions in Layout component">
+      <option name="closed" value="true" />
+      <created>1772719881618</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1772719881618</updated>
+    </task>
+    <task id="LOCAL-00079" summary="refactor: streamline navigation after creating or updating entities in multiple pages">
+      <option name="closed" value="true" />
+      <created>1772744723731</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1772744723732</updated>
+    </task>
+    <task id="LOCAL-00080" summary="feat: enhance user experience with table footers, improved UI for user data, and streamlined order status management">
+      <option name="closed" value="true" />
+      <created>1772757419478</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1772757419478</updated>
+    </task>
+    <task id="LOCAL-00081" summary="feat: change FEATURE.md">
+      <option name="closed" value="true" />
+      <created>1772757439436</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1772757439436</updated>
+    </task>
+    <task id="LOCAL-00082" summary="feat: update NaturezaOperacao to use CampoPropriedade for field requirements">
+      <option name="closed" value="true" />
+      <created>1772806920077</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1772806920077</updated>
+    </task>
+    <task id="LOCAL-00083" summary="feat: enhance ClienteDetalhePage with period filtering and update ClienteService for accurate debt calculations">
+      <option name="closed" value="true" />
+      <created>1772809330736</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1772809330736</updated>
+    </task>
+    <task id="LOCAL-00084" summary="feat: normalize client name input and update related fields in PedidoResponse and ClienteFinanceiroResponse">
+      <option name="closed" value="true" />
+      <created>1773089188514</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1773089188514</updated>
+    </task>
+    <task id="LOCAL-00085" summary="feat: redesign ContaPage layout with improved user information display and enhanced styling">
+      <option name="closed" value="true" />
+      <created>1773181273576</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1773181273577</updated>
+    </task>
+    <task id="LOCAL-00086" summary="feat: add total count display in table footers across multiple pages for better item visibility">
+      <option name="closed" value="true" />
+      <created>1773183040316</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1773183040316</updated>
+    </task>
+    <task id="LOCAL-00087" summary="feat: simplify HomePage by removing unused form states and dialogs, and update navigation logic for quick access items">
+      <option name="closed" value="true" />
+      <created>1773183091291</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1773183091291</updated>
+    </task>
+    <task id="LOCAL-00088" summary="feat: implement selection context for managing selected items and bulk actions in the application">
+      <option name="closed" value="true" />
+      <created>1773226243065</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1773226243065</updated>
+    </task>
+    <task id="LOCAL-00089" summary="feat: add update functionality for existing orders and improve order item handling">
+      <option name="closed" value="true" />
+      <created>1773404774383</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1773404774384</updated>
+    </task>
+    <option name="localTasksCounter" value="90" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat: make product code optional and auto-generate if not provided" />
+    <MESSAGE value="feat: add option to uncancel orders and unify registration screens; improve UI/UX for product creation and order display" />
+    <MESSAGE value="feat: sistema permite/implementa:&#10;- Criar operações personalizadas sem limitações&#10;- Ajustar estoque manualmente (Quebra/Ajuste) sem preços&#10;- Vendas e compras com validação completa&#10;- Flexibilidade total para novos casos de uso" />
+    <MESSAGE value="feat: add navigation from Estoque to Pedidos with state management; improve UI with back button and highlight functionality" />
+    <MESSAGE value="refactor: enhance UI of Estoque and Pedidos pages for better readability and user experience" />
+    <MESSAGE value="refactor: improve UI of NaturezasOperacao and UnidadesMedida pages for enhanced usability and readability" />
+    <MESSAGE value="refactor: update NaturezasOperacaoPage UI to use Chips for better visual clarity" />
+    <MESSAGE value="refactor: redesign ClientesPage UI for improved clarity and user experience" />
+    <MESSAGE value="refactor: enhance Dashboard and Home pages UI for improved clarity and user experience" />
+    <MESSAGE value="refactor: add NovoNaturezaOperacaoPage and update routing for naturezas-operacao" />
+    <MESSAGE value="refactor: add NovoUnidadeMedidaPage and update routing for unidades-medida" />
+    <MESSAGE value="refactor: add fade animation to page transitions in Layout component" />
+    <MESSAGE value="refactor: streamline navigation after creating or updating entities in multiple pages" />
+    <MESSAGE value="feat: enhance user experience with table footers, improved UI for user data, and streamlined order status management" />
+    <MESSAGE value="feat: change FEATURE.md" />
+    <MESSAGE value="feat: update NaturezaOperacao to use CampoPropriedade for field requirements" />
+    <MESSAGE value="feat: enhance ClienteDetalhePage with period filtering and update ClienteService for accurate debt calculations" />
+    <MESSAGE value="feat: normalize client name input and update related fields in PedidoResponse and ClienteFinanceiroResponse" />
+    <MESSAGE value="feat: redesign ContaPage layout with improved user information display and enhanced styling" />
+    <MESSAGE value="feat: add total count display in table footers across multiple pages for better item visibility" />
+    <MESSAGE value="feat: simplify HomePage by removing unused form states and dialogs, and update navigation logic for quick access items" />
+    <MESSAGE value="feat: implement selection context for managing selected items and bulk actions in the application" />
+    <MESSAGE value="feat: add update functionality for existing orders and improve order item handling" />
+    <MESSAGE value="feat: add pre-commit and pre-push hooks for automated checks and testing, improve code formatting, and update application configuration" />
+    <MESSAGE value="- Backend moved to backend/ directory with all configurations updated&#10;- All 13 temporary frontend scripts removed&#10;- CI/CD workflow removed&#10;- Documentation moved to docs/ directory&#10;- IDE configuration files cleaned up (.idea/ was recreated by IntelliJ when you reopened the project - this is normal)&#10;- All path references updated in configuration files&#10;- Both backend and frontend builds validated successfully&#10;- Database path updated to data/hort_sistema.db" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Backend moved to backend/ directory with all configurations updated&#10;- All 13 temporary frontend scripts removed&#10;- CI/CD workflow removed&#10;- Documentation moved to docs/ directory&#10;- IDE configuration files cleaned up (.idea/ was recreated by IntelliJ when you reopened the project - this is normal)&#10;- All path references updated in configuration files&#10;- Both backend and frontend builds validated successfully&#10;- Database path updated to data/hort_sistema.db" />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>

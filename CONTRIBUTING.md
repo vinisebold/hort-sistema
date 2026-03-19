@@ -4,7 +4,7 @@
 
 ### 1. Pré-requisitos
 - Java 25 (recomendado via [SDKMAN](https://sdkman.io/))
-- Maven Wrapper incluso — use `./mvnw` ao invés de `mvn`
+- Maven instalado localmente (`mvn`) para executar o backend
 
 ### 2. Clone e configure
 
@@ -23,7 +23,7 @@ git config core.hooksPath .githooks
 ### 3. Executar o projeto
 
 ```bash
-./mvnw spring-boot:run
+mvn -f backend/pom.xml spring-boot:run
 ```
 
 A API estará disponível em `http://localhost:8080`.
@@ -33,27 +33,27 @@ A documentação Swagger estará em `http://localhost:8080/swagger-ui/index.html
 ### 4. Rodar os testes
 
 ```bash
-./mvnw test
+mvn -f backend/pom.xml test
 ```
 
 ### 5. Verificar cobertura de testes
 
 ```bash
-./mvnw verify
-# Relatório em: target/site/jacoco/index.html
+mvn -f backend/pom.xml verify
+# Relatório em: backend/target/site/jacoco/index.html
 ```
 
 ### 6. Formatar código automaticamente
 
 ```bash
-./mvnw spotless:apply
+mvn -f backend/pom.xml spotless:apply
 ```
 
 ### 7. Verificar estilo (sem corrigir)
 
 ```bash
-./mvnw checkstyle:check
-./mvnw spotless:check
+mvn -f backend/pom.xml checkstyle:check
+mvn -f backend/pom.xml spotless:check
 ```
 
 ## Git Hooks
@@ -84,7 +84,7 @@ docs: atualiza README com instruções de deploy
 ## Estrutura do Projeto
 
 ```
-src/main/java/dev/vinisebold/hort/
+backend/src/main/java/dev/vinisebold/hort/
 ├── config/        — Configurações Spring (Security, CORS, JWT filter, OpenAPI)
 ├── controller/    — Endpoints REST + GlobalExceptionHandler
 ├── dto/           — Request/Response DTOs
@@ -94,7 +94,7 @@ src/main/java/dev/vinisebold/hort/
 ├── util/          — Utilitários (formatação CPF/CNPJ)
 └── validator/     — Validadores customizados
 
-src/main/resources/
+backend/src/main/resources/
 ├── application.yaml          — Configuração principal
 ├── db/migration/             — Scripts Flyway (V1__, V2__, ...)
 └── logback-spring.xml        — Configuração de logging

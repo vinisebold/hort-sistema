@@ -214,7 +214,7 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
-                    <configLocation>checkstyle.xml</configLocation>
+                    <configLocation>config/checkstyle.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <failOnViolation>true</failOnViolation>
@@ -240,7 +240,7 @@
                 <configuration>
                     <java>
                         <eclipse>
-                            <file>eclipse-formatter.xml</file>
+                            <file>config/eclipse-formatter.xml</file>
                         </eclipse>
                         <removeUnusedImports/>
                         <importOrder/>
@@ -266,8 +266,8 @@
                 <version>${git-build-hook.version}</version>
                 <configuration>
                     <installHooks>
-                        <pre-commit>.githooks/pre-commit</pre-commit>
-                        <pre-push>.githooks/pre-push</pre-push>
+                        <pre-commit>../.githooks/pre-commit</pre-commit>
+                        <pre-push>../.githooks/pre-push</pre-push>
                     </installHooks>
                 </configuration>
                 <executions>

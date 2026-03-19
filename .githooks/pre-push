@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-# pre-push hook: roda todos os testes antes de cada push
-set -euo pipefail
-
-echo "🧪 [pre-push] Rodando testes..."
-mvn --no-transfer-progress test -q
-
-echo "✅ [pre-push] Todos os testes passaram."

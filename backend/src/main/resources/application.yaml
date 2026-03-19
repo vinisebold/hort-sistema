@@ -3,7 +3,7 @@ spring:
     name: Hort-Sistema
 
   datasource:
-    url: jdbc:sqlite:hort_sistema.db
+    url: jdbc:sqlite:data/hort_sistema.db
     driver-class-name: org.sqlite.JDBC
 
   jpa:
