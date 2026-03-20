@@ -133,8 +133,8 @@ function TimelineModal({ open, onClose, produto, movimentacoes, onNavigateToPedi
                   {/* Content */}
                   <Box sx={{ 
                     flex: 1, 
-                    py: 1.5,
-                    px: 1.5,
+                    py: 2,
+                    px: 2,
                     mr: 3,
                     '&:hover': {
                       bgcolor: '#f8f9fa',
@@ -147,14 +147,15 @@ function TimelineModal({ open, onClose, produto, movimentacoes, onNavigateToPedi
                       alignItems: 'flex-start',
                       mb: 1
                     }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box>
                         <Chip
                           label={mov.tipoMovimento}
                           color={isEntrada ? 'success' : 'warning'}
                           size="small"
                           sx={{ 
                             fontSize: '0.75rem',
-                            fontWeight: 500
+                            fontWeight: 500,
+                            mb: 0.5
                           }}
                         />
                         <Typography variant="body2" sx={{ 
