@@ -17,4 +17,5 @@ public class MovimentacaoEstoqueResponse {
   private BigDecimal quantidade;
   private BigDecimal estoqueAposMovimentacao;
   private LocalDateTime dataMovimentacao;
+  private String unidadeMedidaSigla;
 }

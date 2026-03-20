@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, IconButton, Collapse, Tooltip, Card, CardContent } from '@mui/material'
-import { KeyboardArrowDown, KeyboardArrowUp, Launch } from '@mui/icons-material'
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Tooltip, Card, CardContent, Dialog, DialogTitle, DialogContent, Button, Avatar, Divider, IconButton } from '@mui/material'
+import { Launch, History, TrendingUp, TrendingDown, Visibility } from '@mui/icons-material'
 import { estoqueApi } from '../services/api'
 
 interface ProdutoEstoque {
@@ -23,137 +23,246 @@ interface Movimentacao {
   quantidade: number
   estoqueAposMovimentacao: number
   dataMovimentacao: string
+  unidadeMedidaSigla: string
 }
 
-function Row({ produto, onExpand, expanded, movimentacoes }: { produto: ProdutoEstoque; onExpand: () => void; expanded: boolean; movimentacoes: Movimentacao[] }) {
-  const navigate = useNavigate()
+interface TimelineModalProps {
+  open: boolean
+  onClose: () => void
+  produto: ProdutoEstoque | null
+  movimentacoes: Movimentacao[]
+  onNavigateToPedido: (pedidoId: number) => void
+}
 
-  const handleNavigateToPedido = (pedidoId: number) => {
-    navigate('/pedidos', { 
-      state: { 
-        highlightPedidoId: pedidoId,
-        fromEstoque: true,
-        expandedProdutoId: produto.id,
-        scrollPosition: window.scrollY
-      } 
-    })
-  }
+function TimelineModal({ open, onClose, produto, movimentacoes, onNavigateToPedido }: TimelineModalProps) {
+  if (!produto) return null
 
   return (
-    <>
-      <TableRow sx={{ '&:hover': { bgcolor: '#f8f9fa' } }}>
-        <TableCell sx={{ width: 50 }}>
-          <IconButton size="small" onClick={onExpand}>
-            {expanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-          </IconButton>
-        </TableCell>
-        <TableCell>
-          <Box>
-            <Typography variant="body1" sx={{ fontWeight: 500, color: '#333', mb: 0.5 }}>
-              {produto.descricao}
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#888' }}>
-              Código: {produto.codigo} • {produto.unidadeMedidaSigla}
+    <Dialog 
+      open={open} 
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+          maxHeight: '80vh'
+        }
+      }}
+    >
+      <DialogTitle sx={{ 
+        borderBottom: '1px solid #e0e0e0',
+        pb: 2
+      }}>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 500, color: '#333' }}>
+            Histórico de Movimentações
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#888', mt: 0.5 }}>
+            {produto.descricao} • Código: {produto.codigo}
+          </Typography>
+        </Box>
+      </DialogTitle>
+      
+      <DialogContent sx={{ p: 0 }}>
+        {movimentacoes.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <History sx={{ fontSize: 48, color: '#ccc', mb: 2 }} />
+            <Typography variant="body1" sx={{ color: '#888' }}>
+              Nenhuma movimentação encontrada
             </Typography>
           </Box>
-        </TableCell>
-        <TableCell align="right" sx={{ width: 150 }}>
-          <Chip
-            label={`${produto.estoqueAtual} ${produto.unidadeMedidaSigla}`}
-            color={produto.estoqueAtual > 0 ? 'success' : 'error'}
-            sx={{ fontWeight: 500, minWidth: 80 }}
-          />
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell colSpan={3} sx={{ py: 0, bgcolor: '#f9f9f9', borderBottom: expanded ? '1px solid #ddd' : 'none' }}>
-          <Collapse in={expanded} timeout="auto">
-            <Box sx={{ py: 3, px: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontSize: '1rem', fontWeight: 500, color: '#333' }}>
-                Histórico de Movimentações
-              </Typography>
-              {movimentacoes.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="body2" sx={{ color: '#888' }}>
-                    Nenhuma movimentação encontrada
-                  </Typography>
-                </Box>
-              ) : (
-                <TableContainer sx={{ bgcolor: 'white', borderRadius: 1, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd' }}>Data</TableCell>
-                        <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd' }}>Natureza</TableCell>
-                        <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd' }}>Tipo</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd' }}>Quantidade</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd' }}>Estoque Após</TableCell>
-                        <TableCell align="center" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', borderBottom: '1px solid #ddd' }}>Pedido</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {movimentacoes.map((mov) => (
-                        <TableRow 
-                          key={mov.id}
-                          sx={{ 
-                            '&:hover': { bgcolor: '#f8f9fa' },
-                            '& td': { borderBottom: '1px solid #eee' }
-                          }}
-                        >
-                          <TableCell sx={{ fontSize: '0.875rem', color: '#555' }}>
-                            {new Date(mov.dataMovimentacao).toLocaleString('pt-BR')}
-                          </TableCell>
-                          <TableCell sx={{ fontSize: '0.875rem', color: '#555' }}>
-                            {mov.naturezaOperacaoDescricao}
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={mov.tipoMovimento}
-                              color={mov.tipoMovimento === 'ENTRADA' ? 'success' : 'warning'}
+        ) : (
+          <Box sx={{ py: 3 }}>
+            {movimentacoes.map((mov, index) => {
+              const isEntrada = mov.tipoMovimento === 'ENTRADA'
+              const date = new Date(mov.dataMovimentacao)
+              const dateStr = date.toLocaleDateString('pt-BR', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+              })
+              const timeStr = date.toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })
+
+              return (
+                <Box key={mov.id}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    gap: 2, 
+                    px: 3,
+                    py: 2,
+                    position: 'relative',
+                    '&:hover': {
+                      bgcolor: '#f8f9fa'
+                    }
+                  }}>
+                    {/* Timeline indicator */}
+                    <Box sx={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'center',
+                      minWidth: 40
+                    }}>
+                      <Avatar 
+                        sx={{ 
+                          width: 40, 
+                          height: 40,
+                          bgcolor: isEntrada ? '#4caf50' : '#ff9800',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }}
+                      >
+                        {isEntrada ? (
+                          <TrendingUp sx={{ fontSize: 20 }} />
+                        ) : (
+                          <TrendingDown sx={{ fontSize: 20 }} />
+                        )}
+                      </Avatar>
+                      {index < movimentacoes.length - 1 && (
+                        <Box sx={{ 
+                          width: 2, 
+                          flexGrow: 1,
+                          bgcolor: '#e0e0e0',
+                          minHeight: 20,
+                          my: 1
+                        }} />
+                      )}
+                    </Box>
+
+                    {/* Content */}
+                    <Box sx={{ flex: 1, py: 0.5 }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'flex-start',
+                        mb: 1
+                      }}>
+                        <Box>
+                          <Chip
+                            label={mov.tipoMovimento}
+                            color={isEntrada ? 'success' : 'warning'}
+                            size="small"
+                            sx={{ 
+                              fontSize: '0.75rem',
+                              fontWeight: 500,
+                              mb: 0.5
+                            }}
+                          />
+                          <Typography variant="body2" sx={{ 
+                            color: '#555',
+                            fontWeight: 500,
+                            fontSize: '0.95rem'
+                          }}>
+                            {mov.quantidade} {mov.unidadeMedidaSigla}
+                          </Typography>
+                        </Box>
+                        
+                        {mov.pedidoId && (
+                          <Tooltip title="Ver pedido">
+                            <Button
                               size="small"
-                              sx={{ fontSize: '0.75rem' }}
-                            />
-                          </TableCell>
-                          <TableCell align="right" sx={{ fontSize: '0.875rem', color: '#555' }}>
-                            {mov.quantidade}
-                          </TableCell>
-                          <TableCell align="right" sx={{ fontSize: '0.875rem', color: '#555', fontWeight: 500 }}>
-                            {mov.estoqueAposMovimentacao}
-                          </TableCell>
-                          <TableCell align="center">
-                            {mov.pedidoId ? (
-                              <Tooltip title="Ver pedido">
-                                <IconButton
-                                  size="small"
-                                  color="primary"
-                                  onClick={() => handleNavigateToPedido(mov.pedidoId!)}
-                                >
-                                  <Launch fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            ) : (
-                              <Typography variant="body2" sx={{ color: '#aaa' }}>-</Typography>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </>
+                              variant="outlined"
+                              endIcon={<Launch fontSize="small" />}
+                              onClick={() => onNavigateToPedido(mov.pedidoId!)}
+                              sx={{ 
+                                textTransform: 'none',
+                                fontSize: '0.75rem',
+                                borderRadius: 2
+                              }}
+                            >
+                              Ver Pedido
+                            </Button>
+                          </Tooltip>
+                        )}
+                      </Box>
+
+                      <Typography variant="body2" sx={{ color: '#666', mb: 0.5 }}>
+                        {mov.naturezaOperacaoDescricao}
+                      </Typography>
+                      
+                      <Box sx={{ 
+                        display: 'flex', 
+                        gap: 2, 
+                        alignItems: 'center',
+                        mt: 1
+                      }}>
+                        <Typography variant="caption" sx={{ color: '#888' }}>
+                          {dateStr} • {timeStr}
+                        </Typography>
+                        <Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />
+                        <Typography variant="caption" sx={{ color: '#555', fontWeight: 500 }}>
+                          Estoque após: {mov.estoqueAposMovimentacao} {mov.unidadeMedidaSigla}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                  
+                  {index < movimentacoes.length - 1 && (
+                    <Divider sx={{ mx: 3, borderColor: '#f0f0f0' }} />
+                  )}
+                </Box>
+              )
+            })}
+          </Box>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function Row({ produto, onViewHistory }: { produto: ProdutoEstoque; onViewHistory: () => void }) {
+  return (
+    <TableRow 
+      onClick={onViewHistory}
+      sx={{ 
+        '&:hover': { bgcolor: '#f8f9fa', cursor: 'pointer' },
+        transition: 'background-color 0.2s'
+      }}
+    >
+      <TableCell>
+        <Box>
+          <Typography variant="body1" sx={{ fontWeight: 500, color: '#333', mb: 0.5 }}>
+            {produto.descricao}
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#888' }}>
+            Código: {produto.codigo} • {produto.unidadeMedidaSigla}
+          </Typography>
+        </Box>
+      </TableCell>
+      <TableCell align="right" sx={{ width: 150 }}>
+        <Chip
+          label={`${produto.estoqueAtual} ${produto.unidadeMedidaSigla}`}
+          color={produto.estoqueAtual > 0 ? 'success' : 'error'}
+          sx={{ fontWeight: 500, minWidth: 80 }}
+        />
+      </TableCell>
+      <TableCell align="right" sx={{ width: 60 }}>
+        <Tooltip title="Ver histórico">
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation()
+              onViewHistory()
+            }}
+            sx={{ color: '#666' }}
+          >
+            <Visibility fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
+    </TableRow>
   )
 }
 
 export default function EstoquePage() {
+  const navigate = useNavigate()
   const location = useLocation()
   const [produtos, setProdutos] = useState<ProdutoEstoque[]>([])
   const [movimentacoes, setMovimentacoes] = useState<Record<number, Movimentacao[]>>({})
-  const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [selectedProduto, setSelectedProduto] = useState<ProdutoEstoque | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
   const hasRestoredState = useRef(false)
 
   useEffect(() => {
@@ -165,7 +274,10 @@ export default function EstoquePage() {
     if (state?.expandedProdutoId && produtos.length > 0 && !hasRestoredState.current) {
       hasRestoredState.current = true
       const produtoId = state.expandedProdutoId
-      handleExpand(produtoId)
+      const produto = produtos.find(p => p.id === produtoId)
+      if (produto) {
+        handleViewHistory(produto)
+      }
       
       if (state.scrollPosition !== undefined) {
         setTimeout(() => {
@@ -184,22 +296,34 @@ export default function EstoquePage() {
     }
   }
 
-  const handleExpand = async (produtoId: number) => {
-    if (expandedId === produtoId) {
-      setExpandedId(null)
-      return
-    }
+  const handleViewHistory = async (produto: ProdutoEstoque) => {
+    setSelectedProduto(produto)
+    setModalOpen(true)
 
-    setExpandedId(produtoId)
-
-    if (!movimentacoes[produtoId]) {
+    if (!movimentacoes[produto.id]) {
       try {
-        const response = await estoqueApi.timeline(produtoId)
-        setMovimentacoes(prev => ({ ...prev, [produtoId]: response.data }))
+        const response = await estoqueApi.timeline(produto.id)
+        setMovimentacoes(prev => ({ ...prev, [produto.id]: response.data }))
       } catch (error) {
         console.error('Erro ao carregar movimentações:', error)
       }
     }
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+  }
+
+  const handleNavigateToPedido = (pedidoId: number) => {
+    navigate('/pedidos', { 
+      state: { 
+        highlightPedidoId: pedidoId,
+        fromEstoque: true,
+        expandedProdutoId: selectedProduto?.id,
+        scrollPosition: window.scrollY
+      } 
+    })
+    setModalOpen(false)
   }
 
   return (
@@ -219,12 +343,14 @@ export default function EstoquePage() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell width={50} sx={{ bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }} />
                   <TableCell sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }}>
                     Produto
                   </TableCell>
                   <TableCell align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }}>
                     Estoque Atual
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#555', bgcolor: '#fafafa', borderBottom: '2px solid #ddd' }}>
+                    Ações
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -233,9 +359,7 @@ export default function EstoquePage() {
                   <Row
                     key={produto.id}
                     produto={produto}
-                    expanded={expandedId === produto.id}
-                    onExpand={() => handleExpand(produto.id)}
-                    movimentacoes={movimentacoes[produto.id] || []}
+                    onViewHistory={() => handleViewHistory(produto)}
                   />
                 ))}
               </TableBody>
@@ -248,6 +372,14 @@ export default function EstoquePage() {
           </Box>
         </CardContent>
       </Card>
+
+      <TimelineModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        produto={selectedProduto}
+        movimentacoes={selectedProduto ? (movimentacoes[selectedProduto.id] || []) : []}
+        onNavigateToPedido={handleNavigateToPedido}
+      />
     </Box>
   )
 }

@@ -170,6 +170,7 @@ public class EstoqueService {
         .quantidade(mov.getQuantidade())
         .estoqueAposMovimentacao(mov.getEstoqueAposMovimentacao())
         .dataMovimentacao(mov.getDataMovimentacao())
+        .unidadeMedidaSigla(mov.getProduto().getUnidadeMedida().getSigla())
         .build();
   }
 }
