@@ -88,111 +88,118 @@ function TimelineModal({ open, onClose, produto, movimentacoes, onNavigateToPedi
               })
 
               return (
-                <Box key={mov.id} sx={{ display: 'flex', position: 'relative' }}>
-                  {/* Timeline connector column */}
+                <Box key={mov.id} sx={{ position: 'relative' }}>
                   <Box sx={{ 
                     display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center',
-                    minWidth: 60,
-                    position: 'relative'
+                    gap: 2, 
+                    px: 3,
+                    py: 2,
+                    position: 'relative',
+                    '&:hover': {
+                      bgcolor: '#f8f9fa'
+                    }
                   }}>
-                    {/* Line before avatar (only if not first) */}
-                    {index > 0 && (
-                      <Box sx={{ 
-                        position: 'absolute',
-                        top: -12,
-                        width: 2, 
-                        height: 12,
-                        bgcolor: '#e0e0e0'
-                      }} />
-                    )}
-                    
-                    {/* Avatar */}
-                    <Avatar 
-                      sx={{ 
-                        width: 40, 
-                        height: 40,
-                        bgcolor: isEntrada ? '#4caf50' : '#ff9800',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                        position: 'relative',
-                        zIndex: 1
-                      }}
-                    >
-                      {isEntrada ? (
-                        <TrendingUp sx={{ fontSize: 20 }} />
-                      ) : (
-                        <TrendingDown sx={{ fontSize: 20 }} />
-                      )}
-                    </Avatar>
-
-                    {/* Line after avatar (only if not last) */}
-                    {index < movimentacoes.length - 1 && (
-                      <Box sx={{ 
-                        width: 2, 
-                        flexGrow: 1,
-                        bgcolor: '#e0e0e0',
-                        minHeight: 40
-                      }} />
-                    )}
-                  </Box>
-
-                  {/* Content */}
-                  <Box sx={{ flex: 1, pl: 2, py: 1 }}>
+                    {/* Timeline indicator with connecting line */}
                     <Box sx={{ 
                       display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'flex-start',
-                      mb: 1,
-                      '&:hover': {
-                        bgcolor: '#f8f9fa'
-                      },
-                      px: 2,
-                      py: 1,
-                      borderRadius: 1,
-                      transition: 'background-color 0.2s'
+                      flexDirection: 'column', 
+                      alignItems: 'center',
+                      width: 40,
+                      position: 'relative'
                     }}>
-                      <Box>
-                        <Chip
-                          label={mov.tipoMovimento}
-                          color={isEntrada ? 'success' : 'warning'}
-                          size="small"
-                          sx={{ 
-                            fontSize: '0.75rem',
-                            fontWeight: 500,
-                            mb: 0.5
-                          }}
-                        />
-                        <Typography variant="body2" sx={{ 
-                          color: '#555',
-                          fontWeight: 500,
-                          fontSize: '0.95rem'
-                        }}>
-                          {mov.quantidade} {mov.unidadeMedidaSigla}
-                        </Typography>
-                      </Box>
+                      {/* Connecting line above */}
+                      {index > 0 && (
+                        <Box sx={{ 
+                          position: 'absolute',
+                          width: 2,
+                          bgcolor: '#e0e0e0',
+                          top: 0,
+                          height: '50%',
+                          left: '50%',
+                          transform: 'translateX(-50%)'
+                        }} />
+                      )}
                       
-                      {mov.pedidoId && (
-                        <Tooltip title="Ver pedido">
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            endIcon={<Launch fontSize="small" />}
-                            onClick={() => onNavigateToPedido(mov.pedidoId!)}
-                            sx={{ 
-                              textTransform: 'none',
-                              fontSize: '0.75rem',
-                              borderRadius: 2
-                            }}
-                          >
-                            Ver Pedido
-                          </Button>
-                        </Tooltip>
+                      {/* Avatar */}
+                      <Avatar 
+                        sx={{ 
+                          width: 40, 
+                          height: 40,
+                          bgcolor: isEntrada ? '#4caf50' : '#ff9800',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          zIndex: 1,
+                          position: 'relative'
+                        }}
+                      >
+                        {isEntrada ? (
+                          <TrendingUp sx={{ fontSize: 20 }} />
+                        ) : (
+                          <TrendingDown sx={{ fontSize: 20 }} />
+                        )}
+                      </Avatar>
+                      
+                      {/* Connecting line below */}
+                      {index < movimentacoes.length - 1 && (
+                        <Box sx={{ 
+                          position: 'absolute',
+                          width: 2,
+                          bgcolor: '#e0e0e0',
+                          bottom: 0,
+                          height: '50%',
+                          left: '50%',
+                          transform: 'translateX(-50%)'
+                        }} />
                       )}
                     </Box>
 
-                    <Box sx={{ px: 2 }}>
-                      <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
+                    {/* Content */}
+                    <Box sx={{ flex: 1, py: 0.5 }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'flex-start',
+                        mb: 1
+                      }}>
+                        <Box>
+                          <Chip
+                            label={mov.tipoMovimento}
+                            color={isEntrada ? 'success' : 'warning'}
+                            size="small"
+                            sx={{ 
+                              fontSize: '0.75rem',
+                              fontWeight: 500,
+                              mb: 0.5
+                            }}
+                          />
+                          <Typography variant="body2" sx={{ 
+                            color: '#555',
+                            fontWeight: 500,
+                            fontSize: '0.95rem'
+                          }}>
+                            {mov.quantidade} {mov.unidadeMedidaSigla}
+                          </Typography>
+                        </Box>
+                        
+                        {mov.pedidoId && (
+                          <Tooltip title="Ver pedido">
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              endIcon={<Launch fontSize="small" />}
+                              onClick={() => onNavigateToPedido(mov.pedidoId!)}
+                              sx={{ 
+                                textTransform: 'none',
+                                fontSize: '0.75rem',
+                                borderRadius: 2
+                              }}
+                            >
+                              Ver Pedido
+                            </Button>
+                          </Tooltip>
+                        )}
+                      </Box>
+
+                      <Typography variant="body2" sx={{ color: '#666', mb: 0.5 }}>
                         {mov.naturezaOperacaoDescricao}
                       </Typography>
                       
@@ -200,7 +207,7 @@ function TimelineModal({ open, onClose, produto, movimentacoes, onNavigateToPedi
                         display: 'flex', 
                         gap: 2, 
                         alignItems: 'center',
-                        flexWrap: 'wrap'
+                        mt: 1
                       }}>
                         <Typography variant="caption" sx={{ color: '#888' }}>
                           {dateStr} • {timeStr}
