@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Alert,
@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Divider,
   FormControl,
@@ -23,14 +22,6 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
-import {
-  ArrowForward,
-  AttachMoney,
-  CreditScore,
-  Groups,
-  ReceiptLong,
-  WarningAmber,
-} from '@mui/icons-material'
 import { clientesApi, dashboardApi } from '../services/api'
 import {
   Cliente,
@@ -74,51 +65,40 @@ const normalizeClienteFinanceiro = (payload: ClienteFinanceiroResponse): Cliente
   }
 }
 
-const statCardSx = {
+// Mesmo padrao visual das demais telas (Pedidos, Estoque, Clientes).
+const cardSx = {
   height: '100%',
-  borderRadius: 3,
-  boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
+  borderRadius: 2,
+  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+}
+
+const headCellSx = {
+  fontWeight: 500,
+  fontSize: '0.875rem',
+  color: '#555',
+  bgcolor: '#fafafa',
+  borderBottom: '2px solid #ddd',
 }
 
 interface StatCardProps {
   title: string
   value: string
   helper: string
-  icon: ReactNode
 }
 
-function StatCard({ title, value, helper, icon }: StatCardProps) {
+function StatCard({ title, value, helper }: StatCardProps) {
   return (
-    <Card sx={statCardSx}>
+    <Card sx={cardSx}>
       <CardContent sx={{ p: 3 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
-          <Box>
-            <Typography variant="caption" sx={{ color: '#667085', display: 'block', mb: 1 }}>
-              {title}
-            </Typography>
-            <Typography variant="h5" sx={{ color: '#101828', fontWeight: 500, mb: 0.75 }}>
-              {value}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#667085' }}>
-              {helper}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              width: 44,
-              height: 44,
-              borderRadius: '14px',
-              bgcolor: 'rgba(46, 125, 50, 0.10)',
-              color: 'primary.main',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            {icon}
-          </Box>
-        </Stack>
+        <Typography variant="caption" sx={{ color: '#666', display: 'block', mb: 1 }}>
+          {title}
+        </Typography>
+        <Typography variant="h5" sx={{ color: '#333', fontWeight: 400, mb: 0.75 }} noWrap>
+          {value}
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#777' }}>
+          {helper}
+        </Typography>
       </CardContent>
     </Card>
   )
@@ -133,26 +113,18 @@ interface RankingCardProps {
 
 function RankingCard({ title, subtitle, items, metricType }: RankingCardProps) {
   return (
-    <Card sx={{ ...statCardSx, minHeight: 320 }}>
+    <Card sx={{ ...cardSx, minHeight: 320 }}>
       <CardContent sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ color: '#101828', mb: 0.5 }}>
+        <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 500, color: '#333', mb: 0.5 }}>
           {title}
         </Typography>
-        <Typography variant="body2" sx={{ color: '#667085', mb: 2.5 }}>
+        <Typography variant="body2" sx={{ color: '#777', mb: 2 }}>
           {subtitle}
         </Typography>
 
         {items.length === 0 ? (
-          <Box
-            sx={{
-              minHeight: 180,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
-            }}
-          >
-            <Typography variant="body2" sx={{ color: '#98A2B3' }}>
+          <Box sx={{ minHeight: 180, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography variant="body2" sx={{ color: '#999' }}>
               Nenhum cliente encontrado para o periodo selecionado.
             </Typography>
           </Box>
@@ -167,17 +139,15 @@ function RankingCard({ title, subtitle, items, metricType }: RankingCardProps) {
                 spacing={2}
                 sx={{ py: 1.5 }}
               >
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 0 }}>
-                  <Chip
-                    label={`#${index + 1}`}
-                    size="small"
-                    sx={{ bgcolor: 'rgba(46, 125, 50, 0.12)', color: 'primary.main', fontWeight: 600 }}
-                  />
-                  <Typography variant="body2" sx={{ color: '#101828', fontWeight: 500 }} noWrap>
+                <Stack direction="row" spacing={2} alignItems="center" sx={{ minWidth: 0 }}>
+                  <Typography variant="body2" sx={{ color: '#999', width: 20 }}>
+                    {index + 1}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#333', fontWeight: 500 }} noWrap>
                     {item.clienteNome}
                   </Typography>
                 </Stack>
-                <Typography variant="body2" sx={{ color: '#475467', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                <Typography variant="body2" sx={{ color: '#555', whiteSpace: 'nowrap' }}>
                   {metricType === 'compras'
                     ? `${item.quantidadeCompras ?? 0} compra${item.quantidadeCompras === 1 ? '' : 's'}`
                     : formatCurrency(item.valorTotal ?? 0)}
@@ -295,8 +265,8 @@ export default function DashboardPage() {
           <Typography variant="h5" sx={{ fontWeight: 300, color: '#333', mb: 1 }}>
             Central Financeira
           </Typography>
-          <Typography variant="body2" sx={{ color: '#667085', maxWidth: 680 }}>
-            Consolide faturamento, inadimplencia e relacionamentos comerciais em uma unica visao operacional.
+          <Typography variant="body2" sx={{ color: '#777', maxWidth: 680 }}>
+            Faturamento, inadimplencia e relacionamento com clientes.
           </Typography>
         </Box>
 
@@ -334,7 +304,6 @@ export default function DashboardPage() {
                 title="Total vendido no periodo"
                 value={formatCurrency(resumo?.totalVendidoPeriodo ?? 0)}
                 helper={`Produto lider: ${resumo?.produtoMaisVendidoNome ?? 'Sem vendas no periodo'}`}
-                icon={<AttachMoney fontSize="small" />}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
@@ -342,7 +311,6 @@ export default function DashboardPage() {
                 title="Clientes com divida"
                 value={String(metricas.quantidadeClientesComDivida)}
                 helper="Clientes com saldo financeiro pendente"
-                icon={<Groups fontSize="small" />}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
@@ -350,15 +318,13 @@ export default function DashboardPage() {
                 title="Divida total em aberto"
                 value={formatCurrency(metricas.dividaTotalAberta)}
                 helper="Saldo liquido considerando credito do cliente"
-                icon={<WarningAmber fontSize="small" />}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={6}>
               <StatCard
                 title="Credito disponivel total"
                 value={formatCurrency(metricas.creditoDisponivelTotal)}
-                helper="Somatorio de creditos dos clientes com pendencia"
-                icon={<CreditScore fontSize="small" />}
+                helper="Somatorio de creditos dos clientes"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={6}>
@@ -366,104 +332,66 @@ export default function DashboardPage() {
                 title="Maior devedor"
                 value={metricas.maiorDevedor?.cliente.razaoSocial ?? '-'}
                 helper={metricas.maiorDevedor ? formatCurrency(metricas.maiorDevedor.dividaTotal) : 'Nenhuma divida em aberto'}
-                icon={<ReceiptLong fontSize="small" />}
               />
             </Grid>
           </Grid>
 
           <Grid container spacing={3}>
             <Grid item xs={12} lg={7}>
-              <Card sx={statCardSx}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: { xs: 'flex-start', md: 'center' },
-                      gap: 2,
-                      flexDirection: { xs: 'column', md: 'row' },
-                      mb: 2.5,
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="h6" sx={{ color: '#101828', mb: 0.5 }}>
-                        Clientes com pendencia
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: '#667085' }}>
-                        Ordenado por maior divida para acelerar cobranca e priorizacao.
-                      </Typography>
-                    </Box>
-                    <Chip
-                      label={`${clientesPendentes.length} cliente${clientesPendentes.length === 1 ? '' : 's'}`}
-                      sx={{ bgcolor: 'rgba(46, 125, 50, 0.08)', color: 'primary.main', fontWeight: 600 }}
-                    />
+              <Card sx={cardSx}>
+                <CardContent sx={{ p: 0 }}>
+                  <Box sx={{ p: 3, pb: 2 }}>
+                    <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 500, color: '#333', mb: 0.5 }}>
+                      Clientes com pendencia
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#777' }}>
+                      Ordenado por maior divida.
+                      {clientesPendentes.length > 0
+                        ? ` ${clientesPendentes.length} cliente${clientesPendentes.length === 1 ? '' : 's'} em aberto.`
+                        : ''}
+                    </Typography>
                   </Box>
 
                   {clientesPendentes.length === 0 ? (
-                    <Box
-                      sx={{
-                        minHeight: 220,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        textAlign: 'center',
-                        border: '1px dashed #D0D5DD',
-                        borderRadius: 2,
-                        bgcolor: '#FCFCFD',
-                      }}
-                    >
-                      <Box>
-                        <Typography variant="body1" sx={{ color: '#344054', mb: 0.5 }}>
-                          Nenhuma pendencia financeira encontrada.
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#98A2B3' }}>
-                          O periodo atual nao possui clientes com saldo em aberto.
-                        </Typography>
-                      </Box>
+                    <Box sx={{ minHeight: 160, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Typography variant="body2" sx={{ color: '#999' }}>
+                        Nenhuma pendencia financeira encontrada.
+                      </Typography>
                     </Box>
                   ) : (
                     <TableContainer>
                       <Table>
                         <TableHead>
                           <TableRow>
-                            <TableCell sx={{ bgcolor: '#F9FAFB' }}>Cliente</TableCell>
-                            <TableCell sx={{ bgcolor: '#F9FAFB' }}>Pendentes</TableCell>
-                            <TableCell align="right" sx={{ bgcolor: '#F9FAFB' }}>Credito</TableCell>
-                            <TableCell align="right" sx={{ bgcolor: '#F9FAFB' }}>Divida</TableCell>
-                            <TableCell align="right" sx={{ bgcolor: '#F9FAFB', width: 120 }}>Acao</TableCell>
+                            <TableCell sx={headCellSx}>Cliente</TableCell>
+                            <TableCell sx={headCellSx}>Pendentes</TableCell>
+                            <TableCell align="right" sx={headCellSx}>Credito</TableCell>
+                            <TableCell align="right" sx={headCellSx}>Divida</TableCell>
+                            <TableCell align="right" sx={{ ...headCellSx, width: 100 }} />
                           </TableRow>
                         </TableHead>
                         <TableBody>
                           {clientesPendentes.map((item) => (
-                            <TableRow key={item.clienteId} hover>
+                            <TableRow key={item.clienteId} hover sx={{ '&:hover': { bgcolor: '#f8f9fa' } }}>
                               <TableCell>
-                                <Box>
-                                  <Typography variant="body2" sx={{ color: '#101828', fontWeight: 500 }}>
-                                    {item.cliente.razaoSocial}
-                                  </Typography>
-                                  <Typography variant="caption" sx={{ color: '#667085' }}>
-                                    {item.cliente.documento || item.cliente.contato || 'Sem identificacao complementar'}
-                                  </Typography>
-                                </Box>
+                                <Typography variant="body2" sx={{ color: '#333', fontWeight: 500 }}>
+                                  {item.cliente.razaoSocial}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: '#777' }}>
+                                  {item.cliente.documento || item.cliente.contato || 'Sem identificacao complementar'}
+                                </Typography>
                               </TableCell>
-                              <TableCell>
-                                <Chip
-                                  label={`${item.totalPedidosPendentes} pedido${item.totalPedidosPendentes === 1 ? '' : 's'}`}
-                                  size="small"
-                                  color="warning"
-                                  variant="outlined"
-                                />
+                              <TableCell sx={{ fontSize: '0.875rem', color: '#555' }}>
+                                {item.totalPedidosPendentes} pedido{item.totalPedidosPendentes === 1 ? '' : 's'}
                               </TableCell>
-                              <TableCell align="right">{formatCurrency(item.saldoCredito)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 600, color: '#B42318' }}>
+                              <TableCell align="right" sx={{ fontSize: '0.875rem', color: '#555' }}>
+                                {formatCurrency(item.saldoCredito)}
+                              </TableCell>
+                              <TableCell align="right" sx={{ fontSize: '0.95rem', fontWeight: 500, color: '#c62828' }}>
                                 {formatCurrency(item.dividaTotal)}
                               </TableCell>
                               <TableCell align="right">
-                                <Button
-                                  size="small"
-                                  endIcon={<ArrowForward fontSize="small" />}
-                                  onClick={() => navigate(`/clientes/${item.clienteId}`)}
-                                >
+                                <Button size="small" onClick={() => navigate(`/clientes/${item.clienteId}`)}>
                                   Abrir
                                 </Button>
                               </TableCell>
@@ -481,13 +409,13 @@ export default function DashboardPage() {
               <Stack spacing={3}>
                 <RankingCard
                   title="Clientes mais fieis"
-                  subtitle="Ranking por volume de compras no periodo selecionado."
+                  subtitle="Volume de compras no periodo."
                   items={topClientesFieis.slice(0, 5)}
                   metricType="compras"
                 />
                 <RankingCard
                   title="Clientes mais lucrativos"
-                  subtitle="Ranking por receita acumulada no periodo selecionado."
+                  subtitle="Receita acumulada no periodo."
                   items={topClientesLucrativos.slice(0, 5)}
                   metricType="valor"
                 />
