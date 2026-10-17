@@ -1,0 +1,5 @@
+# Profile de demonstração: banco separado + dados fictícios (ver DemoDataInitializer).
+# Uso: .\mvnw spring-boot:run "-Dspring-boot.run.profiles=demo"
+spring:
+  datasource:
+    url: jdbc:sqlite:data/hort_demo.db?date_class=TEXT

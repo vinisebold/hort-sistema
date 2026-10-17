@@ -1,284 +1,88 @@
-# Documento de Requisitos de Produto: Hort Sistema
+# Hort Sistema
 
-## 1. Visão Geral
+Sistema de gestão para atacado de hortifrúti: pedidos de compra e venda, estoque com custo por lote (FIFO), controle de fiado e painel financeiro. É um aplicativo desktop que funciona offline, com os dados num banco local.
 
-O **Hort Sistema** é uma plataforma de tracking digital, gestão financeira e controle de estoque. O foco principal é a versatilidade e a facilidade de uso, entregando uma interface intuitiva que simplifica a operação diária do usuário, eliminando a complexidade de ERPs tradicionais.
+Projeto individual. Java 25, Spring Boot 4, SQLite, React 19 e Electron.
 
-## 2. O Problema
+![Hort Sistema: cadastro, histórico de pedidos de um cliente com pagamento de fiado, lista de pedidos e dados da conta](docs/media/demo.gif)
 
-Atualmente, a gestão financeira e de estoque do público-alvo é realizada de forma manual (papel ou planilhas isoladas), o que resulta em falta de precisão nos dados. 
+## O problema
 
-* **Impacto:** Perda de tempo operacional, alta incidência de erro humano e falta de base analítica para tomadas de decisão (compras mal planejadas ou vendas não registradas).
+Quem compra e vende hortifrúti em volume costuma controlar tudo em caderno ou planilha. O estoque nunca fecha com o que está no galpão, e o lucro de uma venda é um palpite, porque o mesmo produto entra várias vezes ao longo do mês por preços diferentes. O fiado piora: a nota é anotada, o cliente paga uma parte depois, e ninguém sabe ao certo quais notas já foram quitadas.
 
-## 3. Objetivos do Sistema
+O Hort resolve esses três pontos: o custo de cada venda é calculado a partir do lote que foi realmente consumido, o estoque é consequência dos pedidos (nunca editado à mão) e o pagamento parcial de fiado abate as notas em ordem.
 
-* **Centralização:** Consolidar todos os dados de tracking numa única interface.
-* **Visibilidade:** Consulta em tempo real do status de vendas, saúde financeira e movimentação de mercadorias.
-* **Confiabilidade:** Garantir que o estoque físico corresponda ao digital através de logs rigorosos. 
-* **Local-First:** Operação local para garantir privacidade e velocidade de acesso aos dados.
+## O que faz
 
-## 4. Personas
+- **Pedidos de compra e venda.** Cada pedido tem uma natureza de operação (venda, compra, quebra, ajuste de entrada ou uma criada pelo usuário). A natureza define se o pedido exige cliente, valor unitário e status de pagamento, então uma quebra de mercadoria não pede cliente e uma venda pede.
+- **Estoque com rastreabilidade.** O estoque atual é calculado pelas movimentações. Cada produto tem uma linha do tempo, e cada movimentação leva ao pedido que a originou, com o item destacado.
+- **Custo por lote (FIFO).** Compras criam lotes com o custo exato daquela entrada. Vendas consomem do lote mais antigo, e o custo e a margem de cada item ficam registrados.
+- **Clientes e fiado.** Cadastro de pessoa física e jurídica, histórico cronológico de pedidos, dívida total e abatimento. Um pagamento parcial quita as notas pendentes da mais antiga para a mais nova; se o valor não cobre a próxima nota inteira, ele vira crédito do cliente.
+- **Painel.** Total vendido, produto mais vendido, clientes mais fiéis e mais lucrativos, com filtro de período (hoje, últimos 7 dias, mês, mês anterior, ano e ano anterior).
+- **Conta por CNPJ.** No cadastro, a razão social e o nome fantasia vêm da [BrasilAPI](https://brasilapi.com.br).
 
-* **Administrador:** Proprietário ou gerente que possui acesso total ao sistema, desde cadastros base até relatórios estratégicos de lucratividade.
+## Decisões de projeto
 
-## 5. Requisitos Funcionais
+**Local-first.** O objetivo é rodar na máquina do dono do negócio, sem servidor e sem depender de internet para operar. Por isso SQLite, com o schema versionado pelo Flyway, e um Electron que empacota a interface e sobe o backend como processo filho.
 
-### RF01: Autenticação
+**Estoque é derivado, não editável.** O cadastro de produto não aceita quantidade. Todo movimento de estoque exige uma natureza de operação e, quando há pedido, aponta para ele. Isso é o que permite reconstruir qualquer saldo e a timeline.
 
-* O sistema deve ser executado localmente (instalação em desktop).
-* Login simplificado e seguro para proteção dos dados locais.
+**FIFO modelado em tabelas.** `lote_entrada` guarda a quantidade original, a disponível e o custo congelado de cada compra; `lote_saida` registra quanto de cada lote cada venda consumiu e a que custo. O custo unitário do item de venda é a média ponderada dos lotes consumidos. A lógica está em `FifoService`, com testes unitários e de integração.
 
-### RF02: Modulo de Cadastros
+**Exclusão lógica.** Produtos, clientes e pedidos não são apagados; são inativados ou cancelados, para o histórico financeiro continuar íntegro.
 
-Permitir a criação, edição e visualização de:
+**Autenticação simples e local.** Login por e-mail e senha, com BCrypt e token JWT. Como o app roda na máquina do usuário, a segurança é pensada para proteger os dados locais, não para exposição na internet.
 
-* Cadastro de Produtos (Codigo do produto (gerado automatico por padrao com possibilidade de mudar), descricao (O nome do produto), unidade de medida).
-* Cadastro de Clientes (Tipo de cadastro: Pessoa Juridica | Fisica, CNPJ ou CPF, Nome/ Razao Social, Nome Fantasia. Endereco, Outras informacoes: E-mail |Telefone | Site )
-* Cadastro de Unidades de Medida (KG, UN, CX, SACO, etc..)
-* Cadastro Naturezas de operacao (Venda de Mercadoria, Compra de Mercadoria, Devolução, Ajuste de Estoque)
+## Arquitetura
 
-### RF03: Modulo de Operação
+```mermaid
+flowchart LR
+    subgraph Desktop["Aplicativo desktop (Electron)"]
+        UI["React + TypeScript + MUI"]
+    end
+    UI -- "REST /api (JWT)" --> API["Spring Boot 4 (Java 25)"]
+    API --> DB[("SQLite<br/>migrations Flyway")]
+    API -- "consulta de CNPJ" --> BR["BrasilAPI"]
+```
 
-* Resumo (Dashboard)
-* Pedidos de Venda/Compra
+No backend, as camadas seguem a divisão usual: `controller` (HTTP), `service` (regras e transações, incluindo `FifoService`, `EstoqueService` e `PedidoService`), `repository` (Spring Data JPA) e `model`. O modelo de dados original está em [docs/REQUISITOS.md](docs/REQUISITOS.md).
 
-### RF05: Modulo de Operação/Resumo
+## Rodando em desenvolvimento
 
-* Possibilidade de utilizar filtro de periodo: Exibindo: ( Hoje | Ultimos 7 dias | Ultimo mes | Mes anterior | Este ano | Ano anterior )
-* Card: Produto mais vendido e quantidade de vendas.
-* Card: Cliente mais fiel e quantidade de compras realizadas.
-* Card: Total vendido.
-* Vendas no periodo, possibilidade de vizualizar 'por dia' ou 'por mes'.
-* Card: Top 10 produtos mais vendidos.
-* Card: Top 10 produtos mais lucrativos (pizza graph).
-* Card: Top 10 clientes mais fieis.
-* Card: Top 10 clientes mais lucrativos (pizza graph).
+Precisa de JDK 25 e Node. O backend e o frontend sobem separados.
 
-### RF06: Modulo de Operação/Pedidos de Venda/Compra
+```bash
+# terminal 1: API em localhost:8080
+cd backend
+./mvnw spring-boot:run
 
-* Serie/Numero da venda
-* Data de emissao da venda.
-* Destinatario (Cliente)
-* Valor (R$)
-* Status (Pago | Pendente)
-* Modalidade (A vista | Fiado | Compra de mercadoria)
-* Resumo dos itens comprados
-* Possibilidades de ver detalhes dos itens comprados ao clicar.
+# terminal 2: interface (Vite + Electron)
+cd frontend
+npm install
+npm run electron:dev
+```
 
-### RF07: Modulo de Estoque
+O banco é criado em `backend/data/` na primeira execução, com as migrations aplicadas. Sem dados, o painel aparece vazio.
 
-* Deve calcular o estoque atual com base nas compras e nas vendas dos produtos
-* Timeline do Produto: Ao selecionar um produto, exibir um histórico cronológico de todas as movimentações.
-* Rastreabilidade Reversa: Ao clicar em algum dos registros na timeline deve redirecionar para a pagina de vendas/compras e destacar o lugar do registro. O usuário deve ser redirecionado para o pedido original (Venda ou Compra) com o item destacado.
-* Navegação Inteligente: Botão "Voltar" que retorna o usuário exatamente para a posição anterior na timeline de estoque.
+Para ver o sistema com movimento, suba o backend com o perfil `demo`:
 
-## 6. Requisitos Não Funcionais
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=demo
+```
 
-* **Segurança:** Criptografia de senhas e proteção do banco de dados local.
-* **Disponibilidade:** Funcionamento offline (armazenamento local).
-* **Interface:** Design limpo, responsivo (mesmo sendo local) e focado em UX (poucos cliques para completar tarefas).
-* **Performance:** Consultas de devem responder em menos de 2 segundos.
+Isso cria um banco separado (`data/hort_demo.db`) com uma loja fictícia: 8 produtos, 6 clientes e cerca de 30 dias de compras, vendas, fiado e quebras, gerados pelos mesmos serviços da aplicação. Login: `demo@hort.dev` / `demo1234`.
 
-## 7. Regras de Negócio
+## Testes
 
-* [RN01]: Soft Delete: Nenhum registro (produto, cliente ou venda) deve ser excluído fisicamente do banco de dados. Devem apenas ser marcados como "inativos" ou "ocultos" para preservar a integridade do histórico financeiro.
-* [RN02]: Maioria das informacoes no cadastro de clientes devem ser puxadas por meio de uma API gratuita de consulta.
-* [RN03] Integridade de Timeline:** Toda alteração de estoque deve estar obrigatoriamente vinculada a uma Natureza de Operação.
+```bash
+cd backend
+./mvnw verify
+```
 
-## 8. Stack
+São 267 testes (services, controllers, a integração do FIFO e um teste de desempenho), com cobertura de cerca de 76% medida pelo JaCoCo. O relatório sai em `backend/target/site/jacoco`.
 
-* Backend: Spring Framework, Spring Boot, Maven | GraalVM.
-* Database: SQLite(3?), com algumas libs adicionais.
-* Frontend: Tauri (React?)
+## Estado atual e próximos passos
 
-## 9. Database
-```markdown
-Table configuracoes_sistema {
-id integer [primary key]
-senha_master_hash varchar [not null]
-nome_negocio varchar
-}
-
-Table unidades_medida {
-id integer [primary key, increment]
-sigla varchar [unique, not null]
-descricao varchar
-is_active boolean [default: true]
-}
-
-Table clientes {
-id integer [primary key, increment]
-tipo_pessoa varchar [not null]
-documento varchar [unique]
-razao_social varchar [not null]
-nome_fantasia varchar
-endereco varchar
-telefone varchar
-is_active boolean [default: true]
-created_at timestamp [default: `CURRENT_TIMESTAMP`]
-}
-
-Table produtos {
-id integer [primary key, increment]
-codigo varchar [unique, not null]
-descricao varchar [not null, note: 'Ex: Tomate Longa Vida, Batata Lavada']
-unidade_medida_id integer [not null]
-estoque_atual decimal(10,3) [default: 0]
-is_active boolean [default: true]
-created_at timestamp [default: `CURRENT_TIMESTAMP`]
-}
-
-Table naturezas_operacao {
-id integer [primary key]
-descricao varchar [not null, note: 'Ex: 1-Venda, 2-Compra, 3-Descarte/Perda, 4-Ajuste Entrada']
-tipo_movimento varchar [not null, note: 'ENTRADA ou SAIDA']
-gera_financeiro boolean [default: true, note: 'Se false (ex: Descarte), não exige pagamento']
-}
-
-Table formas_pagamento {
-id integer [primary key, increment]
-descricao varchar [not null, note: 'Ex: À Vista, Fiado, PIX']
-exige_cliente boolean [default: false]
-exige_documento_referencia boolean [default: false]
-is_active boolean [default: true]
-}
-
-Table pedidos {
-id integer [primary key, increment]
-natureza_operacao_id integer [not null]
-
-cliente_id integer
-
-forma_pagamento_id integer [not null]
-
-documento_referencia varchar
-
-valor_total decimal(10,2) [not null]
-status_pagamento varchar [not null]
-data_emissao timestamp [default: `CURRENT_TIMESTAMP`]
-}
-
-Table itens_pedido {
-id integer [primary key, increment]
-pedido_id integer [not null]
-produto_id integer [not null]
-quantidade decimal(10,3) [not null]
-valor_unitario decimal(10,2) [not null]
-custo_unitario decimal(10,2) [not null, default: 0, note: 'Calculado via FIFO apenas em Vendas. Sempre 0 em Compras']
-valor_total decimal(10,2) [not null]
-}
-
-Table movimentacoes_estoque {
-id integer [primary key, increment]
-produto_id integer [not null]
-natureza_operacao_id integer [not null]
-pedido_id integer [note: 'Nulo se for apenas um descarte ou ajuste manual']
-quantidade decimal(10,3) [not null]
-estoque_apos_movimentacao decimal(10,3) [not null]
-data_movimentacao timestamp [default: `CURRENT_TIMESTAMP`]
-}
-
-Table lotes_entrada {
-id integer [primary key, increment]
-item_pedido_id integer [not null, note: 'O item de compra que originou este lote']
-produto_id integer [not null]
-quantidade_original decimal(10,3) [not null]
-quantidade_disponivel decimal(10,3) [not null, note: 'Começa igual a quantidade_original, vai a zero conforme vendas consomem']
-custo_unitario decimal(10,2) [not null, note: 'O custo exato desta compra, congelado para sempre']
-data_entrada timestamp [not null, note: 'Ordena o FIFO. Lote mais antigo sai primeiro']
-is_esgotado boolean [default: false, note: 'Flag de conveniência para ignorar lotes zerados nas queries']
-}
-
-Table lotes_saidas {
-id integer [primary key, increment]
-lote_fifo_id integer [not null]
-item_pedido_venda_id integer [not null, note: 'O item de venda que gerou este consumo']
-quantidade_consumida decimal(10,3) [not null]
-custo_unitario decimal(10,2) [not null, note: 'Cópia do custo do lote no momento do consumo']
-}
-
-Ref: lotes_entrada.item_pedido_id > itens_pedido.id
-Ref: lotes_entrada.produto_id > produtos.id
-Ref: lotes_saidas.lote_fifo_id > lotes_entrada.id
-Ref: lotes_saidas.item_pedido_venda_id > itens_pedido.id
-Ref: pedidos.natureza_operacao_id > naturezas_operacao.id
-Ref: pedidos.forma_pagamento_id > formas_pagamento.id
-Ref: produtos.unidade_medida_id > unidades_medida.id
-Ref: pedidos.cliente_id > clientes.id
-Ref: itens_pedido.pedido_id > pedidos.id
-Ref: itens_pedido.produto_id > produtos.id
-Ref: movimentacoes_estoque.produto_id > produtos.id
-Ref: movimentacoes_estoque.natureza_operacao_id > naturezas_operacao.id
-Ref: movimentacoes_estoque.pedido_id > pedidos.id
-
----
-
-## 10. Roadmap de Implementação
-
-### Fase 1 - Backend Core (Prioridade Alta)
-
-#### 1.1 Autenticação (RF01)
-- [x] Criar `AuthController` e `AuthService`
-- [x] Implementar hash de senha (BCrypt)
-- [x] Criar endpoint de login `/api/auth/login`
-- [x] Implementar proteção de endpoints (Spring Security ou filtro customizado)
-- [x] Criar tabela `configuracoes_sistema` via migration/seed
-- [x] Endpoint para configurar senha master no primeiro acesso
-
-#### 1.2 Completar CRUDs
-- [x] Adicionar PUT em `ProdutoController`
-- [x] Adicionar PUT em `UnidadeMedidaController`
-- [x] Adicionar PUT em `FormaPagamentoController`
-- [x] Adicionar PUT em `NaturezaOperacaoController`
-- [x] Adicionar GET by ID onde faltar
-
-#### 1.3 Dashboard/Resumo (RF05)
-- [x] Implementar `DashboardService` com queries
-- [x] Endpoint: Card produto mais vendido + quantidade
-- [x] Endpoint: Card cliente mais fiel + compras
-- [x] Endpoint: Card total vendido no período
-- [x] Endpoint: Vendas por dia/mês (gráfico)
-- [x] Endpoint: Top 10 produtos mais vendidos
-- [x] Endpoint: Top 10 produtos mais lucrativos
-- [x] Endpoint: Top 10 clientes mais fiéis
-- [x] Endpoint: Top 10 clientes mais lucrativos
-- [x] Implementar filtro de período (hoje, 7 dias, mês, ano)
-
-### Fase 2 - Módulo de Estoque (RF07)
-
-- [x] Implementar `EstoqueController`
-- [x] Endpoint: Listar produtos com estoque atual
-- [x] Endpoint: Timeline de movimentações por produto
-- [x] Endpoint: Detalhes da movimentação (link para pedido)
-- [x] Implementar Rastreabilidade Reversa
-- [x] Criar lógica de navegação "Voltar" para timeline
-
-### Fase 3 - Integrações e Regras de Negócio
-
-- [x] Integrar API externa para consulta de CNPJ (RN02)
-- [x] Implementar service de consulta de documento (BrasilApiService)
-
-- [x] Endpoint: `/api/clientes/consulta-cnpj/{cnpj}`
-- [x] Popular tabelas de domínio (seed data):
-  - [x] Naturezas de operação padrão
-  - [x] Formas de pagamento padrão
-  - [x] Unidades de medida padrão
-
-### Fase 4 - Frontend (Tauri + React)
-
-- [x] Inicializar projeto Electron + React
-- [x] Configurar React + TypeScript + Vite
-- [x] Criar estrutura de pastas frontend
-- [x] Tela de Login (com setup inicial)
-- [x] Tela de Dashboard com cards
-- [x] Telas de Cadastro (Produtos, Clientes)
-- [x] Tela de Pedidos de Venda/Compra
-- [x] Tela de Estoque com Timeline
-- [x] Implementar navegação inteligente
-
-### Fase 5 - Testes e Qualidade
-
-- [ ] Testes unitários para Services
-- [ ] Testes de integração para Controllers
-- [ ] Testes do sistema FIFO
-- [ ] Validar performance (< 2s por requisito não funcional)
+- Não há instalador publicado. O `electron:build` gera o pacote, mas ele ainda depende de Java instalado na máquina; o passo seguinte é embutir um runtime com `jlink`.
+- O projeto não foi usado em produção; foi modelado a partir de um caso real de atacado de hortifrúti.
+- Edição de pedido já emitido e devolução (além de cancelamento) estão na lista de ideias, ainda sem implementação. A lista completa está em [docs/FEATURES.md](docs/FEATURES.md).

@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
 import * as path from 'path'
 import { spawn, ChildProcess } from 'child_process'
 
@@ -15,7 +15,9 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
     },
-    icon: path.join(__dirname, '../public/icon.png'),
+    icon: isDev
+      ? path.join(__dirname, '../../public/assets/favicon.png')
+      : path.join(__dirname, '../assets/favicon.png'),
   })
 
   if (isDev) {
@@ -63,6 +65,7 @@ function stopBackend() {
 }
 
 app.whenReady().then(() => {
+  Menu.setApplicationMenu(null)
   startBackend()
   
   // Aguarda o backend iniciar (simplificado - em produção usar polling)
